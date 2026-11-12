@@ -198,7 +198,13 @@ class _LabelsPageState extends State<LabelsPage> {
       bottomNavigationBar: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          // Stay above the keyboard while searching.
+          padding: EdgeInsets.fromLTRB(
+            16,
+            16,
+            16,
+            16 + MediaQuery.viewInsetsOf(context).bottom,
+          ),
           child: FilledButton.icon(
             key: const Key('printLabelsButton'),
             onPressed: _total == 0 || _printing ? null : _print,

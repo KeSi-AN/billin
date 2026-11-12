@@ -1,9 +1,9 @@
 # Shop App (working name)
 
 Offline-first billing and inventory for small Indian shops. It runs entirely on an Android phone, with an optional Bluetooth barcode scanner and thermal printer.
-The phased plan is in [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md). **This is build 0.1 (Phase 1: billing MVP).**
+The phased plan is in [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md). **This is build 0.2 (Phase 2: inventory).**
 
-## What build 0.1 does
+## What build 0.2 does
 
 - **Shop setup** on first launch: name, logo, mobile, address, state, and GSTIN with checksum validation (a valid GSTIN fills in the state).
 - **Items**: add, edit, delete and search, with barcode (typed, Bluetooth scanner or camera), price, MRP, unit, GST rate, tax-inclusive/exclusive pricing and HSN.
@@ -16,10 +16,18 @@ The phased plan is in [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md). **This is buil
 - **Printing**: ESC/POS receipts on 58/80 mm Bluetooth thermal printers (classic SPP), with a UPI pay QR. Printer setup screen with test print.
 - **PDF**: A4 tax invoice (or bill of supply if not GST registered), with GST summary, amount in words and UPI QR, shared via the phone's share sheet (WhatsApp etc.).
 - **Sales**: bills by day with totals per payment mode; Home shows today's sales.
+- **Inventory** (build 0.2):
+  - Per-item stock tracking with opening stock and a low-stock level. Every change goes in an append-only ledger (stock in, sale, cancel, adjust) with running balances.
+  - Sales take stock out and cancelled bills put it back. Batches with expiry dates sell first-expiry-first-out.
+  - A second selling unit (box of 12 → 12 pcs).
+  - Categories and subcategories, item photos, list filters (low/out of stock, category) and sorting.
+  - Stock alerts screen (low stock, expiring in 30 days, expired) and a Home tile counting what needs attention. A low-stock notification fires when a sale crosses the level.
+  - **Excel/CSV import** with a preview and per-row error report (updates by barcode, then name), **export** to .xlsx, and a template.
+  - **Barcode labels** on the receipt printer, plus in-store barcodes for loose items.
 - **Settings**: invoice prefix, round-off, UPI ID, bill footer, printer.
 - Everything is stored in a local SQLite database; no internet is needed.
 
-**Not yet verified on real hardware:** Bluetooth printing (no printer tested yet). Shop logos aren't printed on thermal receipts yet; they do appear on the PDF.
+**Not yet verified on real hardware:** Bluetooth printing of receipts and labels (no printer tested yet). Shop logos aren't printed on thermal receipts yet; they do appear on the PDF.
 
 ## Project layout
 

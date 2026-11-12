@@ -274,9 +274,12 @@ class _BillingViewState extends State<_BillingView> {
             ],
           ),
           // Bottom bar slot: snackbars ("not found") appear above it.
-          bottomNavigationBar: _BottomBar(
-            onQuickItem: _quickItem,
-            onCheckout: _checkout,
+          // Padded by the keyboard height so Checkout stays above it.
+          bottomNavigationBar: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.viewInsetsOf(context).bottom,
+            ),
+            child: _BottomBar(onQuickItem: _quickItem, onCheckout: _checkout),
           ),
         ),
       ),
