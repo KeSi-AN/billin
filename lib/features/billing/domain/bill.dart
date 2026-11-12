@@ -110,8 +110,13 @@ class BillLine {
     this.itemId,
     this.hsn,
     this.unitFactor = Quantity.one,
+    this.id,
+    this.cost,
+    this.returned = Quantity.zero,
   });
 
+  /// Database id (needed to return goods against this line).
+  final int? id;
   final int? itemId;
   final String name;
   final String unit;
@@ -126,6 +131,17 @@ class BillLine {
   final Money tax;
   final Money total;
   final Quantity unitFactor;
+
+  /// Cost of the goods on this line (before GST), when known.
+  final Money? cost;
+
+  /// Already returned on credit notes.
+  final Quantity returned;
+
+  Quantity get returnable => quantity - returned;
+
+  /// Taxable value minus cost: what the shop earned on this line.
+  Money? get profit => cost == null ? null : taxable - cost!;
 }
 
 /// A saved bill, exactly as it was charged.
@@ -149,6 +165,9 @@ class Bill {
     this.cancelReason,
     this.partyId,
     this.due = Money.zero,
+    this.interState = false,
+    this.placeOfSupply,
+    this.buyerGstin,
   });
 
   final int id;
@@ -157,6 +176,26 @@ class Bill {
 
   /// Left to pay (credit). Zero for paid bills.
   final Money due;
+
+  /// Sold to another state: IGST instead of CGST + SGST.
+  final bool interState;
+
+  /// GST state code of the buyer, when it isn't the shop's state.
+  final String? placeOfSupply;
+
+  /// The buyer's GSTIN: a B2B invoice.
+  final String? buyerGstin;
+
+  bool get isB2B => buyerGstin != null;
+
+  /// Profit on the lines whose cost is known; null if none are.
+  Money? get profit {
+    final known = lines.where((l) => l.cost != null);
+    if (known.isEmpty) return null;
+    return known.fold<Money>(Money.zero, (s, l) => s + l.profit!);
+  }
+
+  bool get profitIsPartial => lines.any((l) => l.cost == null);
 
   Money get paid => grandTotal - due;
   final DateTime billedAt;

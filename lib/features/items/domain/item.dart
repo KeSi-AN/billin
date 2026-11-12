@@ -56,6 +56,9 @@ abstract class Item with _$Item {
     String? altUnit,
     Quantity? altUnitFactor,
     Money? altUnitPrice,
+
+    /// Cost per base unit before GST; purchases keep it up to date.
+    Money? costPrice,
   }) = _Item;
 
   const Item._();

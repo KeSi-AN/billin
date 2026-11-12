@@ -74,6 +74,12 @@ class Items extends Table {
   TextColumn get altUnit => text().nullable()();
   IntColumn get altUnitFactorMilli => integer().nullable()();
   IntColumn get altUnitPricePaise => integer().nullable()();
+
+  // --- Phase 4 (schema v5) ---
+
+  /// Latest cost per base unit, before GST (input tax is claimed back).
+  /// Updated by purchases; used for profit.
+  IntColumn get costPricePaise => integer().nullable()();
 }
 
 /// Item categories. A category with a parent is a subcategory (one level).
@@ -157,6 +163,17 @@ class Bills extends Table {
   /// Part of the total left to pay later (credit). 0 for paid bills.
   IntColumn get duePaise => integer().withDefault(const Constant(0))();
 
+  // --- Phase 4: GST place of supply (schema v5) ---
+
+  /// Customer's state differs from the shop's: IGST instead of CGST+SGST.
+  BoolColumn get interState => boolean().withDefault(const Constant(false))();
+
+  /// Place of supply (GST state code) when it isn't the shop's state.
+  TextColumn get placeOfSupply => text().nullable()();
+
+  /// Buyer's GSTIN: makes this a B2B invoice.
+  TextColumn get buyerGstin => text().nullable()();
+
   @override
   List<Set<Column<Object>>> get uniqueKeys => [
     {fyStart, sequence},
@@ -176,6 +193,9 @@ class Parties extends Table {
   TextColumn get addressLine => text().nullable()();
   TextColumn get gstin => text().nullable()();
   TextColumn get notes => text().nullable()();
+
+  /// GST state code, for place of supply (IGST vs CGST+SGST). Phase 4.
+  TextColumn get stateCode => text().nullable()();
 
   /// Cached sum of this party's ledger: what they owe the shop (positive)
   /// or the shop owes them (negative, an advance). Written only by the
@@ -237,6 +257,15 @@ class BillLines extends Table {
   /// was sold. Stock moved = quantity × factor.
   IntColumn get unitFactorMilli =>
       integer().withDefault(const Constant(1000))();
+
+  // --- Phase 4 (schema v5) ---
+
+  /// Cost of what this line sold (before GST), for profit. Null when the
+  /// item had no cost price.
+  IntColumn get costPaise => integer().nullable()();
+
+  /// How much of [quantityMilli] has been returned on credit notes.
+  IntColumn get returnedMilli => integer().withDefault(const Constant(0))();
 }
 
 /// Last invoice sequence used in each financial year.
@@ -265,4 +294,112 @@ class AppSettings extends Table {
 
   @override
   List<String> get customConstraints => ['CHECK (id = 1)'];
+}
+
+/// A purchase (stock bought from a supplier). Phase 4.
+@DataClassName('PurchaseRow')
+@TableIndex(name: 'purchases_date', columns: {#purchasedAt})
+class Purchases extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get partyId => integer().nullable().references(Parties, #id)();
+  TextColumn get supplierName => text().nullable()();
+  TextColumn get supplierGstin => text().nullable()();
+
+  /// The supplier's own bill number.
+  TextColumn get supplierInvoiceNo => text().nullable()();
+  DateTimeColumn get purchasedAt => dateTime()();
+  BoolColumn get interState => boolean().withDefault(const Constant(false))();
+  IntColumn get taxablePaise => integer()();
+  IntColumn get taxPaise => integer()();
+  IntColumn get roundOffPaise => integer().withDefault(const Constant(0))();
+  IntColumn get totalPaise => integer()();
+
+  /// Left to pay the supplier.
+  IntColumn get duePaise => integer().withDefault(const Constant(0))();
+  TextColumn get paymentMode => text()();
+  TextColumn get note => text().nullable()();
+  TextColumn get status => text().withDefault(const Constant('completed'))();
+  DateTimeColumn get cancelledAt => dateTime().nullable()();
+}
+
+@DataClassName('PurchaseLineRow')
+class PurchaseLines extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get purchaseId =>
+      integer().references(Purchases, #id, onDelete: KeyAction.cascade)();
+  IntColumn get position => integer()();
+  IntColumn get itemId => integer().nullable().references(Items, #id)();
+  TextColumn get name => text()();
+  TextColumn get unit => text()();
+  TextColumn get hsn => text().nullable()();
+
+  /// In the item's base unit.
+  IntColumn get quantityMilli => integer()();
+  IntColumn get unitCostPaise => integer()();
+  BoolColumn get costIncludesTax => boolean()();
+  IntColumn get taxRateBp => integer()();
+  IntColumn get taxablePaise => integer()();
+  IntColumn get taxPaise => integer()();
+  IntColumn get totalPaise => integer()();
+  TextColumn get batchNo => text().nullable()();
+  DateTimeColumn get expiry => dateTime().nullable()();
+}
+
+/// Shop running costs: rent, salary, electricity... Phase 4.
+@DataClassName('ExpenseRow')
+@TableIndex(name: 'expenses_date', columns: {#spentAt})
+class Expenses extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  DateTimeColumn get spentAt => dateTime()();
+  TextColumn get category => text()();
+  IntColumn get amountPaise => integer()();
+  TextColumn get paymentMode => text()();
+  TextColumn get note => text().nullable()();
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+}
+
+/// Credit note: goods returned against a bill. Phase 4.
+@DataClassName('CreditNoteRow')
+@TableIndex(name: 'credit_notes_date', columns: {#issuedAt})
+class CreditNotes extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get noteNo => text().unique()();
+  IntColumn get fyStart => integer()();
+  IntColumn get sequence => integer()();
+  IntColumn get billId => integer().references(Bills, #id)();
+  DateTimeColumn get issuedAt => dateTime()();
+  TextColumn get reason => text().nullable()();
+  IntColumn get taxablePaise => integer()();
+  IntColumn get taxPaise => integer()();
+  IntColumn get totalPaise => integer()();
+
+  /// How the money went back: `cash`/`upi`/`card` refund, or `credit`
+  /// (taken off the customer's dues).
+  TextColumn get refundMode => text()();
+
+  @override
+  List<Set<Column<Object>>> get uniqueKeys => [
+    {fyStart, sequence},
+  ];
+}
+
+@DataClassName('CreditNoteLineRow')
+class CreditNoteLines extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get creditNoteId =>
+      integer().references(CreditNotes, #id, onDelete: KeyAction.cascade)();
+  IntColumn get billLineId => integer().references(BillLines, #id)();
+  IntColumn get quantityMilli => integer()();
+  IntColumn get taxablePaise => integer()();
+  IntColumn get taxPaise => integer()();
+  IntColumn get totalPaise => integer()();
+}
+
+/// Last credit note number used in each financial year.
+class CreditNoteCounters extends Table {
+  IntColumn get fyStart => integer()();
+  IntColumn get lastSequence => integer()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {fyStart};
 }

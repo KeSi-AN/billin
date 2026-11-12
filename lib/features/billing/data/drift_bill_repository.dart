@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:shop_app/core/db/app_database.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/money/quantity.dart';
+import 'package:shop_app/core/money/rounding.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
 import 'package:shop_app/features/billing/domain/invoice_number.dart';
@@ -63,6 +64,36 @@ class DriftBillRepository implements BillRepository {
             ),
           );
 
+      // Place of supply: a customer in another state means IGST; a
+      // customer with a GSTIN makes this a B2B invoice.
+      final party = draft.partyId == null
+          ? null
+          : await (_db.select(
+              _db.parties,
+            )..where((p) => p.id.equals(draft.partyId!))).getSingleOrNull();
+      final shop = await _db.select(_db.shopProfiles).getSingleOrNull();
+      final partyState = party?.stateCode;
+      final interState =
+          partyState != null && shop != null && partyState != shop.stateCode;
+
+      // Cost of goods per line (before GST), for profit.
+      final costs = <int?>[];
+      for (final line in draft.lines) {
+        if (line.itemId == null) {
+          costs.add(null);
+          continue;
+        }
+        final item = await (_db.select(
+          _db.items,
+        )..where((t) => t.id.equals(line.itemId!))).getSingleOrNull();
+        final unitCost = item?.costPricePaise;
+        costs.add(
+          unitCost == null
+              ? null
+              : divRound(unitCost * line.baseQuantity.milli, 1000),
+        );
+      }
+
       final billId = await _db
           .into(_db.bills)
           .insert(
@@ -86,13 +117,22 @@ class DriftBillRepository implements BillRepository {
               paymentMode: draft.paymentMode.name,
               partyId: Value(draft.partyId),
               duePaise: Value(_due(draft, totals.grandTotal).paise),
+              interState: Value(interState),
+              placeOfSupply: Value(interState ? partyState : null),
+              buyerGstin: Value(party?.gstin),
             ),
           );
 
       await _db.batch((batch) {
         batch.insertAll(_db.billLines, [
           for (var i = 0; i < draft.lines.length; i++)
-            _lineCompanion(billId, i, draft.lines[i], totals.lines[i]),
+            _lineCompanion(
+              billId,
+              i,
+              draft.lines[i],
+              totals.lines[i],
+              costs[i],
+            ),
         ]);
       });
 
@@ -134,6 +174,7 @@ class DriftBillRepository implements BillRepository {
     int position,
     DraftLine line,
     LineAmounts amounts,
+    int? costPaise,
   ) => BillLinesCompanion.insert(
     billId: billId,
     position: position,
@@ -151,6 +192,7 @@ class DriftBillRepository implements BillRepository {
     taxPaise: amounts.tax.paise,
     totalPaise: amounts.total.paise,
     unitFactorMilli: Value(line.unitFactor.milli),
+    costPaise: Value(costPaise),
   );
 
   @override
@@ -230,6 +272,9 @@ class DriftBillRepository implements BillRepository {
     cancelReason: r.cancelReason,
     partyId: r.partyId,
     due: Money.paise(r.duePaise),
+    interState: r.interState,
+    placeOfSupply: r.placeOfSupply,
+    buyerGstin: r.buyerGstin,
     lines: [
       for (final l in lines)
         BillLine(
@@ -247,6 +292,9 @@ class DriftBillRepository implements BillRepository {
           tax: Money.paise(l.taxPaise),
           total: Money.paise(l.totalPaise),
           unitFactor: Quantity.milli(l.unitFactorMilli),
+          id: l.id,
+          cost: l.costPaise == null ? null : Money.paise(l.costPaise!),
+          returned: Quantity.milli(l.returnedMilli),
         ),
     ],
   );

@@ -24,13 +24,19 @@ part 'app_database.g.dart';
     StockMovements,
     Parties,
     PartyEntries,
+    Purchases,
+    PurchaseLines,
+    Expenses,
+    CreditNotes,
+    CreditNoteLines,
+    CreditNoteCounters,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -78,6 +84,29 @@ class AppDatabase extends _$AppDatabase {
         await m.createIndex(schema.partyEntriesParty);
         await m.addColumn(schema.bills, schema.bills.partyId);
         await m.addColumn(schema.bills, schema.bills.duePaise);
+      },
+      // Phase 4 (build 0.4): purchases, expenses, returns, full GST.
+      from4To5: (m, schema) async {
+        await m.addColumn(schema.items, schema.items.costPricePaise);
+        await m.addColumn(schema.parties, schema.parties.stateCode);
+        for (final c in [
+          schema.bills.interState,
+          schema.bills.placeOfSupply,
+          schema.bills.buyerGstin,
+        ]) {
+          await m.addColumn(schema.bills, c);
+        }
+        await m.addColumn(schema.billLines, schema.billLines.costPaise);
+        await m.addColumn(schema.billLines, schema.billLines.returnedMilli);
+        await m.createTable(schema.purchases);
+        await m.createIndex(schema.purchasesDate);
+        await m.createTable(schema.purchaseLines);
+        await m.createTable(schema.expenses);
+        await m.createIndex(schema.expensesDate);
+        await m.createTable(schema.creditNotes);
+        await m.createIndex(schema.creditNotesDate);
+        await m.createTable(schema.creditNoteLines);
+        await m.createTable(schema.creditNoteCounters);
       },
     ),
     beforeOpen: (details) async {

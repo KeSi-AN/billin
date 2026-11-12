@@ -16,6 +16,9 @@ abstract class Party with _$Party {
     String? addressLine,
     String? gstin,
     String? notes,
+
+    /// GST state code (place of supply). Filled from the GSTIN if given.
+    String? stateCode,
     @Default(PartyType.customer) PartyType type,
 
     /// What they owe the shop (+), or an advance the shop holds (−).
@@ -28,7 +31,19 @@ abstract class Party with _$Party {
   bool get hasDue => balance > Money.zero;
 }
 
-enum EntryType { opening, sale, payment, cancel, adjust }
+enum EntryType {
+  opening,
+  sale,
+  payment,
+  cancel,
+  adjust,
+
+  /// Supplier bill not yet paid (+ = the shop owes more). Phase 4.
+  purchase,
+
+  /// Goods returned against a credit bill (− = they owe less). Phase 4.
+  salesReturn,
+}
 
 /// One line in a customer's khata.
 class PartyEntry {

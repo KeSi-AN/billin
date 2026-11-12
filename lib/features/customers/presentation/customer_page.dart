@@ -154,6 +154,8 @@ class EntryTile extends StatelessWidget {
       EntryType.payment => l10n.entryPayment,
       EntryType.cancel => l10n.entryCancel(invoice),
       EntryType.adjust => l10n.entryAdjust,
+      EntryType.purchase => l10n.entryPurchase,
+      EntryType.salesReturn => l10n.entryReturn(invoice),
     };
     final sub = [
       formatDateTime(e.at),

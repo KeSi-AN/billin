@@ -2211,6 +2211,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account statement for {name} from {shop}'**
   String statementShareText(String name, String shop);
+
+  /// No description provided for @movementPurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchased'**
+  String get movementPurchase;
+
+  /// No description provided for @movementReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned · {invoice}'**
+  String movementReturn(String invoice);
+
+  /// No description provided for @entryPurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase'**
+  String get entryPurchase;
+
+  /// No description provided for @entryReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Goods returned · {invoice}'**
+  String entryReturn(String invoice);
 }
 
 class _AppLocalizationsDelegate

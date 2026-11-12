@@ -186,6 +186,8 @@ class _MovementTile extends StatelessWidget {
       MovementType.sale => l10n.movementSale(invoice),
       MovementType.cancel => l10n.movementCancel(invoice),
       MovementType.adjust => l10n.movementAdjust,
+      MovementType.purchase => l10n.movementPurchase,
+      MovementType.salesReturn => l10n.movementReturn(invoice),
     };
     final sub = [
       DateFormat('d MMM, h:mm a', appLocale).format(m.at),

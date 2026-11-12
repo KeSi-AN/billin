@@ -886,5 +886,23 @@
         "type": "String"
       }
     }
+  },
+  "movementPurchase": "Purchased",
+  "movementReturn": "Returned · {invoice}",
+  "@movementReturn": {
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      }
+    }
+  },
+  "entryPurchase": "Purchase",
+  "entryReturn": "Goods returned · {invoice}",
+  "@entryReturn": {
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      }
+    }
   }
 }

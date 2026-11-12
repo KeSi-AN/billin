@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:shop_app/core/db/app_database.dart';
+import 'package:shop_app/core/india/gstin.dart';
 import 'package:shop_app/core/india/phone.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
@@ -99,6 +100,7 @@ class DriftPartyRepository implements PartyRepository {
       addressLine: Value(_blankToNull(party.addressLine)),
       gstin: Value(_blankToNull(party.gstin)?.toUpperCase()),
       notes: Value(_blankToNull(party.notes)),
+      stateCode: Value(_stateFor(party)),
       updatedAt: Value(now),
     );
     final int id;
@@ -205,8 +207,18 @@ class DriftPartyRepository implements PartyRepository {
     addressLine: r.addressLine,
     gstin: r.gstin,
     notes: r.notes,
+    stateCode: r.stateCode,
     balance: Money.paise(r.balancePaise),
   );
+
+  /// A GSTIN's first two digits are its state; otherwise what was chosen.
+  static String? _stateFor(Party p) {
+    final gstin = _blankToNull(p.gstin);
+    if (gstin != null && Gstin.validate(gstin) == null) {
+      return Gstin.stateCode(gstin);
+    }
+    return _blankToNull(p.stateCode);
+  }
 
   static String? _blankToNull(String? v) {
     final t = v?.trim();

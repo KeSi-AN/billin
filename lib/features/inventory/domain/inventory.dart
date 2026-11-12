@@ -1,7 +1,19 @@
 import 'package:shop_app/core/money/quantity.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 
-enum MovementType { opening, stockIn, sale, cancel, adjust }
+enum MovementType {
+  opening,
+  stockIn,
+  sale,
+  cancel,
+  adjust,
+
+  /// Bought from a supplier (Phase 4).
+  purchase,
+
+  /// Came back on a credit note (Phase 4).
+  salesReturn,
+}
 
 class Category {
   const Category({required this.id, required this.name, this.parentId});

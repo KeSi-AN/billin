@@ -39,6 +39,8 @@ class StatementPdf {
               'Payment received${e.paymentMode == null ? '' : ' (${e.paymentMode!.name.toUpperCase()})'}',
             EntryType.cancel => 'Bill $inv cancelled',
             EntryType.adjust => 'Adjustment',
+            EntryType.purchase => 'Purchase',
+            EntryType.salesReturn => 'Goods returned (bill $inv)',
           } +
           (e.note != null && e.billId == null ? ' - ${e.note}' : '');
     }

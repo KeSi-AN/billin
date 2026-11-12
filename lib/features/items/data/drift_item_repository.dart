@@ -130,6 +130,7 @@ class DriftItemRepository implements ItemRepository {
       altUnitPricePaise: Value(
         item.hasAltUnit ? item.altUnitPrice?.paise : null,
       ),
+      costPricePaise: Value(item.costPrice?.paise),
       // stockMilli is deliberately absent: only the stock ledger writes it.
       updatedAt: Value(now),
     );
@@ -193,6 +194,8 @@ class DriftItemRepository implements ItemRepository {
     altUnitPrice: r.altUnitPricePaise == null
         ? null
         : Money.paise(r.altUnitPricePaise!),
+
+    costPrice: r.costPricePaise == null ? null : Money.paise(r.costPricePaise!),
   );
 
   static String? _blankToNull(String? v) {

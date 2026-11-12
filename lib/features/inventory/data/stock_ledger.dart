@@ -50,6 +50,34 @@ class StockLedger {
     }
   }
 
+  /// The batch [batchNo] of an item, created if new (and its expiry
+  /// updated when one is given).
+  Future<int> batchFor(int itemId, String batchNo, DateTime? expiry) async {
+    final existing =
+        await (_db.select(_db.itemBatches)..where(
+              (b) => b.itemId.equals(itemId) & b.batchNo.equals(batchNo),
+            ))
+            .getSingleOrNull();
+    if (existing != null) {
+      if (expiry != null && existing.expiry != expiry) {
+        await (_db.update(_db.itemBatches)
+              ..where((b) => b.id.equals(existing.id)))
+            .write(ItemBatchesCompanion(expiry: Value(expiry)));
+      }
+      return existing.id;
+    }
+    return await _db
+        .into(_db.itemBatches)
+        .insert(
+          ItemBatchesCompanion.insert(
+            itemId: itemId,
+            batchNo: batchNo,
+            expiry: Value(expiry),
+            createdAt: _clock(),
+          ),
+        );
+  }
+
   /// Takes [quantityMilli] (positive, base units) out for a sale. Batch
   /// items are drawn first-expiry-first-out; anything the batches can't
   /// cover is recorded without a batch (stock goes negative, which shops

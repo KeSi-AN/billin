@@ -7,11 +7,10 @@ import 'package:shop_app/features/items/data/drift_item_repository.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 
 class DriftInventoryRepository implements InventoryRepository {
-  DriftInventoryRepository(this._db, {this._clock = DateTime.now})
-    : _ledger = StockLedger(_db, _clock);
+  DriftInventoryRepository(this._db, {DateTime Function() clock = DateTime.now})
+    : _ledger = StockLedger(_db, clock);
 
   final AppDatabase _db;
-  final DateTime Function() _clock;
   final StockLedger _ledger;
 
   @override
@@ -70,7 +69,7 @@ class DriftInventoryRepository implements InventoryRepository {
     if (item.tracksBatches) {
       final no = batchNo?.trim() ?? '';
       if (no.isEmpty) throw const BatchRequiredException();
-      batchId = await _findOrCreateBatch(itemId, no, expiry);
+      batchId = await _ledger.batchFor(itemId, no, expiry);
     }
     await _ledger.post(
       itemId: itemId,
@@ -80,35 +79,6 @@ class DriftInventoryRepository implements InventoryRepository {
       note: _blankToNull(note),
     );
   });
-
-  Future<int> _findOrCreateBatch(
-    int itemId,
-    String no,
-    DateTime? expiry,
-  ) async {
-    final existing =
-        await (_db.select(_db.itemBatches)
-              ..where((b) => b.itemId.equals(itemId) & b.batchNo.equals(no)))
-            .getSingleOrNull();
-    if (existing != null) {
-      if (expiry != null && existing.expiry != expiry) {
-        await (_db.update(_db.itemBatches)
-              ..where((b) => b.id.equals(existing.id)))
-            .write(ItemBatchesCompanion(expiry: Value(expiry)));
-      }
-      return existing.id;
-    }
-    return await _db
-        .into(_db.itemBatches)
-        .insert(
-          ItemBatchesCompanion.insert(
-            itemId: itemId,
-            batchNo: no,
-            expiry: Value(expiry),
-            createdAt: _clock(),
-          ),
-        );
-  }
 
   @override
   Future<void> adjustStock(

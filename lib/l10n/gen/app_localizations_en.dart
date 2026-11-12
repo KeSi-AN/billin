@@ -1265,4 +1265,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String statementShareText(String name, String shop) {
     return 'Account statement for $name from $shop';
   }
+
+  @override
+  String get movementPurchase => 'Purchased';
+
+  @override
+  String movementReturn(String invoice) {
+    return 'Returned · $invoice';
+  }
+
+  @override
+  String get entryPurchase => 'Purchase';
+
+  @override
+  String entryReturn(String invoice) {
+    return 'Goods returned · $invoice';
+  }
 }
