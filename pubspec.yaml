@@ -1,0 +1,51 @@
+name: shop_app
+description: "Offline-first billing and inventory for small shops"
+publish_to: 'none'
+
+# Build 0.0 = Phase 0 (foundation). See docs/BUILD_PLAN.md.
+version: 0.0.1+1
+
+environment:
+  sdk: ^3.14.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  material_ui: ^1.1.0
+  cupertino_icons: ^1.0.8
+
+  # State, navigation
+  flutter_bloc: ^9.1.1
+  equatable: ^3.0.0
+  go_router: ^18.1.4
+
+  # Local database (offline-first source of truth)
+  drift: ^2.35.4
+  drift_flutter: ^0.3.1
+  path_provider: ^2.1.6
+
+  # Models, formatting
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
+  intl: ^0.20.3
+
+  # Shop logo
+  image_picker: ^1.2.4
+  path: ^1.9.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: ^11.0.0
+  build_runner: ^2.17.1
+  drift_dev: ^2.35.3
+  freezed: ^4.0.3
+  json_serializable: ^6.15.2
+  bloc_test: ^10.0.0
+  mocktail: ^1.0.5
+
+flutter:
+  uses-material-design: true
+  generate: true

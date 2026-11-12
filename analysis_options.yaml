@@ -1,0 +1,19 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - lib/l10n/gen/**
+
+linter:
+  rules:
+    # App code, not a published package: doc comments where they help, not everywhere.
+    public_member_api_docs: false
+    lines_longer_than_80_chars: false
+    # Keep classic `ClassName(...)` constructors: familiar and well documented.
+    unnecessary_type_name_in_constructor: false
+    # pubspec dependencies are grouped by purpose instead.
+    sort_pub_dependencies: false
