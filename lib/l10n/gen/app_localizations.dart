@@ -1875,6 +1875,342 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show shop name'**
   String get labelsShowShop;
+
+  /// No description provided for @customersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get customersTitle;
+
+  /// No description provided for @customersTotalDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Total due'**
+  String get customersTotalDue;
+
+  /// No description provided for @customersSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search name or mobile'**
+  String get customersSearchHint;
+
+  /// No description provided for @customersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No customers yet. Add the people you sell to on credit.'**
+  String get customersEmpty;
+
+  /// No description provided for @customersNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No customers match'**
+  String get customersNoMatch;
+
+  /// No description provided for @filterWithDues.
+  ///
+  /// In en, this message translates to:
+  /// **'With dues'**
+  String get filterWithDues;
+
+  /// No description provided for @sortDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due: highest first'**
+  String get sortDue;
+
+  /// No description provided for @sortRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently active'**
+  String get sortRecent;
+
+  /// No description provided for @customerAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add customer'**
+  String get customerAdd;
+
+  /// No description provided for @customerNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New customer'**
+  String get customerNew;
+
+  /// No description provided for @customerEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit customer'**
+  String get customerEdit;
+
+  /// No description provided for @customerSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer saved'**
+  String get customerSaved;
+
+  /// No description provided for @customerDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer removed'**
+  String get customerDeleted;
+
+  /// No description provided for @customerDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \"{name}\"? Their past bills stay.'**
+  String customerDeleteConfirm(String name);
+
+  /// No description provided for @customerHasBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle {amount} before removing this customer'**
+  String customerHasBalance(String amount);
+
+  /// No description provided for @errDuplicatePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number already used by \"{name}\"'**
+  String errDuplicatePhone(String name);
+
+  /// No description provided for @fieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get fieldName;
+
+  /// No description provided for @fieldNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get fieldNotes;
+
+  /// No description provided for @fieldOpeningDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Already owes (opening due)'**
+  String get fieldOpeningDue;
+
+  /// No description provided for @openingDueHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Money they owed before you started using the app'**
+  String get openingDueHelp;
+
+  /// No description provided for @pickFromContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick from contacts'**
+  String get pickFromContacts;
+
+  /// No description provided for @balanceDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {amount}'**
+  String balanceDue(String amount);
+
+  /// No description provided for @balanceAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance {amount}'**
+  String balanceAdvance(String amount);
+
+  /// No description provided for @balanceSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get balanceSettled;
+
+  /// No description provided for @receivePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive payment'**
+  String get receivePayment;
+
+  /// No description provided for @receivePaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment from {name}'**
+  String receivePaymentTitle(String name);
+
+  /// No description provided for @paymentAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount received'**
+  String get paymentAmount;
+
+  /// No description provided for @payFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Full {amount}'**
+  String payFull(String amount);
+
+  /// No description provided for @paymentSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment of {amount} recorded'**
+  String paymentSaved(String amount);
+
+  /// No description provided for @errPaymentZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount above zero'**
+  String get errPaymentZero;
+
+  /// No description provided for @remindWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind'**
+  String get remindWhatsApp;
+
+  /// No description provided for @statement.
+  ///
+  /// In en, this message translates to:
+  /// **'Statement'**
+  String get statement;
+
+  /// No description provided for @ledgerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Khata'**
+  String get ledgerTitle;
+
+  /// No description provided for @ledgerEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries yet'**
+  String get ledgerEmpty;
+
+  /// No description provided for @entryOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening due'**
+  String get entryOpening;
+
+  /// No description provided for @entrySale.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill {invoice}'**
+  String entrySale(String invoice);
+
+  /// No description provided for @entryPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received'**
+  String get entryPayment;
+
+  /// No description provided for @entryPaidAtBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid at billing · {invoice}'**
+  String entryPaidAtBilling(String invoice);
+
+  /// No description provided for @entryCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill cancelled · {invoice}'**
+  String entryCancel(String invoice);
+
+  /// No description provided for @entryAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment'**
+  String get entryAdjust;
+
+  /// No description provided for @checkoutPickCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose customer'**
+  String get checkoutPickCustomer;
+
+  /// No description provided for @checkoutChangeCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get checkoutChangeCustomer;
+
+  /// No description provided for @checkoutCustomerNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a customer for a credit sale'**
+  String get checkoutCustomerNeeded;
+
+  /// No description provided for @checkoutPaidNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid now'**
+  String get checkoutPaidNow;
+
+  /// No description provided for @checkoutPaidNowHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The rest is added to their dues'**
+  String get checkoutPaidNowHelp;
+
+  /// No description provided for @checkoutDueAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} will be added to dues'**
+  String checkoutDueAfter(String amount);
+
+  /// No description provided for @customerCurrentDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Currently owes {amount}'**
+  String customerCurrentDue(String amount);
+
+  /// No description provided for @customerPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get customerPickerTitle;
+
+  /// No description provided for @customerPickerNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New customer \"{name}\"'**
+  String customerPickerNew(String name);
+
+  /// No description provided for @billPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get billPaid;
+
+  /// No description provided for @billDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get billDue;
+
+  /// No description provided for @salesDueTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {amount}'**
+  String salesDueTag(String amount);
+
+  /// No description provided for @homeCustomersDue.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} due'**
+  String homeCustomersDue(String amount);
+
+  /// No description provided for @homeCustomersNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No dues'**
+  String get homeCustomersNone;
+
+  /// No description provided for @whatsAppMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open WhatsApp'**
+  String get whatsAppMissing;
+
+  /// No description provided for @statementShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Account statement for {name} from {shop}'**
+  String statementShareText(String name, String shop);
 }
 
 class _AppLocalizationsDelegate

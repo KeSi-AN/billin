@@ -8,6 +8,7 @@ import 'package:shop_app/core/money/rounding.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
+import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/inventory/domain/stock_alerts.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
@@ -277,8 +278,8 @@ class BillingCubit extends Cubit<BillingState> {
   Future<Bill> save({
     required PaymentMode paymentMode,
     Money billDiscount = Money.zero,
-    String? customerName,
-    String? customerPhone,
+    Party? customer,
+    Money paidNow = Money.zero,
   }) async {
     // Stock before the sale, to spot items that cross their low level.
     final before = <Item>[];
@@ -299,8 +300,10 @@ class BillingCubit extends Cubit<BillingState> {
         lines: state.lines,
         billDiscount: billDiscount,
         paymentMode: paymentMode,
-        customerName: customerName,
-        customerPhone: customerPhone,
+        customerName: customer?.name,
+        customerPhone: customer?.phone,
+        partyId: customer?.id,
+        paidNow: paidNow,
       ),
     );
     clear();

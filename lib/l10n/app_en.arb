@@ -708,5 +708,183 @@
     }
   },
   "labelsShowPrice": "Show price",
-  "labelsShowShop": "Show shop name"
+  "labelsShowShop": "Show shop name",
+  "customersTitle": "Customers",
+  "customersTotalDue": "Total due",
+  "customersSearchHint": "Search name or mobile",
+  "customersEmpty": "No customers yet. Add the people you sell to on credit.",
+  "customersNoMatch": "No customers match",
+  "filterWithDues": "With dues",
+  "sortDue": "Due: highest first",
+  "sortRecent": "Recently active",
+  "customerAdd": "Add customer",
+  "customerNew": "New customer",
+  "customerEdit": "Edit customer",
+  "customerSaved": "Customer saved",
+  "customerDeleted": "Customer removed",
+  "customerDeleteConfirm": "Remove \"{name}\"? Their past bills stay.",
+  "@customerDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerHasBalance": "Settle {amount} before removing this customer",
+  "@customerHasBalance": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "errDuplicatePhone": "Mobile number already used by \"{name}\"",
+  "@errDuplicatePhone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldName": "Name",
+  "fieldNotes": "Notes",
+  "fieldOpeningDue": "Already owes (opening due)",
+  "openingDueHelp": "Money they owed before you started using the app",
+  "pickFromContacts": "Pick from contacts",
+  "balanceDue": "Due {amount}",
+  "@balanceDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "balanceAdvance": "Advance {amount}",
+  "@balanceAdvance": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "balanceSettled": "Settled",
+  "receivePayment": "Receive payment",
+  "receivePaymentTitle": "Payment from {name}",
+  "@receivePaymentTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentAmount": "Amount received",
+  "payFull": "Full {amount}",
+  "@payFull": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentSaved": "Payment of {amount} recorded",
+  "@paymentSaved": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "errPaymentZero": "Enter an amount above zero",
+  "remindWhatsApp": "Remind",
+  "statement": "Statement",
+  "ledgerTitle": "Khata",
+  "ledgerEmpty": "No entries yet",
+  "entryOpening": "Opening due",
+  "entrySale": "Bill {invoice}",
+  "@entrySale": {
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      }
+    }
+  },
+  "entryPayment": "Payment received",
+  "entryPaidAtBilling": "Paid at billing · {invoice}",
+  "@entryPaidAtBilling": {
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      }
+    }
+  },
+  "entryCancel": "Bill cancelled · {invoice}",
+  "@entryCancel": {
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      }
+    }
+  },
+  "entryAdjust": "Adjustment",
+  "checkoutPickCustomer": "Choose customer",
+  "checkoutChangeCustomer": "Change",
+  "checkoutCustomerNeeded": "Choose a customer for a credit sale",
+  "checkoutPaidNow": "Paid now",
+  "checkoutPaidNowHelp": "The rest is added to their dues",
+  "checkoutDueAfter": "{amount} will be added to dues",
+  "@checkoutDueAfter": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "customerCurrentDue": "Currently owes {amount}",
+  "@customerCurrentDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "customerPickerTitle": "Customer",
+  "customerPickerNew": "New customer \"{name}\"",
+  "@customerPickerNew": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "billPaid": "Paid",
+  "billDue": "Due",
+  "salesDueTag": "Due {amount}",
+  "@salesDueTag": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "homeCustomersDue": "{amount} due",
+  "@homeCustomersDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "homeCustomersNone": "No dues",
+  "whatsAppMissing": "Couldn't open WhatsApp",
+  "statementShareText": "Account statement for {name} from {shop}",
+  "@statementShareText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "shop": {
+        "type": "String"
+      }
+    }
+  }
 }

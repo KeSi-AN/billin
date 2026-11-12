@@ -4,6 +4,9 @@ import 'package:shop_app/app/app.dart';
 import 'package:shop_app/core/db/app_database.dart';
 import 'package:shop_app/core/format/dates.dart';
 import 'package:shop_app/features/billing/data/drift_bill_repository.dart';
+import 'package:shop_app/features/customers/data/channel_contact_picker.dart';
+import 'package:shop_app/features/customers/data/drift_party_repository.dart';
+import 'package:shop_app/features/customers/presentation/app_customer_actions.dart';
 import 'package:shop_app/features/inventory/data/drift_inventory_repository.dart';
 import 'package:shop_app/features/inventory/data/notification_stock_alerts.dart';
 import 'package:shop_app/features/items/data/drift_item_repository.dart';
@@ -24,6 +27,7 @@ Future<void> main() async {
   );
   final settings = DriftSettingsRepository(db);
   final printer = PrinterService(MethodChannelPrinterTransport(), settings);
+  final parties = DriftPartyRepository(db);
 
   runApp(
     ShopApp(
@@ -38,6 +42,15 @@ Future<void> main() async {
         printer: printer,
         inventory: DriftInventoryRepository(db),
         stockAlerts: NotificationStockAlerts(),
+        parties: parties,
+        contactPicker: ChannelContactPicker(),
+        customerActions: AppCustomerActions(
+          parties: parties,
+          shopProfiles: shopProfiles,
+          settings: settings,
+          tempDir: getTemporaryDirectory,
+          shareFile: shareFileWithSystem,
+        ),
         billActions: AppBillActions(
           printer: printer,
           settings: settings,

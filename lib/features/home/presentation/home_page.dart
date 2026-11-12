@@ -5,6 +5,7 @@ import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/india/indian_states.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
+import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/inventory/domain/inventory.dart';
 import 'package:shop_app/features/inventory/presentation/stock_overview_page.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile.dart';
@@ -83,10 +84,21 @@ class HomePage extends StatelessWidget {
                   onTap: () => context.push(AppRoutes.stock),
                 ),
               ),
-              _ActionTile(
-                icon: Icons.people_outline,
-                label: l10n.actionCustomers,
-                comingSoon: true,
+              StreamBuilder<Money>(
+                stream: context.read<PartyRepository>().watchTotalDue(),
+                builder: (context, snapshot) {
+                  final due = snapshot.data ?? Money.zero;
+                  return _ActionTile(
+                    key: const Key('customersTile'),
+                    icon: Icons.people_outline,
+                    label: l10n.actionCustomers,
+                    subtitle: due.isPositive
+                        ? l10n.homeCustomersDue(due.format())
+                        : l10n.homeCustomersNone,
+                    alert: due.isPositive,
+                    onTap: () => context.push(AppRoutes.customers),
+                  );
+                },
               ),
               _ActionTile(
                 icon: Icons.bar_chart_outlined,

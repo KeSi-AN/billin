@@ -16,7 +16,8 @@ import 'package:shop_app/l10n/gen/app_localizations.dart';
 
 typedef ShareFile = Future<void> Function(String path, String text);
 
-Future<void> _shareWithSystem(String path, String text) async {
+/// Opens the system share sheet for a file.
+Future<void> shareFileWithSystem(String path, String text) async {
   await SharePlus.instance.share(
     ShareParams(
       files: [XFile(path, mimeType: 'application/pdf')],
@@ -32,7 +33,7 @@ class AppBillActions implements BillActions {
     required this.settings,
     required this.shopProfiles,
     required this.tempDir,
-    this.shareFile = _shareWithSystem,
+    this.shareFile = shareFileWithSystem,
   });
 
   final PrinterService printer;

@@ -177,6 +177,8 @@ class _BillTile extends StatelessWidget {
           time,
           l10n.billingItemsCount(bill.lineCount),
           ?bill.customerName,
+          if (bill.due.isPositive && !bill.isCancelled)
+            l10n.salesDueTag(bill.due.format()),
           if (bill.isCancelled) l10n.billCancelled,
         ].join(' · '),
       ),

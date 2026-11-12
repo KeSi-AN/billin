@@ -170,9 +170,19 @@ class _BillBody extends StatelessWidget {
           style: text.bodyMedium,
         ),
         if (bill.customerName != null || bill.customerPhone != null)
-          Text(
-            '${l10n.billCustomer}: ${[bill.customerName, if (bill.customerPhone != null) '+91 ${bill.customerPhone}'].whereType<String>().join(' · ')}',
-            style: text.bodyMedium,
+          InkWell(
+            // Linked customer: open their khata.
+            onTap: bill.partyId == null
+                ? null
+                : () => context.push(AppRoutes.customer(bill.partyId!)),
+            child: Text(
+              '${l10n.billCustomer}: ${[bill.customerName, if (bill.customerPhone != null) '+91 ${bill.customerPhone}'].whereType<String>().join(' · ')}',
+              style: text.bodyMedium?.copyWith(
+                decoration: bill.partyId == null
+                    ? null
+                    : TextDecoration.underline,
+              ),
+            ),
           ),
         const Divider(height: 24),
         for (final line in bill.lines)
@@ -223,6 +233,10 @@ class _BillBody extends StatelessWidget {
           amountRow(l10n.checkoutRoundOff, bill.roundOff),
         const SizedBox(height: 4),
         amountRow(l10n.checkoutGrandTotal, bill.grandTotal, strong: true),
+        if (bill.due.isPositive && !bill.isCancelled) ...[
+          amountRow(l10n.billPaid, bill.paid),
+          amountRow(l10n.billDue, bill.due),
+        ],
         if (!bill.totalDiscount.isZero)
           Padding(
             padding: const EdgeInsets.only(top: 8),

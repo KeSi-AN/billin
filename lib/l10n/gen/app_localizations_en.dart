@@ -1061,4 +1061,208 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get labelsShowShop => 'Show shop name';
+
+  @override
+  String get customersTitle => 'Customers';
+
+  @override
+  String get customersTotalDue => 'Total due';
+
+  @override
+  String get customersSearchHint => 'Search name or mobile';
+
+  @override
+  String get customersEmpty =>
+      'No customers yet. Add the people you sell to on credit.';
+
+  @override
+  String get customersNoMatch => 'No customers match';
+
+  @override
+  String get filterWithDues => 'With dues';
+
+  @override
+  String get sortDue => 'Due: highest first';
+
+  @override
+  String get sortRecent => 'Recently active';
+
+  @override
+  String get customerAdd => 'Add customer';
+
+  @override
+  String get customerNew => 'New customer';
+
+  @override
+  String get customerEdit => 'Edit customer';
+
+  @override
+  String get customerSaved => 'Customer saved';
+
+  @override
+  String get customerDeleted => 'Customer removed';
+
+  @override
+  String customerDeleteConfirm(String name) {
+    return 'Remove \"$name\"? Their past bills stay.';
+  }
+
+  @override
+  String customerHasBalance(String amount) {
+    return 'Settle $amount before removing this customer';
+  }
+
+  @override
+  String errDuplicatePhone(String name) {
+    return 'Mobile number already used by \"$name\"';
+  }
+
+  @override
+  String get fieldName => 'Name';
+
+  @override
+  String get fieldNotes => 'Notes';
+
+  @override
+  String get fieldOpeningDue => 'Already owes (opening due)';
+
+  @override
+  String get openingDueHelp =>
+      'Money they owed before you started using the app';
+
+  @override
+  String get pickFromContacts => 'Pick from contacts';
+
+  @override
+  String balanceDue(String amount) {
+    return 'Due $amount';
+  }
+
+  @override
+  String balanceAdvance(String amount) {
+    return 'Advance $amount';
+  }
+
+  @override
+  String get balanceSettled => 'Settled';
+
+  @override
+  String get receivePayment => 'Receive payment';
+
+  @override
+  String receivePaymentTitle(String name) {
+    return 'Payment from $name';
+  }
+
+  @override
+  String get paymentAmount => 'Amount received';
+
+  @override
+  String payFull(String amount) {
+    return 'Full $amount';
+  }
+
+  @override
+  String paymentSaved(String amount) {
+    return 'Payment of $amount recorded';
+  }
+
+  @override
+  String get errPaymentZero => 'Enter an amount above zero';
+
+  @override
+  String get remindWhatsApp => 'Remind';
+
+  @override
+  String get statement => 'Statement';
+
+  @override
+  String get ledgerTitle => 'Khata';
+
+  @override
+  String get ledgerEmpty => 'No entries yet';
+
+  @override
+  String get entryOpening => 'Opening due';
+
+  @override
+  String entrySale(String invoice) {
+    return 'Bill $invoice';
+  }
+
+  @override
+  String get entryPayment => 'Payment received';
+
+  @override
+  String entryPaidAtBilling(String invoice) {
+    return 'Paid at billing · $invoice';
+  }
+
+  @override
+  String entryCancel(String invoice) {
+    return 'Bill cancelled · $invoice';
+  }
+
+  @override
+  String get entryAdjust => 'Adjustment';
+
+  @override
+  String get checkoutPickCustomer => 'Choose customer';
+
+  @override
+  String get checkoutChangeCustomer => 'Change';
+
+  @override
+  String get checkoutCustomerNeeded => 'Choose a customer for a credit sale';
+
+  @override
+  String get checkoutPaidNow => 'Paid now';
+
+  @override
+  String get checkoutPaidNowHelp => 'The rest is added to their dues';
+
+  @override
+  String checkoutDueAfter(String amount) {
+    return '$amount will be added to dues';
+  }
+
+  @override
+  String customerCurrentDue(String amount) {
+    return 'Currently owes $amount';
+  }
+
+  @override
+  String get customerPickerTitle => 'Customer';
+
+  @override
+  String customerPickerNew(String name) {
+    return 'New customer \"$name\"';
+  }
+
+  @override
+  String get billPaid => 'Paid';
+
+  @override
+  String get billDue => 'Due';
+
+  @override
+  String salesDueTag(String amount) {
+    return 'Due $amount';
+  }
+
+  @override
+  String homeCustomersDue(String amount) {
+    return '$amount due';
+  }
+
+  @override
+  String get homeCustomersNone => 'No dues';
+
+  @override
+  String get whatsAppMissing => 'Couldn\'t open WhatsApp';
+
+  @override
+  String statementShareText(String name, String shop) {
+    return 'Account statement for $name from $shop';
+  }
 }

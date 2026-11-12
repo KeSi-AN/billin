@@ -5,6 +5,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/features/billing/presentation/bill_page.dart';
 import 'package:shop_app/features/billing/presentation/billing_page.dart';
 import 'package:shop_app/features/billing/presentation/sales_page.dart';
+import 'package:shop_app/features/customers/presentation/customer_form_page.dart';
+import 'package:shop_app/features/customers/presentation/customer_page.dart';
+import 'package:shop_app/features/customers/presentation/customers_page.dart';
 import 'package:shop_app/features/home/presentation/home_page.dart';
 import 'package:shop_app/features/inventory/presentation/item_stock_page.dart';
 import 'package:shop_app/features/inventory/presentation/stock_overview_page.dart';
@@ -36,6 +39,13 @@ abstract final class AppRoutes {
   static const stock = '/stock';
   static const importExport = '/items/transfer';
   static const labels = '/labels';
+  static const customers = '/customers';
+  static String customer(int id) => '/customers/$id';
+  static String editCustomer(int id) => '/customers/$id/edit';
+  static String newCustomer({String? name}) => Uri(
+    path: '/customers/new',
+    queryParameters: name == null || name.isEmpty ? null : {'name': name},
+  ).toString();
   static const scan = '/scan';
   static const settings = '/settings';
   static const editShop = '/settings/shop';
@@ -116,6 +126,25 @@ GoRouter buildRouter(ShopProfileCubit profile) => GoRouter(
     GoRoute(
       path: AppRoutes.stock,
       builder: (context, state) => const StockOverviewPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.customers,
+      builder: (context, state) => const CustomersPage(),
+    ),
+    GoRoute(
+      path: '/customers/new',
+      builder: (context, state) =>
+          CustomerFormPage(initialName: state.uri.queryParameters['name']),
+    ),
+    GoRoute(
+      path: '/customers/:id',
+      builder: (context, state) =>
+          CustomerPage(partyId: int.parse(state.pathParameters['id']!)),
+    ),
+    GoRoute(
+      path: '/customers/:id/edit',
+      builder: (context, state) =>
+          CustomerFormPage(partyId: int.parse(state.pathParameters['id']!)),
     ),
     GoRoute(
       path: AppRoutes.labels,

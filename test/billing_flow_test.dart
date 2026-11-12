@@ -139,29 +139,59 @@ void main() {
     expect(find.text('Scan a barcode or search to add items'), findsOneWidget);
   });
 
-  testWidgets('credit sale needs a customer name', (tester) async {
+  testWidgets('credit sale: needs a customer, can add one, pays part now', (
+    tester,
+  ) async {
     final h = await harnessWithItems();
     await h.pump(tester);
     await tester.tap(find.byKey(const Key('newBillButton')));
     await tester.pumpAndSettle();
-    await scan(tester, '8901719110054');
+    await scan(tester, '8901719110054'); // ₹10
+    await tester.tap(find.byKey(const Key('qtyPlus')));
+    await tester.pumpAndSettle(); // ₹20
 
     await tester.tap(find.byKey(const Key('checkoutButton')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Credit'));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('saveBillButton')));
     await tester.tap(find.byKey(const Key('saveBillButton')));
     await tester.pumpAndSettle();
-    expect(
-      find.text("Add the customer's name for a credit sale"),
-      findsOneWidget,
-    );
+    expect(find.text('Choose a customer for a credit sale'), findsOneWidget);
     expect(h.bills.all, isEmpty);
 
-    await tester.enterText(find.byKey(const Key('customerNameField')), 'Ravi');
+    // Add a new customer from the picker, straight from checkout.
+    await tester.ensureVisible(find.byKey(const Key('pickCustomerTile')));
+    await tester.tap(find.byKey(const Key('pickCustomerTile')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('customerPickerSearch')),
+      'Ravi',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('pickerNewCustomer')));
+    await tester.pumpAndSettle();
+    expect(find.text('New customer'), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const Key('customerPhoneField')),
+      '9876543210',
+    );
+    await tester.tap(find.byKey(const Key('saveCustomerButton')));
+    await tester.pumpAndSettle();
+    expect(find.text('Ravi'), findsOneWidget); // chosen in checkout
+
+    await tester.enterText(find.byKey(const Key('paidNowField')), '5');
+    await tester.pumpAndSettle();
+    expect(find.text('₹15.00 will be added to dues'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('saveBillButton')));
     await tester.tap(find.byKey(const Key('saveBillButton')));
     await tester.pumpAndSettle();
-    expect(h.bills.all.single.customerName, 'Ravi');
+
+    final bill = h.bills.all.single;
+    expect(bill.customerName, 'Ravi');
+    expect(bill.due, const Money.rupees(15));
+    expect(h.parties.all.single.balance, const Money.rupees(15));
+    expect(find.text('Due'), findsOneWidget); // bill page shows the split
   });
 
   testWidgets('sales list totals the day and drops cancelled bills', (

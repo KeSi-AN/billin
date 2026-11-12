@@ -6,11 +6,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/app/app.dart';
 import 'package:shop_app/app/flavor.dart';
+import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/money/quantity.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
 import 'package:shop_app/features/billing/domain/invoice_number.dart';
 import 'package:shop_app/features/billing/presentation/bill_actions.dart';
+import 'package:shop_app/features/customers/domain/contact_picker.dart';
+import 'package:shop_app/features/customers/domain/customer_actions.dart';
+import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/inventory/domain/inventory.dart';
 import 'package:shop_app/features/inventory/domain/stock_alerts.dart';
 import 'package:shop_app/features/items/domain/item.dart';
@@ -177,7 +181,10 @@ class FakeSettings implements SettingsRepository {
 }
 
 class FakeBills implements BillRepository {
-  FakeBills(this._settings, {this.clock = _now, this.items});
+  FakeBills(this._settings, {this.clock = _now, this.items, this.parties});
+
+  /// When set, credit sales go on the customer's account.
+  final FakeParties? parties;
 
   /// When set, sales take tracked items' stock down like the real ledger.
   final FakeItems? items;
@@ -199,9 +206,20 @@ class FakeBills implements BillRepository {
       billDiscount: draft.billDiscount,
       roundToRupee: s.roundToRupee,
     );
+    if (draft.paymentMode == PaymentMode.credit && draft.partyId == null) {
+      throw ArgumentError('A credit sale needs a customer');
+    }
     final now = clock();
+    final paidNow = draft.paidNow > totals.grandTotal
+        ? totals.grandTotal
+        : draft.paidNow;
+    final due = draft.paymentMode == PaymentMode.credit
+        ? totals.grandTotal - paidNow
+        : Money.zero;
     final bill = Bill(
       id: _bills.length + 1,
+      partyId: draft.partyId,
+      due: due,
       invoiceNo: InvoiceNumber.format(
         prefix: s.invoicePrefix,
         year: FinancialYear.of(now),
@@ -239,6 +257,15 @@ class FakeBills implements BillRepository {
       ],
     );
     _bills.add(bill);
+    if (due.isPositive) {
+      parties?.post(
+        draft.partyId!,
+        due,
+        EntryType.sale,
+        billId: bill.id,
+        invoiceNo: bill.invoiceNo,
+      );
+    }
     for (final line in draft.lines) {
       final item = line.itemId == null ? null : await items?.byId(line.itemId!);
       if (item != null && item.trackStock) {
@@ -267,6 +294,7 @@ class FakeBills implements BillRepository {
             status: b.status,
             lineCount: b.lines.length,
             customerName: b.customerName,
+            due: b.due,
           ),
     ];
     yield current();
@@ -294,7 +322,18 @@ class FakeBills implements BillRepository {
       status: BillStatus.cancelled,
       cancelledAt: clock(),
       cancelReason: reason,
+      partyId: b.partyId,
+      due: b.due,
     );
+    if (b.due.isPositive && b.status == BillStatus.completed) {
+      parties?.post(
+        b.partyId!,
+        -b.due,
+        EntryType.cancel,
+        billId: b.id,
+        invoiceNo: b.invoiceNo,
+      );
+    }
     _changes.add(null);
   }
 }
@@ -467,6 +506,160 @@ class FakeStockAlerts implements StockAlerts {
   Future<void> lowStock(List<Item> items) async => alerted.add(items);
 }
 
+class FakeParties implements PartyRepository {
+  final _parties = <Party>[];
+  final entries = <PartyEntry>[];
+  final _changes = StreamController<void>.broadcast();
+
+  List<Party> get all => List.unmodifiable(_parties);
+
+  Stream<T> _watch<T>(T Function() current) async* {
+    yield current();
+    yield* _changes.stream.map((_) => current());
+  }
+
+  /// What the real party ledger does.
+  void post(
+    int partyId,
+    Money amount,
+    EntryType type, {
+    int? billId,
+    String? invoiceNo,
+    PaymentMode? mode,
+    String? note,
+  }) {
+    final i = _parties.indexWhere((p) => p.id == partyId);
+    final balance = _parties[i].balance + amount;
+    _parties[i] = _parties[i].copyWith(balance: balance);
+    entries.insert(
+      0,
+      PartyEntry(
+        id: entries.length + 1,
+        partyId: partyId,
+        type: type,
+        amount: amount,
+        balanceAfter: balance,
+        at: DateTime(2026, 11, 12, 10),
+        billId: billId,
+        invoiceNo: invoiceNo,
+        paymentMode: mode,
+        note: note,
+      ),
+    );
+    _changes.add(null);
+  }
+
+  @override
+  Stream<List<Party>> watchAll({PartyFilter filter = const PartyFilter()}) =>
+      _watch(() {
+        final q = filter.query.trim().toLowerCase();
+        final list =
+            _parties
+                .where(
+                  (p) =>
+                      (q.isEmpty ||
+                          p.name.toLowerCase().contains(q) ||
+                          (p.phone ?? '').contains(q)) &&
+                      (!filter.onlyWithDues || p.hasDue),
+                )
+                .toList()
+              ..sort(
+                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+              );
+        return list;
+      });
+
+  @override
+  Stream<Money> watchTotalDue() => _watch(
+    () => _parties
+        .where((p) => p.hasDue)
+        .fold(Money.zero, (s, p) => s + p.balance),
+  );
+
+  @override
+  Future<Party?> byId(int id) async =>
+      _parties.where((p) => p.id == id).firstOrNull;
+
+  @override
+  Stream<Party?> watch(int id) =>
+      _watch(() => _parties.where((p) => p.id == id).firstOrNull);
+
+  @override
+  Future<Party> save(Party party, {Money openingDue = Money.zero}) async {
+    final phone = (party.phone?.trim().isEmpty ?? true)
+        ? null
+        : party.phone!.trim();
+    final clash = _parties
+        .where((p) => phone != null && p.phone == phone && p.id != party.id)
+        .firstOrNull;
+    if (clash != null) throw DuplicatePhoneException(clash.name);
+    final existing = _parties.where((p) => p.id == party.id).firstOrNull;
+    final saved = party.copyWith(
+      id: party.id ?? _parties.length + 1,
+      name: party.name.trim(),
+      phone: phone,
+      balance: existing?.balance ?? Money.zero,
+    );
+    _parties
+      ..removeWhere((p) => p.id == saved.id)
+      ..add(saved);
+    if (existing == null && !openingDue.isZero) {
+      post(saved.id!, openingDue, EntryType.opening);
+    } else {
+      _changes.add(null);
+    }
+    return (await byId(saved.id!))!;
+  }
+
+  @override
+  Future<void> delete(int id) async {
+    final p = (await byId(id))!;
+    if (!p.balance.isZero) throw PartyHasBalanceException(p.balance);
+    _parties.removeWhere((x) => x.id == id);
+    _changes.add(null);
+  }
+
+  @override
+  Stream<List<PartyEntry>> watchEntries(int partyId) =>
+      _watch(() => entries.where((e) => e.partyId == partyId).toList());
+
+  @override
+  Future<List<PartyEntry>> entriesBetween(
+    int partyId,
+    DateTime from,
+    DateTime to,
+  ) async =>
+      entries.where((e) => e.partyId == partyId).toList().reversed.toList();
+
+  @override
+  Future<void> receivePayment(
+    int partyId,
+    Money amount, {
+    PaymentMode mode = PaymentMode.cash,
+    String? note,
+  }) async => post(partyId, -amount, EntryType.payment, mode: mode, note: note);
+}
+
+class FakeCustomerActions implements CustomerActions {
+  final reminded = <Party>[];
+  final statements = <Party>[];
+
+  @override
+  Future<void> remind(BuildContext context, Party party) async =>
+      reminded.add(party);
+
+  @override
+  Future<void> shareStatement(BuildContext context, Party party) async =>
+      statements.add(party);
+}
+
+class FakeContactPicker implements ContactPicker {
+  PickedContact? next;
+
+  @override
+  Future<PickedContact?> pick() async => next;
+}
+
 /// Everything wired with fakes, plus handles to inspect them.
 class TestHarness {
   TestHarness({
@@ -474,7 +667,7 @@ class TestHarness {
     AppSettingsData settings = const AppSettingsData(),
   }) : shopProfiles = FakeShopProfiles(shop),
        settings = FakeSettings(settings) {
-    bills = FakeBills(this.settings, items: items);
+    bills = FakeBills(this.settings, items: items, parties: parties);
     inventory = FakeInventory(items);
     printer = PrinterService(transport, this.settings);
   }
@@ -485,6 +678,9 @@ class TestHarness {
   late final FakeBills bills;
   late final FakeInventory inventory;
   final alerts = FakeStockAlerts();
+  final parties = FakeParties();
+  final customerActions = FakeCustomerActions();
+  final contacts = FakeContactPicker();
   final actions = FakeBillActions();
   final transport = FakePrinterTransport();
   late final PrinterService printer;
@@ -498,6 +694,9 @@ class TestHarness {
     printer: printer,
     inventory: inventory,
     stockAlerts: alerts,
+    parties: parties,
+    customerActions: customerActions,
+    contactPicker: contacts,
   );
 
   Future<void> pump(WidgetTester tester) async {

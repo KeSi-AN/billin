@@ -1,12 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:shop_app/core/india/phone.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
 import 'package:shop_app/features/billing/presentation/billing_cubit.dart';
 import 'package:shop_app/features/billing/presentation/payment_mode_label.dart';
+import 'package:shop_app/features/customers/domain/party.dart';
+import 'package:shop_app/features/customers/presentation/customer_picker.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
 /// Discount, payment mode and customer, then save. Pops with the saved
@@ -34,33 +35,47 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
   final _formKey = GlobalKey<FormState>();
   final _discount = TextEditingController();
   final _cashReceived = TextEditingController();
-  final _customerName = TextEditingController();
-  final _customerPhone = TextEditingController();
+  final _paidNow = TextEditingController();
   PaymentMode _mode = PaymentMode.cash;
+  Party? _customer;
+  bool _customerMissing = false;
   bool _saving = false;
 
   @override
   void dispose() {
-    for (final c in [_discount, _cashReceived, _customerName, _customerPhone]) {
+    for (final c in [_discount, _cashReceived, _paidNow]) {
       c.dispose();
     }
     super.dispose();
   }
 
+  Future<void> _pickCustomer() async {
+    final party = await showCustomerPicker(context);
+    if (party != null && mounted) {
+      setState(() {
+        _customer = party;
+        _customerMissing = false;
+      });
+    }
+  }
+
   Money get _billDiscount => Money.tryParse(_discount.text) ?? Money.zero;
 
   Future<void> _save() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final valid = _formKey.currentState?.validate() ?? false;
+    final needsCustomer = _mode == PaymentMode.credit && _customer == null;
+    setState(() => _customerMissing = needsCustomer);
+    if (!valid || needsCustomer) return;
     setState(() => _saving = true);
     final l10n = AppLocalizations.of(context);
     try {
       final bill = await context.read<BillingCubit>().save(
         paymentMode: _mode,
         billDiscount: _billDiscount,
-        customerName: _customerName.text,
-        customerPhone: _customerPhone.text.trim().isEmpty
-            ? null
-            : IndianPhone.normalize(_customerPhone.text),
+        customer: _customer,
+        paidNow: _mode == PaymentMode.credit
+            ? (Money.tryParse(_paidNow.text) ?? Money.zero)
+            : Money.zero,
       );
       if (mounted) Navigator.pop(context, bill);
     } on Object {
@@ -126,33 +141,65 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
                 onChanged: (_) => setState(() {}),
               ),
             ],
-            const SizedBox(height: 16),
-            Text(l10n.checkoutCustomer, style: text.titleSmall),
-            const SizedBox(height: 8),
-            TextFormField(
-              key: const Key('customerNameField'),
-              controller: _customerName,
-              textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(labelText: l10n.fieldCustomerName),
-              validator: (v) =>
-                  _mode == PaymentMode.credit && (v ?? '').trim().isEmpty
-                  ? l10n.checkoutCreditNeedsCustomer
-                  : null,
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _customerPhone,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                labelText: l10n.fieldCustomerPhone,
-                prefixText: '+91 ',
+            if (_mode == PaymentMode.credit) ...[
+              const SizedBox(height: 16),
+              MoneyField(
+                key: const Key('paidNowField'),
+                controller: _paidNow,
+                label: l10n.checkoutPaidNow,
+                helperText: () {
+                  final paid = Money.tryParse(_paidNow.text) ?? Money.zero;
+                  final due = totals.grandTotal - paid;
+                  return due.isPositive
+                      ? l10n.checkoutDueAfter(due.format())
+                      : l10n.checkoutPaidNowHelp;
+                }(),
+                onChanged: (_) => setState(() {}),
+                extraValidator: (m) =>
+                    m > totals.grandTotal ? l10n.errAmountInvalid : null,
               ),
-              validator: (v) =>
-                  (v ?? '').trim().isEmpty || IndianPhone.isValidMobile(v!)
-                  ? null
-                  : l10n.errPhoneInvalid,
+            ],
+            const SizedBox(height: 16),
+            Text(
+              _mode == PaymentMode.credit
+                  ? l10n.customerPickerTitle
+                  : l10n.checkoutCustomer,
+              style: text.titleSmall,
             ),
-            const SizedBox(height: 24),
+            ListTile(
+              key: const Key('pickCustomerTile'),
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.person_outline),
+              title: Text(_customer?.name ?? l10n.checkoutPickCustomer),
+              subtitle: _customerMissing
+                  ? Text(
+                      l10n.checkoutCustomerNeeded,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    )
+                  : (_customer == null
+                        ? null
+                        : Text(
+                            [
+                              if (_customer!.phone != null)
+                                '+91 ${_customer!.phone}',
+                              if (_customer!.hasDue)
+                                l10n.customerCurrentDue(
+                                  _customer!.balance.format(),
+                                ),
+                            ].join(' · '),
+                          )),
+              trailing: _customer == null
+                  ? const Icon(Icons.chevron_right)
+                  : IconButton(
+                      tooltip: l10n.cancel,
+                      icon: const Icon(Icons.close),
+                      onPressed: () => setState(() => _customer = null),
+                    ),
+              onTap: _pickCustomer,
+            ),
+            const SizedBox(height: 16),
             FilledButton(
               key: const Key('saveBillButton'),
               onPressed: _saving ? null : _save,

@@ -328,6 +328,14 @@ class InvoicePdf {
                       '$rupee ${money(bill.grandTotal)}',
                       strong: true,
                     ),
+                    if (bill.due.isPositive && !bill.isCancelled) ...[
+                      totalRow('Paid', money(bill.paid)),
+                      totalRow(
+                        'Balance due',
+                        '$rupee ${money(bill.due)}',
+                        strong: true,
+                      ),
+                    ],
                   ],
                 ),
               ),

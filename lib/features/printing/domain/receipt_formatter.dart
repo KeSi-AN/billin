@@ -105,6 +105,10 @@ class ReceiptFormatter {
     }
     if (!bill.roundOff.isZero) pair('Round off', _signed(bill.roundOff));
     pair('TOTAL', 'Rs.${_amt(bill.grandTotal)}', bold: true, big: true);
+    if (bill.due.isPositive && !bill.isCancelled) {
+      pair('Paid', _amt(bill.paid));
+      pair('Balance due', _amt(bill.due), bold: true);
+    }
     text('Paid by ${_mode(bill.paymentMode)}');
     final saved = bill.totalDiscount;
     if (!saved.isZero) text('You saved Rs.${_amt(saved)}');

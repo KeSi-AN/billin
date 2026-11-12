@@ -8,6 +8,9 @@ import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/theme/app_theme.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/presentation/bill_actions.dart';
+import 'package:shop_app/features/customers/domain/contact_picker.dart';
+import 'package:shop_app/features/customers/domain/customer_actions.dart';
+import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/inventory/domain/inventory.dart';
 import 'package:shop_app/features/inventory/domain/stock_alerts.dart';
 import 'package:shop_app/features/items/domain/item.dart';
@@ -29,6 +32,9 @@ class AppServices {
     required this.printer,
     required this.inventory,
     required this.stockAlerts,
+    required this.parties,
+    required this.customerActions,
+    required this.contactPicker,
   });
 
   final ShopProfileRepository shopProfiles;
@@ -39,6 +45,9 @@ class AppServices {
   final PrinterService printer;
   final InventoryRepository inventory;
   final StockAlerts stockAlerts;
+  final PartyRepository parties;
+  final CustomerActions customerActions;
+  final ContactPicker contactPicker;
 }
 
 class ShopApp extends StatefulWidget {
@@ -78,6 +87,9 @@ class _ShopAppState extends State<ShopApp> {
         RepositoryProvider.value(value: s.printer),
         RepositoryProvider.value(value: s.inventory),
         RepositoryProvider.value(value: s.stockAlerts),
+        RepositoryProvider.value(value: s.parties),
+        RepositoryProvider.value(value: s.customerActions),
+        RepositoryProvider.value(value: s.contactPicker),
       ],
       child: BlocProvider.value(
         value: _profileCubit,
