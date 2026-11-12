@@ -8,18 +8,22 @@ import 'package:shop_app/app/app.dart';
 import 'package:shop_app/app/flavor.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/money/quantity.dart';
+import 'package:shop_app/core/money/rounding.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
+import 'package:shop_app/features/billing/domain/credit_note.dart';
 import 'package:shop_app/features/billing/domain/invoice_number.dart';
 import 'package:shop_app/features/billing/presentation/bill_actions.dart';
 import 'package:shop_app/features/customers/domain/contact_picker.dart';
 import 'package:shop_app/features/customers/domain/customer_actions.dart';
 import 'package:shop_app/features/customers/domain/party.dart';
+import 'package:shop_app/features/expenses/domain/expense.dart';
 import 'package:shop_app/features/inventory/domain/inventory.dart';
 import 'package:shop_app/features/inventory/domain/stock_alerts.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/printing/data/printer_service.dart';
 import 'package:shop_app/features/printing/data/printer_transport.dart';
+import 'package:shop_app/features/purchases/domain/purchase.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile_repository.dart';
@@ -194,6 +198,7 @@ class FakeBills implements BillRepository {
   final FakeSettings _settings;
   DateTime Function() clock;
   final _bills = <Bill>[];
+  var _nextLineId = 1;
   final _changes = StreamController<void>.broadcast();
 
   List<Bill> get all => List.unmodifiable(_bills);
@@ -240,6 +245,7 @@ class FakeBills implements BillRepository {
       lines: [
         for (var i = 0; i < draft.lines.length; i++)
           BillLine(
+            id: _nextLineId++,
             itemId: draft.lines[i].itemId,
             name: draft.lines[i].name,
             unit: draft.lines[i].unit,
@@ -566,7 +572,8 @@ class FakeParties implements PartyRepository {
                       (q.isEmpty ||
                           p.name.toLowerCase().contains(q) ||
                           (p.phone ?? '').contains(q)) &&
-                      (!filter.onlyWithDues || p.hasDue),
+                      (!filter.onlyWithDues || p.hasDue) &&
+                      p.type == filter.type,
                 )
                 .toList()
               ..sort(
@@ -576,9 +583,9 @@ class FakeParties implements PartyRepository {
       });
 
   @override
-  Stream<Money> watchTotalDue() => _watch(
+  Stream<Money> watchTotalDue({PartyType type = PartyType.customer}) => _watch(
     () => _parties
-        .where((p) => p.hasDue)
+        .where((p) => p.hasDue && p.type == type)
         .fold(Money.zero, (s, p) => s + p.balance),
   );
 
@@ -666,6 +673,226 @@ class FakeContactPicker implements ContactPicker {
   Future<PickedContact?> pick() async => next;
 }
 
+class FakePurchases implements PurchaseRepository {
+  FakePurchases({required this.items, required this.parties});
+
+  final FakeItems items;
+  final FakeParties parties;
+  DateTime Function() clock = () => DateTime(2026, 11, 12, 11);
+  final _purchases = <Purchase>[];
+  final _changes = StreamController<void>.broadcast();
+
+  List<Purchase> get all => List.unmodifiable(_purchases);
+
+  @override
+  Future<Purchase> create(PurchaseDraft draft) async {
+    if (draft.paymentMode == PaymentMode.credit && draft.partyId == null) {
+      throw const SupplierRequiredException();
+    }
+    final totals = BillCalculator.calculate([
+      for (final l in draft.lines)
+        BillLineInput(
+          unitPrice: l.unitCost,
+          quantity: l.quantity,
+          taxRate: l.taxRate,
+          priceIncludesTax: l.costIncludesTax,
+        ),
+    ], roundToRupee: false);
+    final supplier = draft.partyId == null
+        ? null
+        : await parties.byId(draft.partyId!);
+    final due = draft.paymentMode == PaymentMode.credit
+        ? totals.grandTotal - draft.paidNow
+        : Money.zero;
+    final p = Purchase(
+      id: _purchases.length + 1,
+      partyId: draft.partyId,
+      supplierName: supplier?.name,
+      supplierGstin: supplier?.gstin,
+      supplierInvoiceNo: (draft.supplierInvoiceNo?.trim().isEmpty ?? true)
+          ? null
+          : draft.supplierInvoiceNo!.trim(),
+      purchasedAt: draft.purchasedAt ?? clock(),
+      lines: [
+        for (var i = 0; i < draft.lines.length; i++)
+          PurchaseLine(
+            itemId: draft.lines[i].itemId,
+            name: draft.lines[i].name,
+            unit: draft.lines[i].unit,
+            hsn: draft.lines[i].hsn,
+            quantity: draft.lines[i].quantity,
+            unitCost: draft.lines[i].unitCost,
+            costIncludesTax: draft.lines[i].costIncludesTax,
+            taxRate: draft.lines[i].taxRate,
+            taxable: totals.lines[i].taxable,
+            tax: totals.lines[i].tax,
+            total: totals.lines[i].total,
+            batchNo: draft.lines[i].batchNo,
+            expiry: draft.lines[i].expiry,
+          ),
+      ],
+      taxable: totals.taxable,
+      tax: totals.tax,
+      total: totals.grandTotal,
+      due: due.isPositive ? due : Money.zero,
+      paymentMode: draft.paymentMode,
+    );
+    _purchases.add(p);
+    for (final l in draft.lines) {
+      final item = l.itemId == null ? null : await items.byId(l.itemId!);
+      if (item != null) items.setStock(item.id!, item.stock + l.quantity);
+    }
+    if (p.due.isPositive) {
+      parties.post(p.partyId!, p.due, EntryType.purchase);
+    }
+    _changes.add(null);
+    return p;
+  }
+
+  @override
+  Future<Purchase?> byId(int id) async =>
+      _purchases.where((p) => p.id == id).firstOrNull;
+
+  @override
+  Stream<List<Purchase>> watchBetween(DateTime from, DateTime to) async* {
+    List<Purchase> current() => [
+      for (final p in _purchases.reversed)
+        if (!p.purchasedAt.isBefore(from) && p.purchasedAt.isBefore(to)) p,
+    ];
+    yield current();
+    yield* _changes.stream.map((_) => current());
+  }
+
+  @override
+  Future<void> cancel(int id) async {
+    final i = _purchases.indexWhere((p) => p.id == id);
+    final p = _purchases[i];
+    _purchases[i] = Purchase(
+      id: p.id,
+      partyId: p.partyId,
+      supplierName: p.supplierName,
+      supplierGstin: p.supplierGstin,
+      supplierInvoiceNo: p.supplierInvoiceNo,
+      purchasedAt: p.purchasedAt,
+      lines: p.lines,
+      taxable: p.taxable,
+      tax: p.tax,
+      total: p.total,
+      due: p.due,
+      paymentMode: p.paymentMode,
+      isCancelled: true,
+    );
+    for (final l in p.lines) {
+      final item = l.itemId == null ? null : await items.byId(l.itemId!);
+      if (item != null) items.setStock(item.id!, item.stock - l.quantity);
+    }
+    if (p.due.isPositive) parties.post(p.partyId!, -p.due, EntryType.cancel);
+    _changes.add(null);
+  }
+}
+
+class FakeReturns implements ReturnsRepository {
+  FakeReturns(this.bills);
+
+  final FakeBills bills;
+  final notes = <CreditNote>[];
+
+  @override
+  Future<CreditNote> returnItems(
+    int billId,
+    List<ReturnLine> lines, {
+    PaymentMode refundMode = PaymentMode.cash,
+    String? reason,
+  }) async {
+    final bill = (await bills.byId(billId))!;
+    Money part(Money m, Quantity q, Quantity of) =>
+        Money.paise(divRound(m.paise * q.milli, of.milli));
+    final out = <CreditNoteLine>[];
+    for (final r in lines) {
+      final l = bill.lines.firstWhere((x) => x.id == r.billLineId);
+      if (r.quantity > l.returnable) throw ReturnTooLargeException(l.name);
+      out.add(
+        CreditNoteLine(
+          billLineId: r.billLineId,
+          name: l.name,
+          unit: l.unit,
+          hsn: l.hsn,
+          quantity: r.quantity,
+          taxRate: l.taxRate,
+          taxable: part(l.taxable, r.quantity, l.quantity),
+          tax: part(l.tax, r.quantity, l.quantity),
+          total: part(l.total, r.quantity, l.quantity),
+        ),
+      );
+    }
+    final note = CreditNote(
+      id: notes.length + 1,
+      noteNo: 'CN/26-27/${(notes.length + 1).toString().padLeft(4, '0')}',
+      billId: billId,
+      invoiceNo: bill.invoiceNo,
+      issuedAt: bills.clock(),
+      lines: out,
+      taxable: out.fold(Money.zero, (s, l) => s + l.taxable),
+      tax: out.fold(Money.zero, (s, l) => s + l.tax),
+      total: out.fold(Money.zero, (s, l) => s + l.total),
+      refundMode: refundMode,
+      reason: (reason?.trim().isEmpty ?? true) ? null : reason!.trim(),
+    );
+    notes.add(note);
+    return note;
+  }
+
+  @override
+  Future<List<CreditNote>> forBill(int billId) async => [
+    for (final n in notes)
+      if (n.billId == billId) n,
+  ];
+
+  @override
+  Future<List<CreditNote>> between(DateTime from, DateTime to) async => [
+    for (final n in notes)
+      if (!n.issuedAt.isBefore(from) && n.issuedAt.isBefore(to)) n,
+  ];
+}
+
+class FakeExpenses implements ExpenseRepository {
+  final _expenses = <Expense>[];
+  final _changes = StreamController<void>.broadcast();
+
+  List<Expense> get all => List.unmodifiable(_expenses);
+
+  @override
+  Future<Expense> add(Expense e) async {
+    final saved = Expense(
+      id: _expenses.length + 1,
+      spentAt: e.spentAt,
+      category: e.category.trim(),
+      amount: e.amount,
+      paymentMode: e.paymentMode,
+      note: (e.note?.trim().isEmpty ?? true) ? null : e.note!.trim(),
+    );
+    _expenses.add(saved);
+    _changes.add(null);
+    return saved;
+  }
+
+  @override
+  Future<void> delete(int id) async {
+    _expenses.removeWhere((e) => e.id == id);
+    _changes.add(null);
+  }
+
+  @override
+  Stream<List<Expense>> watchBetween(DateTime from, DateTime to) async* {
+    List<Expense> current() => [
+      for (final e in _expenses.reversed)
+        if (!e.spentAt.isBefore(from) && e.spentAt.isBefore(to)) e,
+    ];
+    yield current();
+    yield* _changes.stream.map((_) => current());
+  }
+}
+
 /// Everything wired with fakes, plus handles to inspect them.
 class TestHarness {
   TestHarness({
@@ -676,6 +903,8 @@ class TestHarness {
     bills = FakeBills(this.settings, items: items, parties: parties);
     inventory = FakeInventory(items);
     printer = PrinterService(transport, this.settings);
+    purchases = FakePurchases(items: items, parties: parties);
+    returns = FakeReturns(bills);
   }
 
   final FakeShopProfiles shopProfiles;
@@ -690,6 +919,9 @@ class TestHarness {
   final actions = FakeBillActions();
   final transport = FakePrinterTransport();
   late final PrinterService printer;
+  late final FakePurchases purchases;
+  late final FakeReturns returns;
+  final expenses = FakeExpenses();
 
   AppServices get services => AppServices(
     shopProfiles: shopProfiles,
@@ -703,6 +935,9 @@ class TestHarness {
     parties: parties,
     customerActions: customerActions,
     contactPicker: contacts,
+    purchases: purchases,
+    returns: returns,
+    expenses: expenses,
   );
 
   Future<void> pump(WidgetTester tester) async {

@@ -100,10 +100,34 @@ class HomePage extends StatelessWidget {
                   );
                 },
               ),
+              StreamBuilder<Money>(
+                stream: context.read<PartyRepository>().watchTotalDue(
+                  type: PartyType.supplier,
+                ),
+                builder: (context, snapshot) {
+                  final owed = snapshot.data ?? Money.zero;
+                  return _ActionTile(
+                    key: const Key('purchasesTile'),
+                    icon: Icons.local_shipping_outlined,
+                    label: l10n.actionPurchases,
+                    subtitle: owed.isPositive
+                        ? l10n.balanceYouOwe(owed.format())
+                        : null,
+                    onTap: () => context.push(AppRoutes.purchases),
+                  );
+                },
+              ),
               _ActionTile(
+                key: const Key('expensesTile'),
+                icon: Icons.payments_outlined,
+                label: l10n.actionExpenses,
+                onTap: () => context.push(AppRoutes.expenses),
+              ),
+              _ActionTile(
+                key: const Key('reportsTile'),
                 icon: Icons.bar_chart_outlined,
                 label: l10n.actionReports,
-                comingSoon: true,
+                onTap: () => context.push(AppRoutes.reports),
               ),
             ],
           ),
@@ -215,8 +239,7 @@ class _ActionTile extends StatelessWidget {
   const _ActionTile({
     required this.icon,
     required this.label,
-    this.onTap,
-    this.comingSoon = false,
+    required this.onTap,
     this.subtitle,
     this.alert = false,
     super.key,
@@ -224,8 +247,7 @@ class _ActionTile extends StatelessWidget {
 
   final IconData icon;
   final String label;
-  final VoidCallback? onTap;
-  final bool comingSoon;
+  final VoidCallback onTap;
   final String? subtitle;
 
   /// Highlights the subtitle (something needs attention).
@@ -233,24 +255,17 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     return Card.outlined(
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap:
-            onTap ??
-            () => ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                SnackBar(content: Text(l10n.homeComingSoon(label))),
-              ),
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              Icon(icon, color: comingSoon ? scheme.outline : scheme.primary),
+              Icon(icon, color: scheme.primary),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -258,9 +273,7 @@ class _ActionTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(label, style: text.titleSmall),
-                    if (comingSoon)
-                      Text(l10n.comingSoon, style: text.labelSmall)
-                    else if (subtitle != null)
+                    if (subtitle != null)
                       Text(
                         subtitle!,
                         style: text.labelSmall?.copyWith(

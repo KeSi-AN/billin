@@ -176,7 +176,7 @@ class InvoicePdf {
                     'Date: ${DateFormat('dd MMM yyyy, h:mm a', appLocale).format(bill.billedAt)}',
                   ),
                   pw.Text(
-                    'Place of supply: ${stateByCode(shop.stateCode)?.name ?? ''} (${shop.stateCode})',
+                    'Place of supply: ${stateByCode(bill.placeOfSupply ?? shop.stateCode)?.name ?? ''} (${bill.placeOfSupply ?? shop.stateCode})',
                     style: small,
                   ),
                 ],
@@ -195,6 +195,8 @@ class InvoicePdf {
                     pw.Text(bill.customerName!, style: bold),
                   if (bill.customerPhone != null)
                     pw.Text('+91 ${bill.customerPhone}'),
+                  if (bill.buyerGstin != null)
+                    pw.Text('GSTIN: ${bill.buyerGstin}', style: bold),
                 ],
               ),
             ),
@@ -268,8 +270,12 @@ class InvoicePdf {
                             children: [
                               cell('GST rate', header: true),
                               cell('Taxable', header: true, right: true),
-                              cell('CGST', header: true, right: true),
-                              cell('SGST', header: true, right: true),
+                              if (bill.interState)
+                                cell('IGST', header: true, right: true)
+                              else ...[
+                                cell('CGST', header: true, right: true),
+                                cell('SGST', header: true, right: true),
+                              ],
                             ],
                           ),
                           for (final b in bill.taxBuckets)
@@ -277,14 +283,21 @@ class InvoicePdf {
                               children: [
                                 cell(b.rate.label),
                                 cell(money(b.taxable), right: true),
-                                cell(
-                                  '${b.rate.halfLabel}: ${money(b.cgst)}',
-                                  right: true,
-                                ),
-                                cell(
-                                  '${b.rate.halfLabel}: ${money(b.sgst)}',
-                                  right: true,
-                                ),
+                                if (bill.interState)
+                                  cell(
+                                    '${b.rate.label}: ${money(b.tax)}',
+                                    right: true,
+                                  )
+                                else ...[
+                                  cell(
+                                    '${b.rate.halfLabel}: ${money(b.cgst)}',
+                                    right: true,
+                                  ),
+                                  cell(
+                                    '${b.rate.halfLabel}: ${money(b.sgst)}',
+                                    right: true,
+                                  ),
+                                ],
                               ],
                             ),
                         ],
@@ -301,24 +314,28 @@ class InvoicePdf {
                       totalRow('Bill discount', '-${money(bill.billDiscount)}'),
                     if (showTax) ...[
                       totalRow('Taxable value', money(bill.taxable)),
-                      totalRow(
-                        'CGST',
-                        money(
-                          bill.taxBuckets.fold(
-                            Money.zero,
-                            (s, b) => s + b.cgst,
+                      if (bill.interState)
+                        totalRow('IGST', money(bill.tax))
+                      else ...[
+                        totalRow(
+                          'CGST',
+                          money(
+                            bill.taxBuckets.fold(
+                              Money.zero,
+                              (s, b) => s + b.cgst,
+                            ),
                           ),
                         ),
-                      ),
-                      totalRow(
-                        'SGST',
-                        money(
-                          bill.taxBuckets.fold(
-                            Money.zero,
-                            (s, b) => s + b.sgst,
+                        totalRow(
+                          'SGST',
+                          money(
+                            bill.taxBuckets.fold(
+                              Money.zero,
+                              (s, b) => s + b.sgst,
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
                     if (!bill.roundOff.isZero)
                       totalRow('Round off', money(bill.roundOff)),

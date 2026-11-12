@@ -36,7 +36,7 @@ class CustomerPage extends StatelessWidget {
                   tooltip: l10n.customerEdit,
                   icon: const Icon(Icons.edit_outlined),
                   onPressed: () =>
-                      context.push(AppRoutes.editCustomer(partyId)),
+                      context.push(AppRoutes.editParty(party.type, partyId)),
                 ),
             ],
           ),
@@ -77,6 +77,7 @@ class _Body extends StatelessWidget {
                   party.balance,
                   key: const Key('customerBalance'),
                   style: text.headlineSmall,
+                  supplier: party.type == PartyType.supplier,
                 ),
                 const SizedBox(height: 12),
                 Wrap(
@@ -90,16 +91,21 @@ class _Body extends StatelessWidget {
                       ),
                       onPressed: () => showReceivePaymentSheet(context, party),
                       icon: const Icon(Icons.payments_outlined),
-                      label: Text(l10n.receivePayment),
+                      label: Text(
+                        party.type == PartyType.supplier
+                            ? l10n.paySupplier
+                            : l10n.receivePayment,
+                      ),
                     ),
-                    OutlinedButton.icon(
-                      key: const Key('remindButton'),
-                      onPressed: party.phone == null || !party.hasDue
-                          ? null
-                          : () => actions.remind(context, party),
-                      icon: const Icon(Icons.chat_outlined),
-                      label: Text(l10n.remindWhatsApp),
-                    ),
+                    if (party.type == PartyType.customer)
+                      OutlinedButton.icon(
+                        key: const Key('remindButton'),
+                        onPressed: party.phone == null || !party.hasDue
+                            ? null
+                            : () => actions.remind(context, party),
+                        icon: const Icon(Icons.chat_outlined),
+                        label: Text(l10n.remindWhatsApp),
+                      ),
                     OutlinedButton.icon(
                       key: const Key('statementButton'),
                       onPressed: () => actions.shareStatement(context, party),
@@ -255,15 +261,22 @@ class _PaymentSheetState extends State<_PaymentSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                l10n.receivePaymentTitle(widget.party.name),
+                widget.party.type == PartyType.supplier
+                    ? l10n.paySupplierTitle(widget.party.name)
+                    : l10n.receivePaymentTitle(widget.party.name),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              BalanceText(due),
+              BalanceText(
+                due,
+                supplier: widget.party.type == PartyType.supplier,
+              ),
               const SizedBox(height: 16),
               MoneyField(
                 key: const Key('paymentAmountField'),
                 controller: _amount,
-                label: l10n.paymentAmount,
+                label: widget.party.type == PartyType.supplier
+                    ? l10n.paymentMade
+                    : l10n.paymentAmount,
                 isRequired: true,
                 autofocus: true,
                 extraValidator: (m) =>

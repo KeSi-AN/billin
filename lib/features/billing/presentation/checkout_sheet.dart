@@ -8,6 +8,7 @@ import 'package:shop_app/features/billing/presentation/billing_cubit.dart';
 import 'package:shop_app/features/billing/presentation/payment_mode_label.dart';
 import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/customers/presentation/customer_picker.dart';
+import 'package:shop_app/features/shop_profile/presentation/cubit/shop_profile_cubit.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
 /// Discount, payment mode and customer, then save. Pops with the saved
@@ -59,6 +60,15 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
       if (c.hasDue) l10n.customerCurrentDue(c.balance.format()),
     ];
     return details.isEmpty ? null : Text(details.join(' · '));
+  }
+
+  /// The chosen customer is in another state: IGST.
+  bool get _interState {
+    final shop = context.read<ShopProfileCubit>().state;
+    final customerState = _customer?.stateCode;
+    return customerState != null &&
+        shop is ShopProfileReady &&
+        customerState != shop.profile.stateCode;
   }
 
   Future<void> _pickCustomer() async {
@@ -115,7 +125,7 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
           children: [
             Text(l10n.checkoutTitle, style: text.titleLarge),
             const SizedBox(height: 12),
-            TotalsTable(totals: totals),
+            TotalsTable(totals: totals, interState: _interState),
             const Divider(height: 24),
             MoneyField(
               key: const Key('billDiscountField'),
@@ -220,9 +230,10 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
 /// Items total → discounts → GST → round-off → total. Used at checkout and
 /// on the saved bill.
 class TotalsTable extends StatelessWidget {
-  const TotalsTable({required this.totals, super.key});
+  const TotalsTable({required this.totals, this.interState = false, super.key});
 
   final BillTotals totals;
+  final bool interState;
 
   @override
   Widget build(BuildContext context) {
@@ -248,8 +259,12 @@ class TotalsTable extends StatelessWidget {
           row(l10n.checkoutBillDiscount, -totals.billDiscount),
         if (!totals.tax.isZero) ...[
           row(l10n.checkoutTaxable, totals.taxable),
-          row(l10n.checkoutCgst, totals.cgst),
-          row(l10n.checkoutSgst, totals.sgst),
+          if (interState)
+            row(l10n.checkoutIgst, totals.tax)
+          else ...[
+            row(l10n.checkoutCgst, totals.cgst),
+            row(l10n.checkoutSgst, totals.sgst),
+          ],
         ],
         if (!totals.roundOff.isZero)
           row(l10n.checkoutRoundOff, totals.roundOff),

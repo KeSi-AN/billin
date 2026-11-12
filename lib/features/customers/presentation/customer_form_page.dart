@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/core/india/gstin.dart';
+import 'package:shop_app/core/india/indian_states.dart';
 import 'package:shop_app/core/india/phone.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
@@ -13,7 +14,14 @@ import 'package:shop_app/l10n/gen/app_localizations.dart';
 
 /// Add or edit a customer. Pops with the saved [Party].
 class CustomerFormPage extends StatefulWidget {
-  const CustomerFormPage({this.partyId, this.initialName, super.key});
+  const CustomerFormPage({
+    this.partyId,
+    this.initialName,
+    this.type = PartyType.customer,
+    super.key,
+  });
+
+  final PartyType type;
 
   final int? partyId;
   final String? initialName;
@@ -31,6 +39,22 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
   final _notes = TextEditingController();
   final _opening = TextEditingController();
   Party? _existing;
+  String? _stateCode;
+  bool _stateFromGstin = false;
+
+  bool get _supplier => widget.type == PartyType.supplier;
+
+  void _onGstinChanged(String value) {
+    if (Gstin.validate(value) == null) {
+      setState(() {
+        _stateCode = Gstin.stateCode(value);
+        _stateFromGstin = true;
+      });
+    } else if (_stateFromGstin) {
+      setState(() => _stateFromGstin = false);
+    }
+  }
+
   String? _phoneError;
   bool _loading = true;
   bool _saving = false;
@@ -54,6 +78,7 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
         _phone.text = p.phone ?? '';
         _address.text = p.addressLine ?? '';
         _gstin.text = p.gstin ?? '';
+        _stateCode = p.stateCode;
         _notes.text = p.notes ?? '';
       }
     }
@@ -85,7 +110,7 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
     final repo = context.read<PartyRepository>();
     try {
       final saved = await repo.save(
-        (_existing ?? const Party(name: '')).copyWith(
+        (_existing ?? Party(name: '', type: widget.type)).copyWith(
           name: _name.text,
           phone: _phone.text,
           addressLine: _address.text,
@@ -93,6 +118,7 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
               ? null
               : Gstin.normalize(_gstin.text),
           notes: _notes.text,
+          stateCode: _stateCode,
         ),
         openingDue: Money.tryParse(_opening.text) ?? Money.zero,
       );
@@ -136,7 +162,11 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
     const gap = SizedBox(height: 16);
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isNew ? l10n.customerNew : l10n.customerEdit),
+        title: Text(
+          _supplier
+              ? (_isNew ? l10n.supplierNew : l10n.supplierEdit)
+              : (_isNew ? l10n.customerNew : l10n.customerEdit),
+        ),
         actions: [
           if (_existing != null)
             IconButton(
@@ -197,8 +227,10 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
                   ),
                   gap,
                   TextFormField(
+                    key: const Key('partyGstinField'),
                     controller: _gstin,
                     textCapitalization: TextCapitalization.characters,
+                    onChanged: _onGstinChanged,
                     decoration: InputDecoration(
                       labelText: l10n.fieldGstin,
                       helperText: l10n.optional,
@@ -207,6 +239,28 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
                         (v ?? '').trim().isEmpty || Gstin.validate(v!) == null
                         ? null
                         : l10n.errGstinInvalid,
+                  ),
+                  gap,
+                  // Decides IGST (other state) vs CGST + SGST on bills.
+                  DropdownButtonFormField<String?>(
+                    key: ValueKey('partyState-$_stateCode'),
+                    initialValue: _stateCode,
+                    isExpanded: true,
+                    decoration: InputDecoration(
+                      labelText: l10n.fieldStateOptional,
+                      helperText: _stateFromGstin
+                          ? l10n.stateFromGstinHelp
+                          : l10n.optional,
+                    ),
+                    items: [
+                      const DropdownMenuItem(child: Text('—')),
+                      for (final s in indianStates)
+                        DropdownMenuItem(value: s.code, child: Text(s.name)),
+                    ],
+                    onChanged: (code) => setState(() {
+                      _stateCode = code;
+                      _stateFromGstin = false;
+                    }),
                   ),
                   gap,
                   TextFormField(

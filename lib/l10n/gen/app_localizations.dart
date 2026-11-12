@@ -2235,6 +2235,546 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Goods returned · {invoice}'**
   String entryReturn(String invoice);
+
+  /// No description provided for @checkoutIgst.
+  ///
+  /// In en, this message translates to:
+  /// **'IGST'**
+  String get checkoutIgst;
+
+  /// No description provided for @billBuyerGstin.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer GSTIN: {gstin}'**
+  String billBuyerGstin(String gstin);
+
+  /// No description provided for @billPlaceOfSupply.
+  ///
+  /// In en, this message translates to:
+  /// **'Place of supply: {state}'**
+  String billPlaceOfSupply(String state);
+
+  /// No description provided for @billProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit {amount}'**
+  String billProfit(String amount);
+
+  /// No description provided for @billProfitPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit {amount} (items with a cost price)'**
+  String billProfitPartial(String amount);
+
+  /// No description provided for @fieldStateOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'State (for GST)'**
+  String get fieldStateOptional;
+
+  /// No description provided for @stateFromGstinHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled from the GSTIN'**
+  String get stateFromGstinHelp;
+
+  /// No description provided for @actionPurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases'**
+  String get actionPurchases;
+
+  /// No description provided for @actionExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get actionExpenses;
+
+  /// No description provided for @suppliersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suppliers'**
+  String get suppliersTitle;
+
+  /// No description provided for @supplierAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add supplier'**
+  String get supplierAdd;
+
+  /// No description provided for @supplierNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New supplier'**
+  String get supplierNew;
+
+  /// No description provided for @supplierEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit supplier'**
+  String get supplierEdit;
+
+  /// No description provided for @suppliersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No suppliers yet. Add the wholesalers you buy from.'**
+  String get suppliersEmpty;
+
+  /// No description provided for @suppliersTotalOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe in total'**
+  String get suppliersTotalOwed;
+
+  /// No description provided for @balanceYouOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {amount}'**
+  String balanceYouOwe(String amount);
+
+  /// No description provided for @balanceTheyOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance {amount}'**
+  String balanceTheyOwe(String amount);
+
+  /// No description provided for @paySupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay supplier'**
+  String get paySupplier;
+
+  /// No description provided for @paySupplierTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment to {name}'**
+  String paySupplierTitle(String name);
+
+  /// No description provided for @paymentMade.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount paid'**
+  String get paymentMade;
+
+  /// No description provided for @supplierPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier'**
+  String get supplierPickerTitle;
+
+  /// No description provided for @pickSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose supplier'**
+  String get pickSupplier;
+
+  /// No description provided for @supplierNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a supplier to buy on credit'**
+  String get supplierNeeded;
+
+  /// No description provided for @purchasesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases'**
+  String get purchasesTitle;
+
+  /// No description provided for @purchasesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchases this month'**
+  String get purchasesEmpty;
+
+  /// No description provided for @purchasesMonthTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases this month'**
+  String get purchasesMonthTotal;
+
+  /// No description provided for @purchaseNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New purchase'**
+  String get purchaseNew;
+
+  /// No description provided for @purchaseAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add purchase'**
+  String get purchaseAdd;
+
+  /// No description provided for @fieldSupplierInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier bill no.'**
+  String get fieldSupplierInvoice;
+
+  /// No description provided for @purchaseDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill date'**
+  String get purchaseDate;
+
+  /// No description provided for @purchaseAddItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get purchaseAddItem;
+
+  /// No description provided for @purchaseNoLines.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the items on the supplier\'s bill'**
+  String get purchaseNoLines;
+
+  /// No description provided for @fieldUnitCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost per {unit}'**
+  String fieldUnitCost(String unit);
+
+  /// No description provided for @fieldCostIncludesTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost includes GST'**
+  String get fieldCostIncludesTax;
+
+  /// No description provided for @purchaseLineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}'**
+  String purchaseLineTitle(String name);
+
+  /// No description provided for @purchaseSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save purchase · {amount}'**
+  String purchaseSave(String amount);
+
+  /// No description provided for @purchaseSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase saved; stock updated'**
+  String get purchaseSaved;
+
+  /// No description provided for @purchasePaidNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid now'**
+  String get purchasePaidNow;
+
+  /// No description provided for @purchaseDueAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} will be owed to the supplier'**
+  String purchaseDueAfter(String amount);
+
+  /// No description provided for @purchaseCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel purchase'**
+  String get purchaseCancel;
+
+  /// No description provided for @purchaseCancelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock from this purchase is taken back out, and anything owed to the supplier is reversed.'**
+  String get purchaseCancelBody;
+
+  /// No description provided for @purchaseCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get purchaseCancelled;
+
+  /// No description provided for @purchaseItems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String purchaseItems(int count);
+
+  /// No description provided for @purchaseTaxable.
+  ///
+  /// In en, this message translates to:
+  /// **'Before GST'**
+  String get purchaseTaxable;
+
+  /// No description provided for @purchaseGst.
+  ///
+  /// In en, this message translates to:
+  /// **'GST (input credit)'**
+  String get purchaseGst;
+
+  /// No description provided for @purchaseTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get purchaseTotal;
+
+  /// No description provided for @purchaseItemPickerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search item or scan barcode'**
+  String get purchaseItemPickerHint;
+
+  /// No description provided for @expensesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get expensesTitle;
+
+  /// No description provided for @expensesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses this month'**
+  String get expensesEmpty;
+
+  /// No description provided for @expensesMonthTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses this month'**
+  String get expensesMonthTotal;
+
+  /// No description provided for @expenseAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get expenseAdd;
+
+  /// No description provided for @expenseCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'What for'**
+  String get expenseCategory;
+
+  /// No description provided for @expenseAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get expenseAmount;
+
+  /// No description provided for @expenseDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get expenseDate;
+
+  /// No description provided for @expenseSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense saved'**
+  String get expenseSaved;
+
+  /// No description provided for @expenseDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense removed'**
+  String get expenseDeleted;
+
+  /// No description provided for @expenseDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this {amount} expense?'**
+  String expenseDeleteConfirm(String amount);
+
+  /// No description provided for @billReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Return items'**
+  String get billReturn;
+
+  /// No description provided for @returnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Return items · {invoice}'**
+  String returnTitle(String invoice);
+
+  /// No description provided for @returnLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{qty} {unit} can be returned'**
+  String returnLeft(String qty, String unit);
+
+  /// No description provided for @returnNothingLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything on this bill has been returned'**
+  String get returnNothingLeft;
+
+  /// No description provided for @returnRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund by'**
+  String get returnRefund;
+
+  /// No description provided for @returnOffDues.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken off {name}\'s dues'**
+  String returnOffDues(String name);
+
+  /// No description provided for @returnReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get returnReason;
+
+  /// No description provided for @returnSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue credit note · {amount}'**
+  String returnSave(String amount);
+
+  /// No description provided for @returnSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit note {note} issued'**
+  String returnSaved(String note);
+
+  /// No description provided for @returnChooseQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how many of each item came back'**
+  String get returnChooseQty;
+
+  /// No description provided for @billCreditNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Returns'**
+  String get billCreditNotes;
+
+  /// No description provided for @creditNoteLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{note} · {amount}'**
+  String creditNoteLine(String note, String amount);
+
+  /// No description provided for @reportsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get reportsTitle;
+
+  /// No description provided for @reportsSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get reportsSales;
+
+  /// No description provided for @reportsReturns.
+  ///
+  /// In en, this message translates to:
+  /// **'Returns'**
+  String get reportsReturns;
+
+  /// No description provided for @reportsNetSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Net sales'**
+  String get reportsNetSales;
+
+  /// No description provided for @reportsPurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases'**
+  String get reportsPurchases;
+
+  /// No description provided for @reportsExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get reportsExpenses;
+
+  /// No description provided for @reportsGrossProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Gross profit'**
+  String get reportsGrossProfit;
+
+  /// No description provided for @reportsGrossProfitPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Gross profit (items with cost)'**
+  String get reportsGrossProfitPartial;
+
+  /// No description provided for @reportsNetProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Net profit'**
+  String get reportsNetProfit;
+
+  /// No description provided for @reportsGstTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'GST for the month'**
+  String get reportsGstTitle;
+
+  /// No description provided for @reportsOutputTax.
+  ///
+  /// In en, this message translates to:
+  /// **'GST on sales (after returns)'**
+  String get reportsOutputTax;
+
+  /// No description provided for @reportsInputTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Input tax credit'**
+  String get reportsInputTax;
+
+  /// No description provided for @reportsGstPayable.
+  ///
+  /// In en, this message translates to:
+  /// **'GST payable'**
+  String get reportsGstPayable;
+
+  /// No description provided for @reportsGstCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit carried forward'**
+  String get reportsGstCredit;
+
+  /// No description provided for @reportsBills.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No bills} =1{1 bill} other{{count} bills}}'**
+  String reportsBills(int count);
+
+  /// No description provided for @reportsExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export GST report (Excel)'**
+  String get reportsExport;
+
+  /// No description provided for @reportsExportHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'GSTR-1 style sheets (B2B, B2CS, HSN, credit notes, documents) plus purchases and a summary, for your CA.'**
+  String get reportsExportHelp;
+
+  /// No description provided for @reportsShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'GST report {month} · {shop}'**
+  String reportsShareText(String month, String shop);
+
+  /// No description provided for @reportsPreviousMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get reportsPreviousMonth;
+
+  /// No description provided for @reportsNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get reportsNextMonth;
+
+  /// No description provided for @reportsNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Check before filing'**
+  String get reportsNotes;
 }
 
 class _AppLocalizationsDelegate

@@ -4,10 +4,18 @@ import 'package:shop_app/l10n/gen/app_localizations.dart';
 
 /// "Due ₹500" (red), "Advance ₹20" (green) or "Settled".
 class BalanceText extends StatelessWidget {
-  const BalanceText(this.balance, {this.style, super.key});
+  const BalanceText(
+    this.balance, {
+    this.style,
+    this.supplier = false,
+    super.key,
+  });
 
   final Money balance;
   final TextStyle? style;
+
+  /// Supplier balances: positive means the shop owes them.
+  final bool supplier;
 
   @override
   Widget build(BuildContext context) {
@@ -16,13 +24,17 @@ class BalanceText extends StatelessWidget {
     final base = style ?? Theme.of(context).textTheme.titleSmall;
     if (balance.isPositive) {
       return Text(
-        l10n.balanceDue(balance.format()),
+        supplier
+            ? l10n.balanceYouOwe(balance.format())
+            : l10n.balanceDue(balance.format()),
         style: base?.copyWith(color: scheme.error),
       );
     }
     if (balance.isNegative) {
       return Text(
-        l10n.balanceAdvance((-balance).format()),
+        supplier
+            ? l10n.balanceTheyOwe((-balance).format())
+            : l10n.balanceAdvance((-balance).format()),
         style: base?.copyWith(color: scheme.primary),
       );
     }

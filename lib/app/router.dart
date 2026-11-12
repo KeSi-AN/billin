@@ -5,9 +5,11 @@ import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/features/billing/presentation/bill_page.dart';
 import 'package:shop_app/features/billing/presentation/billing_page.dart';
 import 'package:shop_app/features/billing/presentation/sales_page.dart';
+import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/customers/presentation/customer_form_page.dart';
 import 'package:shop_app/features/customers/presentation/customer_page.dart';
 import 'package:shop_app/features/customers/presentation/customers_page.dart';
+import 'package:shop_app/features/expenses/presentation/expenses_page.dart';
 import 'package:shop_app/features/home/presentation/home_page.dart';
 import 'package:shop_app/features/inventory/presentation/item_stock_page.dart';
 import 'package:shop_app/features/inventory/presentation/stock_overview_page.dart';
@@ -16,6 +18,10 @@ import 'package:shop_app/features/items/presentation/item_form_page.dart';
 import 'package:shop_app/features/items/presentation/items_page.dart';
 import 'package:shop_app/features/printing/presentation/labels_page.dart';
 import 'package:shop_app/features/printing/presentation/printer_settings_page.dart';
+import 'package:shop_app/features/purchases/presentation/purchase_form_page.dart';
+import 'package:shop_app/features/purchases/presentation/purchase_page.dart';
+import 'package:shop_app/features/purchases/presentation/purchases_page.dart';
+import 'package:shop_app/features/reports/presentation/reports_page.dart';
 import 'package:shop_app/features/scanner/scan_page.dart';
 import 'package:shop_app/features/settings/presentation/billing_settings_page.dart';
 import 'package:shop_app/features/settings/presentation/settings_page.dart';
@@ -40,12 +46,23 @@ abstract final class AppRoutes {
   static const importExport = '/items/transfer';
   static const labels = '/labels';
   static const customers = '/customers';
+  static const suppliers = '/suppliers';
+  static String _base(PartyType t) =>
+      t == PartyType.supplier ? suppliers : customers;
   static String customer(int id) => '/customers/$id';
-  static String editCustomer(int id) => '/customers/$id/edit';
-  static String newCustomer({String? name}) => Uri(
-    path: '/customers/new',
+  static String party(PartyType t, int id) => '${_base(t)}/$id';
+  static String editParty(PartyType t, int id) => '${_base(t)}/$id/edit';
+  static String newParty(PartyType t, {String? name}) => Uri(
+    path: '${_base(t)}/new',
     queryParameters: name == null || name.isEmpty ? null : {'name': name},
   ).toString();
+  static String newCustomer({String? name}) =>
+      newParty(PartyType.customer, name: name);
+  static const purchases = '/purchases';
+  static const newPurchase = '/purchases/new';
+  static String purchase(int id) => '/purchases/$id';
+  static const expenses = '/expenses';
+  static const reports = '/reports';
   static const scan = '/scan';
   static const settings = '/settings';
   static const editShop = '/settings/shop';
@@ -128,7 +145,7 @@ GoRouter buildRouter(ShopProfileCubit profile) => GoRouter(
       builder: (context, state) => const StockOverviewPage(),
     ),
     GoRoute(
-      path: AppRoutes.customers,
+      path: '/customers',
       builder: (context, state) => const CustomersPage(),
     ),
     GoRoute(
@@ -145,6 +162,51 @@ GoRouter buildRouter(ShopProfileCubit profile) => GoRouter(
       path: '/customers/:id/edit',
       builder: (context, state) =>
           CustomerFormPage(partyId: int.parse(state.pathParameters['id']!)),
+    ),
+    GoRoute(
+      path: '/suppliers',
+      builder: (context, state) =>
+          const CustomersPage(type: PartyType.supplier),
+    ),
+    GoRoute(
+      path: '/suppliers/new',
+      builder: (context, state) => CustomerFormPage(
+        type: PartyType.supplier,
+        initialName: state.uri.queryParameters['name'],
+      ),
+    ),
+    GoRoute(
+      path: '/suppliers/:id',
+      builder: (context, state) =>
+          CustomerPage(partyId: int.parse(state.pathParameters['id']!)),
+    ),
+    GoRoute(
+      path: '/suppliers/:id/edit',
+      builder: (context, state) => CustomerFormPage(
+        type: PartyType.supplier,
+        partyId: int.parse(state.pathParameters['id']!),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.purchases,
+      builder: (context, state) => const PurchasesPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.newPurchase,
+      builder: (context, state) => const PurchaseFormPage(),
+    ),
+    GoRoute(
+      path: '/purchases/:id',
+      builder: (context, state) =>
+          PurchasePage(purchaseId: int.parse(state.pathParameters['id']!)),
+    ),
+    GoRoute(
+      path: AppRoutes.expenses,
+      builder: (context, state) => const ExpensesPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.reports,
+      builder: (context, state) => const ReportsPage(),
     ),
     GoRoute(
       path: AppRoutes.labels,

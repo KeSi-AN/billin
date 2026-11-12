@@ -9,14 +9,18 @@ import 'package:shop_app/l10n/gen/app_localizations.dart';
 
 /// Customers with their dues.
 class CustomersPage extends StatefulWidget {
-  const CustomersPage({super.key});
+  const CustomersPage({this.type = PartyType.customer, super.key});
+
+  final PartyType type;
 
   @override
   State<CustomersPage> createState() => _CustomersPageState();
 }
 
 class _CustomersPageState extends State<CustomersPage> {
-  PartyFilter _filter = const PartyFilter();
+  late PartyFilter _filter = PartyFilter(type: widget.type);
+
+  bool get _suppliers => widget.type == PartyType.supplier;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +29,7 @@ class _CustomersPageState extends State<CustomersPage> {
     final repo = context.read<PartyRepository>();
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.customersTitle),
+        title: Text(_suppliers ? l10n.suppliersTitle : l10n.customersTitle),
         actions: [
           PopupMenuButton<PartySort>(
             tooltip: l10n.sortBy,
@@ -49,19 +53,24 @@ class _CustomersPageState extends State<CustomersPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('addCustomerButton'),
-        onPressed: () => context.push(AppRoutes.newCustomer()),
+        onPressed: () => context.push(AppRoutes.newParty(widget.type)),
         icon: const Icon(Icons.person_add_alt),
-        label: Text(l10n.customerAdd),
+        label: Text(_suppliers ? l10n.supplierAdd : l10n.customerAdd),
       ),
       body: Column(
         children: [
           StreamBuilder<Money>(
-            stream: repo.watchTotalDue(),
+            stream: repo.watchTotalDue(type: widget.type),
             builder: (context, snapshot) => Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Card(
                 child: ListTile(
-                  title: Text(l10n.customersTotalDue, style: text.labelLarge),
+                  title: Text(
+                    _suppliers
+                        ? l10n.suppliersTotalOwed
+                        : l10n.customersTotalDue,
+                    style: text.labelLarge,
+                  ),
                   trailing: Text(
                     (snapshot.data ?? Money.zero).format(),
                     key: const Key('totalDue'),
@@ -109,8 +118,10 @@ class _CustomersPageState extends State<CustomersPage> {
                     child: Padding(
                       padding: const EdgeInsets.all(32),
                       child: Text(
-                        _filter == const PartyFilter()
-                            ? l10n.customersEmpty
+                        _filter == PartyFilter(type: widget.type)
+                            ? (_suppliers
+                                  ? l10n.suppliersEmpty
+                                  : l10n.customersEmpty)
                             : l10n.customersNoMatch,
                         textAlign: TextAlign.center,
                       ),
@@ -123,8 +134,9 @@ class _CustomersPageState extends State<CustomersPage> {
                   separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, i) => CustomerTile(
                     party: parties[i],
-                    onTap: () =>
-                        context.push(AppRoutes.customer(parties[i].id!)),
+                    onTap: () => context.push(
+                      AppRoutes.party(widget.type, parties[i].id!),
+                    ),
                   ),
                 );
               },
@@ -150,7 +162,10 @@ class CustomerTile extends StatelessWidget {
       leading: CircleAvatar(child: Text(initial.toUpperCase())),
       title: Text(party.name),
       subtitle: party.phone == null ? null : Text('+91 ${party.phone}'),
-      trailing: BalanceText(party.balance),
+      trailing: BalanceText(
+        party.balance,
+        supplier: party.type == PartyType.supplier,
+      ),
     );
   }
 }

@@ -1281,4 +1281,332 @@ class AppLocalizationsEn extends AppLocalizations {
   String entryReturn(String invoice) {
     return 'Goods returned · $invoice';
   }
+
+  @override
+  String get checkoutIgst => 'IGST';
+
+  @override
+  String billBuyerGstin(String gstin) {
+    return 'Buyer GSTIN: $gstin';
+  }
+
+  @override
+  String billPlaceOfSupply(String state) {
+    return 'Place of supply: $state';
+  }
+
+  @override
+  String billProfit(String amount) {
+    return 'Profit $amount';
+  }
+
+  @override
+  String billProfitPartial(String amount) {
+    return 'Profit $amount (items with a cost price)';
+  }
+
+  @override
+  String get fieldStateOptional => 'State (for GST)';
+
+  @override
+  String get stateFromGstinHelp => 'Filled from the GSTIN';
+
+  @override
+  String get actionPurchases => 'Purchases';
+
+  @override
+  String get actionExpenses => 'Expenses';
+
+  @override
+  String get suppliersTitle => 'Suppliers';
+
+  @override
+  String get supplierAdd => 'Add supplier';
+
+  @override
+  String get supplierNew => 'New supplier';
+
+  @override
+  String get supplierEdit => 'Edit supplier';
+
+  @override
+  String get suppliersEmpty =>
+      'No suppliers yet. Add the wholesalers you buy from.';
+
+  @override
+  String get suppliersTotalOwed => 'You owe in total';
+
+  @override
+  String balanceYouOwe(String amount) {
+    return 'You owe $amount';
+  }
+
+  @override
+  String balanceTheyOwe(String amount) {
+    return 'Advance $amount';
+  }
+
+  @override
+  String get paySupplier => 'Pay supplier';
+
+  @override
+  String paySupplierTitle(String name) {
+    return 'Payment to $name';
+  }
+
+  @override
+  String get paymentMade => 'Amount paid';
+
+  @override
+  String get supplierPickerTitle => 'Supplier';
+
+  @override
+  String get pickSupplier => 'Choose supplier';
+
+  @override
+  String get supplierNeeded => 'Choose a supplier to buy on credit';
+
+  @override
+  String get purchasesTitle => 'Purchases';
+
+  @override
+  String get purchasesEmpty => 'No purchases this month';
+
+  @override
+  String get purchasesMonthTotal => 'Purchases this month';
+
+  @override
+  String get purchaseNew => 'New purchase';
+
+  @override
+  String get purchaseAdd => 'Add purchase';
+
+  @override
+  String get fieldSupplierInvoice => 'Supplier bill no.';
+
+  @override
+  String get purchaseDate => 'Bill date';
+
+  @override
+  String get purchaseAddItem => 'Add item';
+
+  @override
+  String get purchaseNoLines => 'Add the items on the supplier\'s bill';
+
+  @override
+  String fieldUnitCost(String unit) {
+    return 'Cost per $unit';
+  }
+
+  @override
+  String get fieldCostIncludesTax => 'Cost includes GST';
+
+  @override
+  String purchaseLineTitle(String name) {
+    return '$name';
+  }
+
+  @override
+  String purchaseSave(String amount) {
+    return 'Save purchase · $amount';
+  }
+
+  @override
+  String get purchaseSaved => 'Purchase saved; stock updated';
+
+  @override
+  String get purchasePaidNow => 'Paid now';
+
+  @override
+  String purchaseDueAfter(String amount) {
+    return '$amount will be owed to the supplier';
+  }
+
+  @override
+  String get purchaseCancel => 'Cancel purchase';
+
+  @override
+  String get purchaseCancelBody =>
+      'Stock from this purchase is taken back out, and anything owed to the supplier is reversed.';
+
+  @override
+  String get purchaseCancelled => 'Cancelled';
+
+  @override
+  String purchaseItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get purchaseTaxable => 'Before GST';
+
+  @override
+  String get purchaseGst => 'GST (input credit)';
+
+  @override
+  String get purchaseTotal => 'Total';
+
+  @override
+  String get purchaseItemPickerHint => 'Search item or scan barcode';
+
+  @override
+  String get expensesTitle => 'Expenses';
+
+  @override
+  String get expensesEmpty => 'No expenses this month';
+
+  @override
+  String get expensesMonthTotal => 'Expenses this month';
+
+  @override
+  String get expenseAdd => 'Add expense';
+
+  @override
+  String get expenseCategory => 'What for';
+
+  @override
+  String get expenseAmount => 'Amount';
+
+  @override
+  String get expenseDate => 'Date';
+
+  @override
+  String get expenseSaved => 'Expense saved';
+
+  @override
+  String get expenseDeleted => 'Expense removed';
+
+  @override
+  String expenseDeleteConfirm(String amount) {
+    return 'Remove this $amount expense?';
+  }
+
+  @override
+  String get billReturn => 'Return items';
+
+  @override
+  String returnTitle(String invoice) {
+    return 'Return items · $invoice';
+  }
+
+  @override
+  String returnLeft(String qty, String unit) {
+    return '$qty $unit can be returned';
+  }
+
+  @override
+  String get returnNothingLeft => 'Everything on this bill has been returned';
+
+  @override
+  String get returnRefund => 'Refund by';
+
+  @override
+  String returnOffDues(String name) {
+    return 'Taken off $name\'s dues';
+  }
+
+  @override
+  String get returnReason => 'Reason (optional)';
+
+  @override
+  String returnSave(String amount) {
+    return 'Issue credit note · $amount';
+  }
+
+  @override
+  String returnSaved(String note) {
+    return 'Credit note $note issued';
+  }
+
+  @override
+  String get returnChooseQty => 'Choose how many of each item came back';
+
+  @override
+  String get billCreditNotes => 'Returns';
+
+  @override
+  String creditNoteLine(String note, String amount) {
+    return '$note · $amount';
+  }
+
+  @override
+  String get reportsTitle => 'Reports';
+
+  @override
+  String get reportsSales => 'Sales';
+
+  @override
+  String get reportsReturns => 'Returns';
+
+  @override
+  String get reportsNetSales => 'Net sales';
+
+  @override
+  String get reportsPurchases => 'Purchases';
+
+  @override
+  String get reportsExpenses => 'Expenses';
+
+  @override
+  String get reportsGrossProfit => 'Gross profit';
+
+  @override
+  String get reportsGrossProfitPartial => 'Gross profit (items with cost)';
+
+  @override
+  String get reportsNetProfit => 'Net profit';
+
+  @override
+  String get reportsGstTitle => 'GST for the month';
+
+  @override
+  String get reportsOutputTax => 'GST on sales (after returns)';
+
+  @override
+  String get reportsInputTax => 'Input tax credit';
+
+  @override
+  String get reportsGstPayable => 'GST payable';
+
+  @override
+  String get reportsGstCredit => 'Credit carried forward';
+
+  @override
+  String reportsBills(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bills',
+      one: '1 bill',
+      zero: 'No bills',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reportsExport => 'Export GST report (Excel)';
+
+  @override
+  String get reportsExportHelp =>
+      'GSTR-1 style sheets (B2B, B2CS, HSN, credit notes, documents) plus purchases and a summary, for your CA.';
+
+  @override
+  String reportsShareText(String month, String shop) {
+    return 'GST report $month · $shop';
+  }
+
+  @override
+  String get reportsPreviousMonth => 'Previous month';
+
+  @override
+  String get reportsNextMonth => 'Next month';
+
+  @override
+  String get reportsNotes => 'Check before filing';
 }

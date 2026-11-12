@@ -80,6 +80,7 @@ class ReceiptFormatter {
     );
     if (bill.customerName != null) text('Customer: ${bill.customerName}');
     if (bill.customerPhone != null) text('Ph: ${bill.customerPhone}');
+    if (bill.buyerGstin != null) text('GSTIN: ${bill.buyerGstin}');
     rule();
     pair('Item', 'Amount', bold: true);
     rule();
@@ -119,8 +120,12 @@ class ReceiptFormatter {
       text('GST summary', bold: true);
       for (final b in bill.taxBuckets) {
         pair('Taxable @${b.rate.label}', _amt(b.taxable));
-        pair('  CGST ${b.rate.halfLabel}', _amt(b.cgst));
-        pair('  SGST ${b.rate.halfLabel}', _amt(b.sgst));
+        if (bill.interState) {
+          pair('  IGST ${b.rate.label}', _amt(b.tax));
+        } else {
+          pair('  CGST ${b.rate.halfLabel}', _amt(b.cgst));
+          pair('  SGST ${b.rate.halfLabel}', _amt(b.sgst));
+        }
       }
     }
 

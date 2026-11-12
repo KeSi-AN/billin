@@ -7,20 +7,24 @@ import 'package:shop_app/features/customers/presentation/customers_page.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
 /// Search customers, or add a new one. Returns the chosen [Party].
-Future<Party?> showCustomerPicker(BuildContext context) =>
-    showModalBottomSheet<Party>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      useSafeArea: true,
-      builder: (_) => RepositoryProvider.value(
-        value: context.read<PartyRepository>(),
-        child: const _CustomerPicker(),
-      ),
-    );
+Future<Party?> showCustomerPicker(
+  BuildContext context, {
+  PartyType type = PartyType.customer,
+}) => showModalBottomSheet<Party>(
+  context: context,
+  isScrollControlled: true,
+  showDragHandle: true,
+  useSafeArea: true,
+  builder: (_) => RepositoryProvider.value(
+    value: context.read<PartyRepository>(),
+    child: _CustomerPicker(type: type),
+  ),
+);
 
 class _CustomerPicker extends StatefulWidget {
-  const _CustomerPicker();
+  const _CustomerPicker({required this.type});
+
+  final PartyType type;
 
   @override
   State<_CustomerPicker> createState() => _CustomerPickerState();
@@ -31,7 +35,7 @@ class _CustomerPickerState extends State<_CustomerPicker> {
 
   Future<void> _addNew() async {
     final party = await context.push<Party>(
-      AppRoutes.newCustomer(name: _query.trim()),
+      AppRoutes.newParty(widget.type, name: _query.trim()),
     );
     if (party != null && mounted) Navigator.pop(context, party);
   }
@@ -62,7 +66,9 @@ class _CustomerPickerState extends State<_CustomerPicker> {
               leading: const Icon(Icons.person_add_alt),
               title: Text(
                 _query.trim().isEmpty
-                    ? l10n.customerNew
+                    ? (widget.type == PartyType.supplier
+                          ? l10n.supplierNew
+                          : l10n.customerNew)
                     : l10n.customerPickerNew(_query.trim()),
               ),
               onTap: _addNew,
@@ -72,7 +78,11 @@ class _CustomerPickerState extends State<_CustomerPicker> {
               child: StreamBuilder<List<Party>>(
                 key: ValueKey(_query),
                 stream: context.read<PartyRepository>().watchAll(
-                  filter: PartyFilter(query: _query, sort: PartySort.recent),
+                  filter: PartyFilter(
+                    query: _query,
+                    sort: PartySort.recent,
+                    type: widget.type,
+                  ),
                 ),
                 builder: (context, snapshot) => ListView(
                   children: [

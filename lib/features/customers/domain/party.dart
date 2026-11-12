@@ -82,17 +82,20 @@ class PartyFilter {
     this.query = '',
     this.onlyWithDues = false,
     this.sort = PartySort.name,
+    this.type = PartyType.customer,
   });
 
   final String query;
   final bool onlyWithDues;
   final PartySort sort;
+  final PartyType type;
 
   PartyFilter copyWith({String? query, bool? onlyWithDues, PartySort? sort}) =>
       PartyFilter(
         query: query ?? this.query,
         onlyWithDues: onlyWithDues ?? this.onlyWithDues,
         sort: sort ?? this.sort,
+        type: type,
       );
 
   @override
@@ -100,10 +103,11 @@ class PartyFilter {
       other is PartyFilter &&
       other.query == query &&
       other.onlyWithDues == onlyWithDues &&
-      other.sort == sort;
+      other.sort == sort &&
+      other.type == type;
 
   @override
-  int get hashCode => Object.hash(query, onlyWithDues, sort);
+  int get hashCode => Object.hash(query, onlyWithDues, sort, type);
 }
 
 class PartyHasBalanceException implements Exception {
@@ -127,8 +131,9 @@ class DuplicatePhoneException implements Exception {
 abstract interface class PartyRepository {
   Stream<List<Party>> watchAll({PartyFilter filter = const PartyFilter()});
 
-  /// Sum of all customers' dues (advances not netted off).
-  Stream<Money> watchTotalDue();
+  /// Sum of positive balances of one type: what customers owe the shop, or
+  /// what the shop owes suppliers (advances not netted off).
+  Stream<Money> watchTotalDue({PartyType type = PartyType.customer});
 
   Future<Party?> byId(int id);
 

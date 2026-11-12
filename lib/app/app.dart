@@ -7,14 +7,17 @@ import 'package:shop_app/app/flavor.dart';
 import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/theme/app_theme.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
+import 'package:shop_app/features/billing/domain/credit_note.dart';
 import 'package:shop_app/features/billing/presentation/bill_actions.dart';
 import 'package:shop_app/features/customers/domain/contact_picker.dart';
 import 'package:shop_app/features/customers/domain/customer_actions.dart';
 import 'package:shop_app/features/customers/domain/party.dart';
+import 'package:shop_app/features/expenses/domain/expense.dart';
 import 'package:shop_app/features/inventory/domain/inventory.dart';
 import 'package:shop_app/features/inventory/domain/stock_alerts.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/printing/data/printer_service.dart';
+import 'package:shop_app/features/purchases/domain/purchase.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile_repository.dart';
 import 'package:shop_app/features/shop_profile/presentation/cubit/shop_profile_cubit.dart';
@@ -35,6 +38,9 @@ class AppServices {
     required this.parties,
     required this.customerActions,
     required this.contactPicker,
+    required this.purchases,
+    required this.returns,
+    required this.expenses,
   });
 
   final ShopProfileRepository shopProfiles;
@@ -48,6 +54,9 @@ class AppServices {
   final PartyRepository parties;
   final CustomerActions customerActions;
   final ContactPicker contactPicker;
+  final PurchaseRepository purchases;
+  final ReturnsRepository returns;
+  final ExpenseRepository expenses;
 }
 
 class ShopApp extends StatefulWidget {
@@ -90,6 +99,9 @@ class _ShopAppState extends State<ShopApp> {
         RepositoryProvider.value(value: s.parties),
         RepositoryProvider.value(value: s.customerActions),
         RepositoryProvider.value(value: s.contactPicker),
+        RepositoryProvider.value(value: s.purchases),
+        RepositoryProvider.value(value: s.returns),
+        RepositoryProvider.value(value: s.expenses),
       ],
       child: BlocProvider.value(
         value: _profileCubit,

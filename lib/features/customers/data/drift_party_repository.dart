@@ -17,13 +17,13 @@ class DriftPartyRepository implements PartyRepository {
 
   $PartiesTable get _p => _db.parties;
 
-  SimpleSelectStatement<$PartiesTable, PartyRow> _customers() =>
+  SimpleSelectStatement<$PartiesTable, PartyRow> _ofType(PartyType type) =>
       _db.select(_p)
-        ..where((p) => p.isActive.equals(true) & p.type.equals('customer'));
+        ..where((p) => p.isActive.equals(true) & p.type.equals(type.name));
 
   @override
   Stream<List<Party>> watchAll({PartyFilter filter = const PartyFilter()}) {
-    final select = _customers();
+    final select = _ofType(filter.type);
     final q = filter.query.trim().toLowerCase();
     if (q.isNotEmpty) {
       final escaped = q
@@ -54,9 +54,12 @@ class DriftPartyRepository implements PartyRepository {
   }
 
   @override
-  Stream<Money> watchTotalDue() {
+  Stream<Money> watchTotalDue({PartyType type = PartyType.customer}) {
     final sum = _p.balancePaise.sum(
-      filter: _p.balancePaise.isBiggerThanValue(0) & _p.isActive.equals(true),
+      filter:
+          _p.balancePaise.isBiggerThanValue(0) &
+          _p.isActive.equals(true) &
+          _p.type.equals(type.name),
     );
     return (_db.selectOnly(_p)..addColumns([sum])).watchSingle().map(
       (row) => Money.paise(row.read(sum) ?? 0),
@@ -85,9 +88,9 @@ class DriftPartyRepository implements PartyRepository {
     final phone = _blankToNull(party.phone);
     final normalized = phone == null ? null : IndianPhone.normalize(phone);
     if (normalized != null) {
-      final clash =
-          await (_customers()..where((p) => p.phone.equals(normalized)))
-              .getSingleOrNull();
+      final clash = await (_ofType(
+        party.type,
+      )..where((p) => p.phone.equals(normalized))).getSingleOrNull();
       if (clash != null && clash.id != party.id) {
         throw DuplicatePhoneException(clash.name);
       }

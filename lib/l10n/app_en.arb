@@ -904,5 +904,251 @@
         "type": "String"
       }
     }
-  }
+  },
+  "checkoutIgst": "IGST",
+  "billBuyerGstin": "Buyer GSTIN: {gstin}",
+  "@billBuyerGstin": {
+    "placeholders": {
+      "gstin": {
+        "type": "String"
+      }
+    }
+  },
+  "billPlaceOfSupply": "Place of supply: {state}",
+  "@billPlaceOfSupply": {
+    "placeholders": {
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "billProfit": "Profit {amount}",
+  "@billProfit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "billProfitPartial": "Profit {amount} (items with a cost price)",
+  "@billProfitPartial": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldStateOptional": "State (for GST)",
+  "stateFromGstinHelp": "Filled from the GSTIN",
+  "actionPurchases": "Purchases",
+  "actionExpenses": "Expenses",
+  "suppliersTitle": "Suppliers",
+  "supplierAdd": "Add supplier",
+  "supplierNew": "New supplier",
+  "supplierEdit": "Edit supplier",
+  "suppliersEmpty": "No suppliers yet. Add the wholesalers you buy from.",
+  "suppliersTotalOwed": "You owe in total",
+  "balanceYouOwe": "You owe {amount}",
+  "@balanceYouOwe": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "balanceTheyOwe": "Advance {amount}",
+  "@balanceTheyOwe": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paySupplier": "Pay supplier",
+  "paySupplierTitle": "Payment to {name}",
+  "@paySupplierTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentMade": "Amount paid",
+  "supplierPickerTitle": "Supplier",
+  "pickSupplier": "Choose supplier",
+  "supplierNeeded": "Choose a supplier to buy on credit",
+  "purchasesTitle": "Purchases",
+  "purchasesEmpty": "No purchases this month",
+  "purchasesMonthTotal": "Purchases this month",
+  "purchaseNew": "New purchase",
+  "purchaseAdd": "Add purchase",
+  "fieldSupplierInvoice": "Supplier bill no.",
+  "purchaseDate": "Bill date",
+  "purchaseAddItem": "Add item",
+  "purchaseNoLines": "Add the items on the supplier's bill",
+  "fieldUnitCost": "Cost per {unit}",
+  "@fieldUnitCost": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldCostIncludesTax": "Cost includes GST",
+  "purchaseLineTitle": "{name}",
+  "@purchaseLineTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseSave": "Save purchase · {amount}",
+  "@purchaseSave": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseSaved": "Purchase saved; stock updated",
+  "purchasePaidNow": "Paid now",
+  "purchaseDueAfter": "{amount} will be owed to the supplier",
+  "@purchaseDueAfter": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseCancel": "Cancel purchase",
+  "purchaseCancelBody": "Stock from this purchase is taken back out, and anything owed to the supplier is reversed.",
+  "purchaseCancelled": "Cancelled",
+  "purchaseItems": "{count, plural, =1{1 item} other{{count} items}}",
+  "@purchaseItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseTaxable": "Before GST",
+  "purchaseGst": "GST (input credit)",
+  "purchaseTotal": "Total",
+  "purchaseItemPickerHint": "Search item or scan barcode",
+  "expensesTitle": "Expenses",
+  "expensesEmpty": "No expenses this month",
+  "expensesMonthTotal": "Expenses this month",
+  "expenseAdd": "Add expense",
+  "expenseCategory": "What for",
+  "expenseAmount": "Amount",
+  "expenseDate": "Date",
+  "expenseSaved": "Expense saved",
+  "expenseDeleted": "Expense removed",
+  "expenseDeleteConfirm": "Remove this {amount} expense?",
+  "@expenseDeleteConfirm": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "billReturn": "Return items",
+  "returnTitle": "Return items · {invoice}",
+  "@returnTitle": {
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      }
+    }
+  },
+  "returnLeft": "{qty} {unit} can be returned",
+  "@returnLeft": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "returnNothingLeft": "Everything on this bill has been returned",
+  "returnRefund": "Refund by",
+  "returnOffDues": "Taken off {name}'s dues",
+  "@returnOffDues": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "returnReason": "Reason (optional)",
+  "returnSave": "Issue credit note · {amount}",
+  "@returnSave": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "returnSaved": "Credit note {note} issued",
+  "@returnSaved": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "returnChooseQty": "Choose how many of each item came back",
+  "billCreditNotes": "Returns",
+  "creditNoteLine": "{note} · {amount}",
+  "@creditNoteLine": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsTitle": "Reports",
+  "reportsSales": "Sales",
+  "reportsReturns": "Returns",
+  "reportsNetSales": "Net sales",
+  "reportsPurchases": "Purchases",
+  "reportsExpenses": "Expenses",
+  "reportsGrossProfit": "Gross profit",
+  "reportsGrossProfitPartial": "Gross profit (items with cost)",
+  "reportsNetProfit": "Net profit",
+  "reportsGstTitle": "GST for the month",
+  "reportsOutputTax": "GST on sales (after returns)",
+  "reportsInputTax": "Input tax credit",
+  "reportsGstPayable": "GST payable",
+  "reportsGstCredit": "Credit carried forward",
+  "reportsBills": "{count, plural, =0{No bills} =1{1 bill} other{{count} bills}}",
+  "@reportsBills": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsExport": "Export GST report (Excel)",
+  "reportsExportHelp": "GSTR-1 style sheets (B2B, B2CS, HSN, credit notes, documents) plus purchases and a summary, for your CA.",
+  "reportsShareText": "GST report {month} · {shop}",
+  "@reportsShareText": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPreviousMonth": "Previous month",
+  "reportsNextMonth": "Next month",
+  "reportsNotes": "Check before filing"
 }
