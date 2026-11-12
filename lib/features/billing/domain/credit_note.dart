@@ -17,6 +17,7 @@ class CreditNoteLine {
     required this.tax,
     required this.total,
     this.hsn,
+    this.cost,
   });
 
   final int billLineId;
@@ -28,6 +29,9 @@ class CreditNoteLine {
   final Money taxable;
   final Money tax;
   final Money total;
+
+  /// Cost of the returned goods (before GST), when the bill line had one.
+  final Money? cost;
 }
 
 /// Goods returned against a bill. Reduces sales and output GST.

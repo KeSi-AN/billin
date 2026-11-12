@@ -97,8 +97,9 @@ String writeCsv(Rows rows) {
 
 // --------------------------------------------------------------- XLSX ----
 
-/// Minimal reader for the first worksheet of an Office Open XML workbook.
-Rows readXlsx(Uint8List bytes) {
+/// Minimal reader for one worksheet (the first, or the one named
+/// [sheetName]) of an Office Open XML workbook.
+Rows readXlsx(Uint8List bytes, {String? sheetName}) {
   final Archive zip;
   try {
     zip = ZipDecoder().decodeBytes(bytes);
@@ -124,9 +125,10 @@ Rows readXlsx(Uint8List bytes) {
   final workbook = text('xl/workbook.xml');
   final rels = text('xl/_rels/workbook.xml.rels');
   if (workbook != null && rels != null) {
-    final first = XmlDocument.parse(workbook)
-        .findAllElements('sheet')
-        .firstOrNull;
+    final sheets = XmlDocument.parse(workbook).findAllElements('sheet');
+    final first = sheetName == null
+        ? sheets.firstOrNull
+        : sheets.where((e) => e.getAttribute('name') == sheetName).firstOrNull;
     final rid =
         first?.getAttribute('r:id') ??
         first?.attributes.where((a) => a.name.local == 'id').firstOrNull?.value;
@@ -195,14 +197,22 @@ String _cleanNumber(String raw) {
   return fixed;
 }
 
-/// Writes a single-sheet `.xlsx`. Text cells are inline strings (no shared
-/// string table); numbers in [numericColumns] are written as numbers so
-/// Excel can sum them. The first row is bold and frozen.
+/// One sheet of a workbook: its tab name, rows, and which columns hold
+/// numbers (written as numbers so Excel can sum them).
+typedef SheetData = ({String name, Rows rows, Set<int> numericColumns});
+
+/// Writes a single-sheet `.xlsx`. See [writeWorkbook].
 Uint8List writeXlsx(
   Rows rows, {
   String sheetName = 'Items',
   Set<int> numericColumns = const {},
-}) {
+}) => writeWorkbook([
+  (name: sheetName, rows: rows, numericColumns: numericColumns),
+]);
+
+/// Writes an `.xlsx` with one tab per sheet. Text cells are inline strings
+/// (no shared string table). Each sheet's first row is bold and frozen.
+Uint8List writeWorkbook(List<SheetData> sheets) {
   String esc(String v) => v
       .replaceAll('&', '&amp;')
       .replaceAll('<', '&lt;')
@@ -219,33 +229,40 @@ Uint8List writeXlsx(
     return s;
   }
 
-  final sheet = StringBuffer()
-    ..write(
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-      '<sheetViews><sheetView workbookViewId="0">'
-      '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>'
-      '</sheetView></sheetViews><sheetData>',
-    );
-  for (var r = 0; r < rows.length; r++) {
-    sheet.write('<row r="${r + 1}">');
-    for (var c = 0; c < rows[r].length; c++) {
-      final v = rows[r][c];
-      if (v.isEmpty) continue;
-      final ref = '${col(c)}${r + 1}';
-      final style = r == 0 ? ' s="1"' : '';
-      if (r > 0 && numericColumns.contains(c) && double.tryParse(v) != null) {
-        sheet.write('<c r="$ref"$style><v>$v</v></c>');
-      } else {
-        sheet.write(
-          '<c r="$ref" t="inlineStr"$style><is><t xml:space="preserve">${esc(v)}</t></is></c>',
-        );
+  String sheetXml(SheetData data) {
+    final rows = data.rows;
+    final sheet = StringBuffer()
+      ..write(
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+        '<sheetViews><sheetView workbookViewId="0">'
+        '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>'
+        '</sheetView></sheetViews><sheetData>',
+      );
+    for (var r = 0; r < rows.length; r++) {
+      sheet.write('<row r="${r + 1}">');
+      for (var c = 0; c < rows[r].length; c++) {
+        final v = rows[r][c];
+        if (v.isEmpty) continue;
+        final ref = '${col(c)}${r + 1}';
+        final style = r == 0 ? ' s="1"' : '';
+        if (r > 0 &&
+            data.numericColumns.contains(c) &&
+            double.tryParse(v) != null) {
+          sheet.write('<c r="$ref"$style><v>$v</v></c>');
+        } else {
+          sheet.write(
+            '<c r="$ref" t="inlineStr"$style><is><t xml:space="preserve">${esc(v)}</t></is></c>',
+          );
+        }
       }
+      sheet.write('</row>');
     }
-    sheet.write('</row>');
+    sheet.write('</sheetData></worksheet>');
+    return sheet.toString();
   }
-  sheet.write('</sheetData></worksheet>');
 
+  final n = sheets.length;
   final files = <String, String>{
     '[Content_Types].xml':
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -253,7 +270,7 @@ Uint8List writeXlsx(
         '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
         '<Default Extension="xml" ContentType="application/xml"/>'
         '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
-        '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+        '${[for (var i = 1; i <= n; i++) '<Override PartName="/xl/worksheets/sheet$i.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'].join()}'
         '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
         '</Types>',
     '_rels/.rels':
@@ -265,12 +282,12 @@ Uint8List writeXlsx(
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
         'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-        '<sheets><sheet name="${esc(sheetName)}" sheetId="1" r:id="rId1"/></sheets></workbook>',
+        '<sheets>${[for (var i = 1; i <= n; i++) '<sheet name="${esc(sheets[i - 1].name)}" sheetId="$i" r:id="rId$i"/>'].join()}</sheets></workbook>',
     'xl/_rels/workbook.xml.rels':
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-        '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
-        '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+        '${[for (var i = 1; i <= n; i++) '<Relationship Id="rId$i" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet$i.xml"/>'].join()}'
+        '<Relationship Id="rId${n + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
         '</Relationships>',
     'xl/styles.xml':
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -284,7 +301,8 @@ Uint8List writeXlsx(
         '<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
         '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs>'
         '</styleSheet>',
-    'xl/worksheets/sheet1.xml': sheet.toString(),
+    for (var i = 1; i <= n; i++)
+      'xl/worksheets/sheet$i.xml': sheetXml(sheets[i - 1]),
   };
   final archive = Archive();
   files.forEach((name, content) {

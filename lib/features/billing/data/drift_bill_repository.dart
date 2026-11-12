@@ -210,6 +210,29 @@ class DriftBillRepository implements BillRepository {
   }
 
   @override
+  Future<List<Bill>> billsBetween(DateTime from, DateTime to) async {
+    final rows =
+        await (_db.select(_db.bills)
+              ..where(
+                (b) =>
+                    b.billedAt.isBiggerOrEqualValue(from) &
+                    b.billedAt.isSmallerThanValue(to),
+              )
+              ..orderBy([(b) => OrderingTerm.asc(b.sequence)]))
+            .get();
+    if (rows.isEmpty) return [];
+    final lines =
+        await (_db.select(_db.billLines)
+              ..where((l) => l.billId.isIn(rows.map((r) => r.id)))
+              ..orderBy([(l) => OrderingTerm.asc(l.position)]))
+            .get();
+    return [
+      for (final r in rows)
+        _toDomain(r, lines.where((l) => l.billId == r.id).toList()),
+    ];
+  }
+
+  @override
   Stream<List<BillSummary>> watchBetween(DateTime from, DateTime to) {
     final lineCount = _db.billLines.id.count();
     final query =

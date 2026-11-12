@@ -413,7 +413,7 @@ void main() {
     final repo = DriftExpenseRepository(db);
     await repo.add(
       Expense(
-        spentAt: DateTime(2026, 11, 1),
+        spentAt: DateTime(2026, 11),
         category: 'Rent',
         amount: const Money.rupees(8000),
       ),

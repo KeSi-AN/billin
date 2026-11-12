@@ -274,6 +274,10 @@ abstract interface class BillRepository {
   /// Bills with `from <= billedAt < to`, newest first.
   Stream<List<BillSummary>> watchBetween(DateTime from, DateTime to);
 
+  /// Full bills (with lines), oldest first, including cancelled ones: for
+  /// reports.
+  Future<List<Bill>> billsBetween(DateTime from, DateTime to);
+
   /// Voids a bill. Its invoice number stays used, as GST rules require.
   Future<void> cancel(int id, {String? reason});
 }

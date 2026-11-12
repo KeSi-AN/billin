@@ -281,6 +281,12 @@ class FakeBills implements BillRepository {
       _bills.where((b) => b.id == id).firstOrNull;
 
   @override
+  Future<List<Bill>> billsBetween(DateTime from, DateTime to) async => [
+    for (final b in _bills)
+      if (!b.billedAt.isBefore(from) && b.billedAt.isBefore(to)) b,
+  ];
+
+  @override
   Stream<List<BillSummary>> watchBetween(DateTime from, DateTime to) async* {
     List<BillSummary> current() => [
       for (final b in _bills.reversed)

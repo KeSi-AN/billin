@@ -237,6 +237,14 @@ class DriftReturnsRepository implements ReturnsRepository {
                   taxable: Money.paise(cl.taxablePaise),
                   tax: Money.paise(cl.taxPaise),
                   total: Money.paise(cl.totalPaise),
+                  cost: bl.costPaise == null
+                      ? null
+                      : Money.paise(
+                          divRound(
+                            bl.costPaise! * cl.quantityMilli,
+                            bl.quantityMilli,
+                          ),
+                        ),
                 );
               }(),
           ],
