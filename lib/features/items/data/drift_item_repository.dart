@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:shop_app/core/db/app_database.dart';
 import 'package:shop_app/core/money/money.dart';
+import 'package:shop_app/core/money/quantity.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 
@@ -27,7 +28,7 @@ class DriftItemRepository implements ItemRepository {
     final select = _active();
     if (query.trim().isNotEmpty) select.where((t) => _matches(t, query));
     select.orderBy([(t) => OrderingTerm.asc(t.name.lower())]);
-    return select.watch().map((rows) => rows.map(_toDomain).toList());
+    return select.watch().map((rows) => rows.map(toDomain).toList());
   }
 
   @override
@@ -35,7 +36,7 @@ class DriftItemRepository implements ItemRepository {
     final row = await (_db.select(
       _items,
     )..where((t) => t.id.equals(id))).getSingleOrNull();
-    return row == null ? null : _toDomain(row);
+    return row == null ? null : toDomain(row);
   }
 
   @override
@@ -44,7 +45,7 @@ class DriftItemRepository implements ItemRepository {
     if (code.isEmpty) return null;
     final row = await (_active()..where((t) => t.barcode.equals(code)))
         .getSingleOrNull();
-    return row == null ? null : _toDomain(row);
+    return row == null ? null : toDomain(row);
   }
 
   @override
@@ -54,7 +55,7 @@ class DriftItemRepository implements ItemRepository {
       ..where((t) => _matches(t, query))
       ..orderBy([(t) => OrderingTerm.asc(t.name.lower())])
       ..limit(limit);
-    return (await select.get()).map(_toDomain).toList();
+    return (await select.get()).map(toDomain).toList();
   }
 
   @override
@@ -78,18 +79,31 @@ class DriftItemRepository implements ItemRepository {
       taxRateBp: Value(item.taxRate.bp),
       priceIncludesTax: Value(item.priceIncludesTax),
       hsn: Value(_blankToNull(item.hsn)),
+      trackStock: Value(item.trackStock),
+      lowStockMilli: Value(item.lowStock?.milli),
+      categoryId: Value(item.categoryId),
+      imagePath: Value(item.imagePath),
+      tracksBatches: Value(item.tracksBatches),
+      altUnit: Value(item.hasAltUnit ? item.altUnit!.trim() : null),
+      altUnitFactorMilli: Value(
+        item.hasAltUnit ? item.altUnitFactor!.milli : null,
+      ),
+      altUnitPricePaise: Value(
+        item.hasAltUnit ? item.altUnitPrice?.paise : null,
+      ),
+      // stockMilli is deliberately absent: only the stock ledger writes it.
       updatedAt: Value(now),
     );
     if (item.id == null) {
       final id = await _db
           .into(_items)
           .insert(companion.copyWith(createdAt: Value(now)));
-      return item.copyWith(id: id, barcode: barcode);
+      return (await byId(id))!;
     }
     await (_db.update(
       _items,
     )..where((t) => t.id.equals(item.id!))).write(companion);
-    return item.copyWith(barcode: barcode);
+    return (await byId(item.id!))!;
   });
 
   @override
@@ -103,7 +117,7 @@ class DriftItemRepository implements ItemRepository {
     );
   }
 
-  static Item _toDomain(ItemRow r) => Item(
+  static Item toDomain(ItemRow r) => Item(
     id: r.id,
     name: r.name,
     barcode: r.barcode,
@@ -113,6 +127,19 @@ class DriftItemRepository implements ItemRepository {
     taxRate: TaxRate(r.taxRateBp),
     priceIncludesTax: r.priceIncludesTax,
     hsn: r.hsn,
+    trackStock: r.trackStock,
+    stock: Quantity.milli(r.stockMilli),
+    lowStock: r.lowStockMilli == null ? null : Quantity.milli(r.lowStockMilli!),
+    categoryId: r.categoryId,
+    imagePath: r.imagePath,
+    tracksBatches: r.tracksBatches,
+    altUnit: r.altUnit,
+    altUnitFactor: r.altUnitFactorMilli == null
+        ? null
+        : Quantity.milli(r.altUnitFactorMilli!),
+    altUnitPrice: r.altUnitPricePaise == null
+        ? null
+        : Money.paise(r.altUnitPricePaise!),
   );
 
   static String? _blankToNull(String? v) {

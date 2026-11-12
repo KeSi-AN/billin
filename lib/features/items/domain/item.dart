@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shop_app/core/money/money.dart';
+import 'package:shop_app/core/money/quantity.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
 
 part 'item.freezed.dart';
@@ -35,7 +36,36 @@ abstract class Item with _$Item {
     /// MRP-style pricing (GST included in the price), the usual retail case.
     @Default(true) bool priceIncludesTax,
     String? hsn,
+
+    /// Off: unlimited stock, nothing is counted.
+    @Default(false) bool trackStock,
+
+    /// Current stock in base units. Read-only here: only the stock ledger
+    /// changes it (saving an item never touches stock).
+    @Default(Quantity.zero) Quantity stock,
+
+    /// Alert when stock falls to this level or below.
+    Quantity? lowStock,
+    int? categoryId,
+    String? imagePath,
+
+    /// Stock kept in batches with expiry; sales use the earliest expiry.
+    @Default(false) bool tracksBatches,
+
+    /// Optional second selling unit, e.g. `box` holding 12 `pcs`.
+    String? altUnit,
+    Quantity? altUnitFactor,
+    Money? altUnitPrice,
   }) = _Item;
+
+  const Item._();
+
+  bool get hasAltUnit =>
+      altUnit != null && altUnitFactor != null && altUnitFactor!.isPositive;
+
+  bool get isOutOfStock => trackStock && !stock.isPositive;
+
+  bool get isLowStock => trackStock && lowStock != null && !(stock > lowStock!);
 }
 
 class DuplicateBarcodeException implements Exception {

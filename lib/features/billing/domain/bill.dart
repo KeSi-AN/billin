@@ -1,5 +1,6 @@
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/money/quantity.dart';
+import 'package:shop_app/core/money/rounding.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
 
@@ -19,6 +20,7 @@ class DraftLine {
     this.taxRate = TaxRate.zero,
     this.priceIncludesTax = true,
     this.discount = Money.zero,
+    this.unitFactor = Quantity.one,
   });
 
   final int? itemId;
@@ -30,6 +32,13 @@ class DraftLine {
   final TaxRate taxRate;
   final bool priceIncludesTax;
   final Money discount;
+
+  /// Base units in one [unit]: 1 normally, 12 when selling a box of 12.
+  final Quantity unitFactor;
+
+  /// Stock this line takes out, in the item's base unit.
+  Quantity get baseQuantity =>
+      Quantity.milli(divRound(quantity.milli * unitFactor.milli, 1000));
 
   BillLineInput get input => BillLineInput(
     unitPrice: unitPrice,
@@ -44,16 +53,19 @@ class DraftLine {
     Money? unitPrice,
     Money? discount,
     String? name,
+    String? unit,
+    Quantity? unitFactor,
   }) => DraftLine(
     itemId: itemId,
     name: name ?? this.name,
-    unit: unit,
+    unit: unit ?? this.unit,
     hsn: hsn,
     quantity: quantity ?? this.quantity,
     unitPrice: unitPrice ?? this.unitPrice,
     taxRate: taxRate,
     priceIncludesTax: priceIncludesTax,
     discount: discount ?? this.discount,
+    unitFactor: unitFactor ?? this.unitFactor,
   );
 }
 
@@ -89,6 +101,7 @@ class BillLine {
     required this.total,
     this.itemId,
     this.hsn,
+    this.unitFactor = Quantity.one,
   });
 
   final int? itemId;
@@ -104,6 +117,7 @@ class BillLine {
   final Money taxable;
   final Money tax;
   final Money total;
+  final Quantity unitFactor;
 }
 
 /// A saved bill, exactly as it was charged.

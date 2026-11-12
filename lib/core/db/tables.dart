@@ -50,6 +50,76 @@ class Items extends Table {
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+
+  // --- Phase 2: inventory (schema v3) ---
+
+  /// Off: unlimited stock, nothing is counted.
+  BoolColumn get trackStock => boolean().withDefault(const Constant(false))();
+
+  /// Cached sum of this item's stock movements, in base units. The ledger
+  /// (StockMovements) is the truth; this is kept in step in the same
+  /// transaction so lists don't have to add up history.
+  IntColumn get stockMilli => integer().withDefault(const Constant(0))();
+  IntColumn get lowStockMilli => integer().nullable()();
+  IntColumn get categoryId =>
+      integer().nullable().references(Categories, #id)();
+  TextColumn get imagePath => text().nullable()();
+
+  /// Stock is held in batches with expiry dates; sales take the batch that
+  /// expires first (FEFO).
+  BoolColumn get tracksBatches =>
+      boolean().withDefault(const Constant(false))();
+
+  /// A second selling unit, e.g. `box` = 12 × `pcs`.
+  TextColumn get altUnit => text().nullable()();
+  IntColumn get altUnitFactorMilli => integer().nullable()();
+  IntColumn get altUnitPricePaise => integer().nullable()();
+}
+
+/// Item categories. A category with a parent is a subcategory (one level).
+@DataClassName('CategoryRow')
+class Categories extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text().withLength(min: 1, max: 60)();
+  IntColumn get parentId => integer().nullable().references(Categories, #id)();
+}
+
+/// Stock held in one batch (lot) of an item, with its expiry date.
+@DataClassName('BatchRow')
+class ItemBatches extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get itemId => integer().references(Items, #id)();
+  TextColumn get batchNo => text()();
+  DateTimeColumn get expiry => dateTime().nullable()();
+  IntColumn get quantityMilli => integer().withDefault(const Constant(0))();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  List<Set<Column<Object>>> get uniqueKeys => [
+    {itemId, batchNo},
+  ];
+}
+
+/// Append-only stock ledger. Every change to stock is one row here; stock
+/// is never edited directly.
+@DataClassName('MovementRow')
+@TableIndex(name: 'movements_item', columns: {#itemId, #at})
+class StockMovements extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get itemId => integer().references(Items, #id)();
+  IntColumn get batchId => integer().nullable().references(ItemBatches, #id)();
+
+  /// Signed, in base units: + stock in, − stock out.
+  IntColumn get quantityMilli => integer()();
+
+  /// `opening`, `stockIn`, `sale`, `cancel`, `adjust`.
+  TextColumn get type => text()();
+  TextColumn get note => text().nullable()();
+  IntColumn get billId => integer().nullable().references(Bills, #id)();
+
+  /// Item stock right after this movement.
+  IntColumn get balanceAfterMilli => integer()();
+  DateTimeColumn get at => dateTime()();
 }
 
 /// A saved sale. Amounts are stored as calculated at billing time and never
@@ -110,6 +180,11 @@ class BillLines extends Table {
   IntColumn get taxablePaise => integer()();
   IntColumn get taxPaise => integer()();
   IntColumn get totalPaise => integer()();
+
+  /// Base units per sold unit: 1000 normally, 12000 when a "box" of 12 pcs
+  /// was sold. Stock moved = quantity × factor.
+  IntColumn get unitFactorMilli =>
+      integer().withDefault(const Constant(1000))();
 }
 
 /// Last invoice sequence used in each financial year.

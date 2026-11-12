@@ -6,12 +6,15 @@ import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
 import 'package:shop_app/features/billing/domain/invoice_number.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
+import 'package:shop_app/features/inventory/data/stock_ledger.dart';
 
 class DriftBillRepository implements BillRepository {
-  DriftBillRepository(this._db, {this._clock = DateTime.now});
+  DriftBillRepository(this._db, {this._clock = DateTime.now})
+    : _ledger = StockLedger(_db, _clock);
 
   final AppDatabase _db;
   final DateTime Function() _clock;
+  final StockLedger _ledger;
 
   @override
   Future<Bill> create(BillDraft draft) async {
@@ -79,6 +82,16 @@ class DriftBillRepository implements BillRepository {
             _lineCompanion(billId, i, draft.lines[i], totals.lines[i]),
         ]);
       });
+
+      // Take sold items out of stock, in the same transaction as the bill.
+      for (final line in draft.lines) {
+        if (line.itemId == null) continue;
+        await _ledger.sell(
+          itemId: line.itemId!,
+          quantityMilli: line.baseQuantity.milli,
+          billId: billId,
+        );
+      }
       return billId;
     });
     return (await byId(id))!;
@@ -105,6 +118,7 @@ class DriftBillRepository implements BillRepository {
     taxablePaise: amounts.taxable.paise,
     taxPaise: amounts.tax.paise,
     totalPaise: amounts.total.paise,
+    unitFactorMilli: Value(line.unitFactor.milli),
   );
 
   @override
@@ -148,17 +162,20 @@ class DriftBillRepository implements BillRepository {
   }
 
   @override
-  Future<void> cancel(int id, {String? reason}) async {
-    await (_db.update(
-      _db.bills,
-    )..where((t) => t.id.equals(id) & t.status.equals('completed'))).write(
-      BillsCompanion(
-        status: Value(BillStatus.cancelled.name),
-        cancelledAt: Value(_clock()),
-        cancelReason: Value(_blankToNull(reason)),
-      ),
-    );
-  }
+  Future<void> cancel(int id, {String? reason}) => _db.transaction(() async {
+    final changed =
+        await (_db.update(
+          _db.bills,
+        )..where((t) => t.id.equals(id) & t.status.equals('completed'))).write(
+          BillsCompanion(
+            status: Value(BillStatus.cancelled.name),
+            cancelledAt: Value(_clock()),
+            cancelReason: Value(_blankToNull(reason)),
+          ),
+        );
+    // Only the first cancel puts the stock back.
+    if (changed > 0) await _ledger.reverseBill(id);
+  });
 
   static Bill _toDomain(BillRow r, List<BillLineRow> lines) => Bill(
     id: r.id,
@@ -192,6 +209,7 @@ class DriftBillRepository implements BillRepository {
           taxable: Money.paise(l.taxablePaise),
           tax: Money.paise(l.taxPaise),
           total: Money.paise(l.totalPaise),
+          unitFactor: Quantity.milli(l.unitFactorMilli),
         ),
     ],
   );
