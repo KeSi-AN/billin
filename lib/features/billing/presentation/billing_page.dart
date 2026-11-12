@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/money/money.dart';
+import 'package:shop_app/core/money/quantity.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/presentation/billing_cubit.dart';
 import 'package:shop_app/features/billing/presentation/checkout_sheet.dart';
 import 'package:shop_app/features/billing/presentation/line_sheets.dart';
+import 'package:shop_app/features/inventory/domain/stock_alerts.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/items/presentation/items_page.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
@@ -24,6 +26,7 @@ class BillingPage extends StatelessWidget {
       items: context.read<ItemRepository>(),
       bills: context.read<BillRepository>(),
       settings: context.read<SettingsRepository>(),
+      alerts: context.read<StockAlerts>(),
     ),
     child: const _BillingView(),
   );
@@ -115,7 +118,11 @@ class _BillingViewState extends State<_BillingView> {
   }
 
   Future<void> _editLine(int index, DraftLine line) async {
-    final result = await showEditLineSheet(context, line);
+    final result = await showEditLineSheet(
+      context,
+      line,
+      item: _cubit.state.itemFor(line),
+    );
     if (result != null) {
       final updated = result.line;
       if (updated == null) {
@@ -251,6 +258,8 @@ class _BillingViewState extends State<_BillingView> {
                       itemBuilder: (context, i) => _CartLine(
                         line: state.lines[i],
                         total: state.totals.lines[i].total,
+                        shortage: state.shortage(state.lines[i]),
+                        stockUnit: state.itemFor(state.lines[i])?.unit,
                         highlighted: state.lastChanged == i,
                         onTap: () => _editLine(i, state.lines[i]),
                         onStep: ({required up}) {
@@ -315,10 +324,16 @@ class _CartLine extends StatelessWidget {
     required this.highlighted,
     required this.onTap,
     required this.onStep,
+    this.shortage,
+    this.stockUnit,
   });
 
   final DraftLine line;
   final Money total;
+
+  /// Set when the item has less stock than this bill needs.
+  final Quantity? shortage;
+  final String? stockUnit;
   final bool highlighted;
   final VoidCallback onTap;
   final void Function({required bool up}) onStep;
@@ -355,6 +370,15 @@ class _CartLine extends StatelessWidget {
                       Text(
                         l10n.lineDiscountTag(line.discount.format()),
                         style: text.bodySmall?.copyWith(color: scheme.tertiary),
+                      ),
+                    if (shortage != null)
+                      Text(
+                        l10n.onlyLeft(
+                          shortage!.format(),
+                          stockUnit ?? line.unit,
+                        ),
+                        key: const Key('shortageWarning'),
+                        style: text.bodySmall?.copyWith(color: scheme.error),
                       ),
                   ],
                 ),

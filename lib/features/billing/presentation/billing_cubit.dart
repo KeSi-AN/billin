@@ -4,9 +4,11 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/money/quantity.dart';
+import 'package:shop_app/core/money/rounding.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
+import 'package:shop_app/features/inventory/domain/stock_alerts.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
 
@@ -16,6 +18,7 @@ class BillingState extends Equatable {
     this.suggestions = const [],
     this.roundToRupee = true,
     this.lastChanged,
+    this.items = const {},
   }) : totals = BillCalculator.calculate([
          for (final l in lines) l.input,
        ], roundToRupee: roundToRupee);
@@ -32,22 +35,47 @@ class BillingState extends Equatable {
   /// Totals before any bill discount (that's chosen at checkout).
   final BillTotals totals;
 
+  /// The saved items in the cart, by id: their stock and second unit.
+  final Map<int, Item> items;
+
   bool get isEmpty => lines.isEmpty;
+
+  Item? itemFor(DraftLine line) =>
+      line.itemId == null ? null : items[line.itemId];
+
+  /// Stock left for [line]'s item if this bill goes through, when that is
+  /// less than the bill needs (counts every line of the same item).
+  Quantity? shortage(DraftLine line) {
+    final item = itemFor(line);
+    if (item == null || !item.trackStock) return null;
+    final wanted = lines
+        .where((l) => l.itemId == item.id)
+        .fold(Quantity.zero, (sum, l) => sum + l.baseQuantity);
+    return wanted > item.stock ? item.stock : null;
+  }
 
   BillingState copyWith({
     List<DraftLine>? lines,
     List<Item>? suggestions,
     bool? roundToRupee,
     int? Function()? lastChanged,
+    Map<int, Item>? items,
   }) => BillingState(
     lines: lines ?? this.lines,
     suggestions: suggestions ?? this.suggestions,
     roundToRupee: roundToRupee ?? this.roundToRupee,
     lastChanged: lastChanged != null ? lastChanged() : this.lastChanged,
+    items: items ?? this.items,
   );
 
   @override
-  List<Object?> get props => [lines, suggestions, roundToRupee, lastChanged];
+  List<Object?> get props => [
+    lines,
+    suggestions,
+    roundToRupee,
+    lastChanged,
+    items,
+  ];
 }
 
 /// What happened when a scanned or typed code was submitted.
@@ -78,6 +106,7 @@ class BillingCubit extends Cubit<BillingState> {
     required this._items,
     required this._bills,
     required this._settings,
+    this._alerts,
   }) : super(BillingState()) {
     unawaited(_loadSettings());
   }
@@ -85,6 +114,7 @@ class BillingCubit extends Cubit<BillingState> {
   final ItemRepository _items;
   final BillRepository _bills;
   final SettingsRepository _settings;
+  final StockAlerts? _alerts;
 
   Future<void> _loadSettings() async {
     final s = await _settings.load();
@@ -119,6 +149,7 @@ class BillingCubit extends Cubit<BillingState> {
 
   /// Adds one unit. Scanning the same item again bumps its quantity.
   void addItem(Item item) {
+    final items = {...state.items, item.id!: item};
     final lines = [...state.lines];
     final existing = lines.indexWhere(
       (l) =>
@@ -136,6 +167,7 @@ class BillingCubit extends Cubit<BillingState> {
           lines: lines,
           suggestions: [],
           lastChanged: () => existing,
+          items: items,
         ),
       );
       return;
@@ -156,7 +188,37 @@ class BillingCubit extends Cubit<BillingState> {
         lines: lines,
         suggestions: [],
         lastChanged: () => lines.length - 1,
+        items: items,
       ),
+    );
+  }
+
+  /// Switches a line between the item's base unit and its second unit
+  /// (e.g. pcs ↔ box), with the matching price.
+  void switchUnit(int index, {required bool alt}) {
+    final line = state.lines[index];
+    final item = state.itemFor(line);
+    if (item == null || !item.hasAltUnit) return;
+    updateLine(
+      index,
+      alt
+          ? line.copyWith(
+              unit: item.altUnit,
+              unitFactor: item.altUnitFactor,
+              unitPrice:
+                  item.altUnitPrice ??
+                  Money.paise(
+                    divRound(
+                      item.salePrice.paise * item.altUnitFactor!.milli,
+                      1000,
+                    ),
+                  ),
+            )
+          : line.copyWith(
+              unit: item.unit,
+              unitFactor: Quantity.one,
+              unitPrice: item.salePrice,
+            ),
     );
   }
 
@@ -218,6 +280,20 @@ class BillingCubit extends Cubit<BillingState> {
     String? customerName,
     String? customerPhone,
   }) async {
+    // Stock before the sale, to spot items that cross their low level.
+    final before = <Item>[];
+    for (final id in {for (final l in state.lines) ?l.itemId}) {
+      final item = await _items.byId(id);
+      if (item != null && item.trackStock && item.lowStock != null) {
+        before.add(item);
+      }
+    }
+    final sold = <int, Quantity>{};
+    for (final l in state.lines) {
+      if (l.itemId == null) continue;
+      sold[l.itemId!] = (sold[l.itemId!] ?? Quantity.zero) + l.baseQuantity;
+    }
+
     final bill = await _bills.create(
       BillDraft(
         lines: state.lines,
@@ -228,6 +304,14 @@ class BillingCubit extends Cubit<BillingState> {
       ),
     );
     clear();
+
+    final crossed = [
+      for (final item in before)
+        if (item.stock > item.lowStock! &&
+            !(item.stock - sold[item.id]! > item.lowStock!))
+          item.copyWith(stock: item.stock - sold[item.id]!),
+    ];
+    if (crossed.isNotEmpty) unawaited(_alerts?.lowStock(crossed));
     return bill;
   }
 }

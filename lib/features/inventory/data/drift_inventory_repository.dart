@@ -98,7 +98,7 @@ class DriftInventoryRepository implements InventoryRepository {
       }
       return existing.id;
     }
-    return _db
+    return await _db
         .into(_db.itemBatches)
         .insert(
           ItemBatchesCompanion.insert(

@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
+import 'package:path/path.dart' as p;
 import 'package:shop_app/core/db/app_database.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/money/quantity.dart';
@@ -6,10 +9,11 @@ import 'package:shop_app/features/billing/domain/tax_rate.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 
 class DriftItemRepository implements ItemRepository {
-  DriftItemRepository(this._db, {this._clock = DateTime.now});
+  DriftItemRepository(this._db, {this._clock = DateTime.now, this._storageDir});
 
   final AppDatabase _db;
   final DateTime Function() _clock;
+  final Future<Directory> Function()? _storageDir;
 
   $ItemsTable get _items => _db.items;
 
@@ -24,10 +28,45 @@ class DriftItemRepository implements ItemRepository {
   }
 
   @override
-  Stream<List<Item>> watchAll({String query = ''}) {
+  Stream<List<Item>> watchAll({ItemFilter filter = const ItemFilter()}) {
     final select = _active();
-    if (query.trim().isNotEmpty) select.where((t) => _matches(t, query));
-    select.orderBy([(t) => OrderingTerm.asc(t.name.lower())]);
+    if (filter.query.trim().isNotEmpty) {
+      select.where((t) => _matches(t, filter.query));
+    }
+    final category = filter.categoryId;
+    if (category != null) {
+      // The category itself or any of its subcategories.
+      final subs = _db.selectOnly(_db.categories)
+        ..addColumns([_db.categories.id])
+        ..where(_db.categories.parentId.equals(category));
+      select.where(
+        (t) => t.categoryId.equals(category) | t.categoryId.isInQuery(subs),
+      );
+    }
+    switch (filter.stock) {
+      case StockFilter.all:
+        break;
+      case StockFilter.low:
+        select.where(
+          (t) =>
+              t.trackStock.equals(true) &
+              t.lowStockMilli.isNotNull() &
+              t.stockMilli.isSmallerOrEqual(t.lowStockMilli),
+        );
+      case StockFilter.out:
+        select.where(
+          (t) =>
+              t.trackStock.equals(true) & t.stockMilli.isSmallerOrEqualValue(0),
+        );
+    }
+    select.orderBy([
+      switch (filter.sort) {
+        ItemSort.name => (t) => OrderingTerm.asc(t.name.lower()),
+        ItemSort.stockLowFirst => (t) => OrderingTerm.asc(t.stockMilli),
+        ItemSort.priceHighFirst => (t) => OrderingTerm.desc(t.salePricePaise),
+      },
+      (t) => OrderingTerm.asc(t.name.lower()),
+    ]);
     return select.watch().map((rows) => rows.map(toDomain).toList());
   }
 
@@ -115,6 +154,20 @@ class DriftItemRepository implements ItemRepository {
         updatedAt: Value(_clock()),
       ),
     );
+  }
+
+  @override
+  Future<String> importImage(String sourcePath) async {
+    final base = await (_storageDir ?? () async => Directory.systemTemp)();
+    final dir = Directory(p.join(base.path, 'item_images'));
+    await dir.create(recursive: true);
+    final ext = p.extension(sourcePath).toLowerCase();
+    final target = p.join(
+      dir.path,
+      'item_${_clock().microsecondsSinceEpoch}${ext.isEmpty ? '.jpg' : ext}',
+    );
+    await File(sourcePath).copy(target);
+    return target;
   }
 
   static Item toDomain(ItemRow r) => Item(

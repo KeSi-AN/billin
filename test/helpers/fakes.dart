@@ -6,10 +6,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/app/app.dart';
 import 'package:shop_app/app/flavor.dart';
+import 'package:shop_app/core/money/quantity.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
 import 'package:shop_app/features/billing/domain/invoice_number.dart';
 import 'package:shop_app/features/billing/presentation/bill_actions.dart';
+import 'package:shop_app/features/inventory/domain/inventory.dart';
+import 'package:shop_app/features/inventory/domain/stock_alerts.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/printing/data/printer_service.dart';
 import 'package:shop_app/features/printing/data/printer_transport.dart';
@@ -66,12 +69,40 @@ class FakeItems implements ItemRepository {
         ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
   @override
-  Stream<List<Item>> watchAll({String query = ''}) async* {
-    List<Item> current() =>
-        _sorted(query.isEmpty ? _items : _items.where((i) => _match(i, query)));
+  Stream<List<Item>> watchAll({ItemFilter filter = const ItemFilter()}) async* {
+    List<Item> current() {
+      var list = _sorted(
+        _items.where(
+          (i) =>
+              (filter.query.isEmpty || _match(i, filter.query)) &&
+              (filter.categoryId == null ||
+                  i.categoryId == filter.categoryId) &&
+              switch (filter.stock) {
+                StockFilter.all => true,
+                StockFilter.low => i.isLowStock,
+                StockFilter.out => i.isOutOfStock,
+              },
+        ),
+      );
+      if (filter.sort == ItemSort.stockLowFirst) {
+        list = list..sort((a, b) => a.stock.milli.compareTo(b.stock.milli));
+      }
+      return list;
+    }
+
     yield current();
     yield* _changes.stream.map((_) => current());
   }
+
+  /// Test helper: what the stock ledger would do.
+  void setStock(int id, Quantity stock) {
+    final i = _items.indexWhere((x) => x.id == id);
+    _items[i] = _items[i].copyWith(stock: stock);
+    _changes.add(null);
+  }
+
+  @override
+  Future<String> importImage(String sourcePath) async => sourcePath;
 
   @override
   Future<Item?> byId(int id) async =>
@@ -98,7 +129,15 @@ class FakeItems implements ItemRepository {
         )
         .firstOrNull;
     if (clash != null) throw DuplicateBarcodeException(barcode!, clash.name);
-    final saved = item.copyWith(id: item.id ?? _nextId++, barcode: barcode);
+    // Like the real repository, saving never changes stock.
+    final existingStock =
+        _items.where((i) => i.id == item.id).firstOrNull?.stock ??
+        Quantity.zero;
+    final saved = item.copyWith(
+      id: item.id ?? _nextId++,
+      barcode: barcode,
+      stock: existingStock,
+    );
     _items
       ..removeWhere((i) => i.id == saved.id)
       ..add(saved);
@@ -138,7 +177,10 @@ class FakeSettings implements SettingsRepository {
 }
 
 class FakeBills implements BillRepository {
-  FakeBills(this._settings, {this.clock = _now});
+  FakeBills(this._settings, {this.clock = _now, this.items});
+
+  /// When set, sales take tracked items' stock down like the real ledger.
+  final FakeItems? items;
 
   static DateTime _now() => DateTime(2026, 11, 12, 10, 30);
 
@@ -192,10 +234,17 @@ class FakeBills implements BillRepository {
             taxable: totals.lines[i].taxable,
             tax: totals.lines[i].tax,
             total: totals.lines[i].total,
+            unitFactor: draft.lines[i].unitFactor,
           ),
       ],
     );
     _bills.add(bill);
+    for (final line in draft.lines) {
+      final item = line.itemId == null ? null : await items?.byId(line.itemId!);
+      if (item != null && item.trackStock) {
+        items!.setStock(item.id!, item.stock - line.baseQuantity);
+      }
+    }
     _changes.add(null);
     return bill;
   }
@@ -309,6 +358,115 @@ class FakePrinterTransport implements PrinterTransport {
   Future<void> openBluetoothSettings() async => log.add('open settings');
 }
 
+class FakeInventory implements InventoryRepository {
+  FakeInventory(this._items);
+
+  final FakeItems _items;
+  final categories = <Category>[];
+  final movements = <StockMovement>[];
+  final _changes = StreamController<void>.broadcast();
+
+  Stream<T> _watch<T>(T Function() current) async* {
+    yield current();
+    yield* _changes.stream.map((_) => current());
+  }
+
+  @override
+  Stream<List<Category>> watchCategories() => _watch(() => [...categories]);
+
+  @override
+  Future<Category> addCategory(String name, {int? parentId}) async {
+    final existing = categories
+        .where(
+          (c) =>
+              c.name.toLowerCase() == name.trim().toLowerCase() &&
+              c.parentId == parentId,
+        )
+        .firstOrNull;
+    if (existing != null) return existing;
+    final c = Category(
+      id: categories.length + 1,
+      name: name.trim(),
+      parentId: parentId,
+    );
+    categories.add(c);
+    _changes.add(null);
+    return c;
+  }
+
+  Future<void> _post(
+    int itemId,
+    Quantity delta,
+    MovementType type,
+    String? note,
+  ) async {
+    final item = (await _items.byId(itemId))!;
+    final balance = item.stock + delta;
+    _items.setStock(itemId, balance);
+    movements.insert(
+      0,
+      StockMovement(
+        id: movements.length + 1,
+        itemId: itemId,
+        quantity: delta,
+        type: type,
+        balanceAfter: balance,
+        at: DateTime(2026, 11, 12, 10),
+        note: note,
+      ),
+    );
+    _changes.add(null);
+  }
+
+  @override
+  Future<void> addStock(
+    int itemId,
+    Quantity quantity, {
+    String? batchNo,
+    DateTime? expiry,
+    String? note,
+    bool opening = false,
+  }) => _post(
+    itemId,
+    quantity,
+    opening ? MovementType.opening : MovementType.stockIn,
+    note,
+  );
+
+  @override
+  Future<void> adjustStock(
+    int itemId,
+    Quantity actual, {
+    int? batchId,
+    String? note,
+  }) async {
+    final item = (await _items.byId(itemId))!;
+    await _post(itemId, actual - item.stock, MovementType.adjust, note);
+  }
+
+  @override
+  Stream<List<StockMovement>> watchMovements(int itemId, {int limit = 100}) =>
+      _watch(() => movements.where((m) => m.itemId == itemId).toList());
+
+  @override
+  Stream<List<StockBatch>> watchBatches(int itemId) => _watch(() => []);
+
+  @override
+  Stream<List<Item>> watchLowStock() =>
+      _items.watchAll(filter: const ItemFilter(stock: StockFilter.low));
+
+  @override
+  Stream<List<ExpiringBatch>> watchExpiring({required DateTime before}) =>
+      _watch(() => []);
+}
+
+class FakeStockAlerts implements StockAlerts {
+  final alerted = <List<Item>>[];
+
+  @override
+  Future<void> lowStock(List<Item> items) async => alerted.add(items);
+}
+
 /// Everything wired with fakes, plus handles to inspect them.
 class TestHarness {
   TestHarness({
@@ -316,7 +474,8 @@ class TestHarness {
     AppSettingsData settings = const AppSettingsData(),
   }) : shopProfiles = FakeShopProfiles(shop),
        settings = FakeSettings(settings) {
-    bills = FakeBills(this.settings);
+    bills = FakeBills(this.settings, items: items);
+    inventory = FakeInventory(items);
     printer = PrinterService(transport, this.settings);
   }
 
@@ -324,6 +483,8 @@ class TestHarness {
   final FakeSettings settings;
   final items = FakeItems();
   late final FakeBills bills;
+  late final FakeInventory inventory;
+  final alerts = FakeStockAlerts();
   final actions = FakeBillActions();
   final transport = FakePrinterTransport();
   late final PrinterService printer;
@@ -335,6 +496,8 @@ class TestHarness {
     settings: settings,
     billActions: actions,
     printer: printer,
+    inventory: inventory,
+    stockAlerts: alerts,
   );
 
   Future<void> pump(WidgetTester tester) async {

@@ -150,7 +150,7 @@ void main() {
 
   test('stock may go negative rather than block a sale', () async {
     final maggi = await tracked();
-    await inventory.addStock(maggi.id!, const Quantity.whole(1));
+    await inventory.addStock(maggi.id!, Quantity.one);
     await sell(maggi, 3);
     expect(await stockOf(maggi), const Quantity.whole(-2));
   });
@@ -209,7 +209,7 @@ void main() {
         crocin.id!,
         const Quantity.whole(5),
         batchNo: 'B',
-        expiry: DateTime(2027, 1),
+        expiry: DateTime(2027),
       );
       final bill = await sell(crocin, 4);
       await bills.cancel(bill.id);
@@ -244,19 +244,19 @@ void main() {
         final crocin = await tracked(name: 'Crocin', batches: true);
         await inventory.addStock(
           crocin.id!,
-          const Quantity.whole(1),
+          Quantity.one,
           batchNo: 'OLD',
           expiry: DateTime(2026, 10),
         );
         await inventory.addStock(
           crocin.id!,
-          const Quantity.whole(1),
+          Quantity.one,
           batchNo: 'SOON',
           expiry: DateTime(2026, 11, 30),
         );
         await inventory.addStock(
           crocin.id!,
-          const Quantity.whole(1),
+          Quantity.one,
           batchNo: 'FAR',
           expiry: DateTime(2027, 6),
         );

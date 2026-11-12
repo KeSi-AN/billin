@@ -4,6 +4,8 @@ import 'package:shop_app/app/app.dart';
 import 'package:shop_app/core/db/app_database.dart';
 import 'package:shop_app/core/format/dates.dart';
 import 'package:shop_app/features/billing/data/drift_bill_repository.dart';
+import 'package:shop_app/features/inventory/data/drift_inventory_repository.dart';
+import 'package:shop_app/features/inventory/data/notification_stock_alerts.dart';
 import 'package:shop_app/features/items/data/drift_item_repository.dart';
 import 'package:shop_app/features/printing/data/printer_service.dart';
 import 'package:shop_app/features/printing/data/printer_transport.dart';
@@ -27,10 +29,15 @@ Future<void> main() async {
     ShopApp(
       services: AppServices(
         shopProfiles: shopProfiles,
-        items: DriftItemRepository(db),
+        items: DriftItemRepository(
+          db,
+          storageDir: getApplicationSupportDirectory,
+        ),
         bills: DriftBillRepository(db),
         settings: settings,
         printer: printer,
+        inventory: DriftInventoryRepository(db),
+        stockAlerts: NotificationStockAlerts(),
         billActions: AppBillActions(
           printer: printer,
           settings: settings,

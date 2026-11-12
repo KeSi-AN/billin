@@ -23,6 +23,27 @@ Future<TestHarness> harnessWithItems() async {
   return h;
 }
 
+/// Scrolls the item form until the widget with [key] is built, then
+/// centres it and lets the scroll settle so taps land on it.
+Future<void> scrollTo(WidgetTester tester, Key key, {bool down = true}) async {
+  // Close the keyboard first: a focused field scrolls itself back into view.
+  FocusManager.instance.primaryFocus?.unfocus();
+  await tester.pumpAndSettle();
+  await tester.scrollUntilVisible(
+    find.byKey(key),
+    down ? 300 : -300,
+    // The page's list, not a text field's own internal scroller.
+    scrollable: find
+        .descendant(
+          of: find.byKey(const Key('itemForm')),
+          matching: find.byType(Scrollable),
+        )
+        .first,
+  );
+  await tester.ensureVisible(find.byKey(key));
+  await tester.pumpAndSettle();
+}
+
 /// What a Bluetooth scanner does: type the code, press Enter.
 Future<void> scan(WidgetTester tester, String code) async {
   await tester.enterText(find.byKey(const Key('billingSearchField')), code);
@@ -201,14 +222,18 @@ void main() {
       find.byKey(const Key('itemBarcodeField')),
       '8901719110054',
     );
+    await scrollTo(tester, const Key('saveItemButton'));
     await tester.tap(find.byKey(const Key('saveItemButton')));
     await tester.pumpAndSettle();
+    // The form scrolls back up to the barcode field showing the error.
     expect(find.text('Barcode already used by "Parle-G 100g"'), findsOneWidget);
 
+    await scrollTo(tester, const Key('itemBarcodeField'), down: false);
     await tester.enterText(
       find.byKey(const Key('itemBarcodeField')),
       '8901058000290',
     );
+    await scrollTo(tester, const Key('saveItemButton'));
     await tester.tap(find.byKey(const Key('saveItemButton')));
     await tester.pumpAndSettle();
     expect(find.text('Maggi'), findsOneWidget);

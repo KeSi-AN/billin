@@ -644,4 +644,289 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareFailed => 'Couldn\'t create the PDF. Please try again.';
+
+  @override
+  String get actionStock => 'Stock';
+
+  @override
+  String homeStockAlerts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count need attention',
+      one: '1 needs attention',
+      zero: 'All good',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sectionStock => 'Stock';
+
+  @override
+  String get fieldTrackStock => 'Track stock';
+
+  @override
+  String get trackStockHelp =>
+      'Count stock as you sell, and get low-stock alerts. Off means unlimited.';
+
+  @override
+  String get fieldOpeningStock => 'Opening stock';
+
+  @override
+  String get fieldLowStock => 'Low stock alert at';
+
+  @override
+  String get lowStockHelp => 'Alert when stock falls to this level';
+
+  @override
+  String get fieldTracksBatches => 'Batches & expiry';
+
+  @override
+  String get tracksBatchesHelp =>
+      'For medicines and food: stock is kept per batch and the earliest expiry sells first.';
+
+  @override
+  String get fieldBatchNo => 'Batch no.';
+
+  @override
+  String get fieldExpiry => 'Expiry date';
+
+  @override
+  String get pickDate => 'Pick date';
+
+  @override
+  String get sectionCategory => 'Category';
+
+  @override
+  String get categoryNone => 'No category';
+
+  @override
+  String get categoryPick => 'Choose category';
+
+  @override
+  String get categoryNew => 'New category';
+
+  @override
+  String subcategoryNew(String parent) {
+    return 'New subcategory in $parent';
+  }
+
+  @override
+  String get categoryName => 'Category name';
+
+  @override
+  String get categoryAll => 'All categories';
+
+  @override
+  String get sectionSecondUnit => 'Second unit (optional)';
+
+  @override
+  String get secondUnitHelp =>
+      'Sell in a bigger pack too, e.g. a box of 12 pcs.';
+
+  @override
+  String get fieldAltUnit => 'Unit';
+
+  @override
+  String fieldAltUnitFactor(String unit) {
+    return 'Contains ($unit)';
+  }
+
+  @override
+  String fieldAltUnitPrice(String unit) {
+    return 'Price per $unit';
+  }
+
+  @override
+  String get errAltUnitIncomplete =>
+      'Fill in the unit, how many it contains, and its price';
+
+  @override
+  String get errAltUnitSame => 'Pick a different unit from the main one';
+
+  @override
+  String get itemPhoto => 'Photo';
+
+  @override
+  String get itemPhotoAdd => 'Add photo';
+
+  @override
+  String get itemPhotoRemove => 'Remove photo';
+
+  @override
+  String stockLabel(String qty, String unit) {
+    return 'Stock: $qty $unit';
+  }
+
+  @override
+  String get stockOut => 'Out of stock';
+
+  @override
+  String stockLowTag(String qty, String unit) {
+    return 'Low: $qty $unit';
+  }
+
+  @override
+  String get stockNotTracked => 'Stock not tracked';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterLow => 'Low stock';
+
+  @override
+  String get filterOut => 'Out of stock';
+
+  @override
+  String get sortBy => 'Sort';
+
+  @override
+  String get sortName => 'Name';
+
+  @override
+  String get sortStock => 'Stock: low first';
+
+  @override
+  String get sortPrice => 'Price: high first';
+
+  @override
+  String itemStockTitle(String name) {
+    return 'Stock · $name';
+  }
+
+  @override
+  String get stockAdd => 'Add stock';
+
+  @override
+  String get stockAdjust => 'Adjust';
+
+  @override
+  String get stockAdjustTitle => 'Set stock to counted quantity';
+
+  @override
+  String get stockAddTitle => 'Add stock';
+
+  @override
+  String stockAddQty(String unit) {
+    return 'Quantity received ($unit)';
+  }
+
+  @override
+  String stockCounted(String unit) {
+    return 'Counted quantity ($unit)';
+  }
+
+  @override
+  String get stockNote => 'Note (optional)';
+
+  @override
+  String get stockNoteHint => 'e.g. supplier, damaged, recount';
+
+  @override
+  String get stockSaved => 'Stock updated';
+
+  @override
+  String get stockBatches => 'Batches';
+
+  @override
+  String get stockHistory => 'History';
+
+  @override
+  String get stockNoHistory => 'No stock changes yet';
+
+  @override
+  String stockLowLevel(String qty) {
+    return 'Low-stock alert at $qty';
+  }
+
+  @override
+  String expiresOn(String date) {
+    return 'Expires $date';
+  }
+
+  @override
+  String expiredOn(String date) {
+    return 'Expired $date';
+  }
+
+  @override
+  String get noExpiry => 'No expiry';
+
+  @override
+  String get movementOpening => 'Opening stock';
+
+  @override
+  String get movementStockIn => 'Stock in';
+
+  @override
+  String movementSale(String invoice) {
+    return 'Sold · $invoice';
+  }
+
+  @override
+  String movementCancel(String invoice) {
+    return 'Bill cancelled · $invoice';
+  }
+
+  @override
+  String get movementAdjust => 'Adjusted';
+
+  @override
+  String balanceAfter(String qty) {
+    return 'Balance $qty';
+  }
+
+  @override
+  String get stockOverviewTitle => 'Stock alerts';
+
+  @override
+  String get tabLowStock => 'Low stock';
+
+  @override
+  String get tabExpiring => 'Expiring soon';
+
+  @override
+  String get tabExpired => 'Expired';
+
+  @override
+  String get emptyLowStock => 'No items are low on stock';
+
+  @override
+  String get emptyExpiring => 'Nothing expires in the next 30 days';
+
+  @override
+  String get emptyExpired => 'No expired stock';
+
+  @override
+  String batchLine(String batch, String qty, String unit) {
+    return 'Batch $batch · $qty $unit';
+  }
+
+  @override
+  String onlyLeft(String qty, String unit) {
+    return 'Only $qty $unit in stock';
+  }
+
+  @override
+  String get lineUnit => 'Sell in';
+
+  @override
+  String lowStockNotifTitle(String name) {
+    return 'Low stock: $name';
+  }
+
+  @override
+  String lowStockNotifBody(String qty, String unit) {
+    return '$qty $unit left. Time to reorder.';
+  }
+
+  @override
+  String lowStockNotifMany(int count) {
+    return '$count items are low on stock';
+  }
+
+  @override
+  String get lowStockChannel => 'Low stock alerts';
 }

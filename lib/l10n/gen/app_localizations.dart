@@ -1221,6 +1221,474 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t create the PDF. Please try again.'**
   String get shareFailed;
+
+  /// No description provided for @actionStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock'**
+  String get actionStock;
+
+  /// No description provided for @homeStockAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{All good} =1{1 needs attention} other{{count} need attention}}'**
+  String homeStockAlerts(int count);
+
+  /// No description provided for @sectionStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock'**
+  String get sectionStock;
+
+  /// No description provided for @fieldTrackStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Track stock'**
+  String get fieldTrackStock;
+
+  /// No description provided for @trackStockHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Count stock as you sell, and get low-stock alerts. Off means unlimited.'**
+  String get trackStockHelp;
+
+  /// No description provided for @fieldOpeningStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening stock'**
+  String get fieldOpeningStock;
+
+  /// No description provided for @fieldLowStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Low stock alert at'**
+  String get fieldLowStock;
+
+  /// No description provided for @lowStockHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert when stock falls to this level'**
+  String get lowStockHelp;
+
+  /// No description provided for @fieldTracksBatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Batches & expiry'**
+  String get fieldTracksBatches;
+
+  /// No description provided for @tracksBatchesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For medicines and food: stock is kept per batch and the earliest expiry sells first.'**
+  String get tracksBatchesHelp;
+
+  /// No description provided for @fieldBatchNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch no.'**
+  String get fieldBatchNo;
+
+  /// No description provided for @fieldExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry date'**
+  String get fieldExpiry;
+
+  /// No description provided for @pickDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick date'**
+  String get pickDate;
+
+  /// No description provided for @sectionCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get sectionCategory;
+
+  /// No description provided for @categoryNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No category'**
+  String get categoryNone;
+
+  /// No description provided for @categoryPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose category'**
+  String get categoryPick;
+
+  /// No description provided for @categoryNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New category'**
+  String get categoryNew;
+
+  /// No description provided for @subcategoryNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New subcategory in {parent}'**
+  String subcategoryNew(String parent);
+
+  /// No description provided for @categoryName.
+  ///
+  /// In en, this message translates to:
+  /// **'Category name'**
+  String get categoryName;
+
+  /// No description provided for @categoryAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get categoryAll;
+
+  /// No description provided for @sectionSecondUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Second unit (optional)'**
+  String get sectionSecondUnit;
+
+  /// No description provided for @secondUnitHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell in a bigger pack too, e.g. a box of 12 pcs.'**
+  String get secondUnitHelp;
+
+  /// No description provided for @fieldAltUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get fieldAltUnit;
+
+  /// No description provided for @fieldAltUnitFactor.
+  ///
+  /// In en, this message translates to:
+  /// **'Contains ({unit})'**
+  String fieldAltUnitFactor(String unit);
+
+  /// No description provided for @fieldAltUnitPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per {unit}'**
+  String fieldAltUnitPrice(String unit);
+
+  /// No description provided for @errAltUnitIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the unit, how many it contains, and its price'**
+  String get errAltUnitIncomplete;
+
+  /// No description provided for @errAltUnitSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a different unit from the main one'**
+  String get errAltUnitSame;
+
+  /// No description provided for @itemPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get itemPhoto;
+
+  /// No description provided for @itemPhotoAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photo'**
+  String get itemPhotoAdd;
+
+  /// No description provided for @itemPhotoRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo'**
+  String get itemPhotoRemove;
+
+  /// No description provided for @stockLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock: {qty} {unit}'**
+  String stockLabel(String qty, String unit);
+
+  /// No description provided for @stockOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of stock'**
+  String get stockOut;
+
+  /// No description provided for @stockLowTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Low: {qty} {unit}'**
+  String stockLowTag(String qty, String unit);
+
+  /// No description provided for @stockNotTracked.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock not tracked'**
+  String get stockNotTracked;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @filterLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low stock'**
+  String get filterLow;
+
+  /// No description provided for @filterOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of stock'**
+  String get filterOut;
+
+  /// No description provided for @sortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get sortBy;
+
+  /// No description provided for @sortName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get sortName;
+
+  /// No description provided for @sortStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock: low first'**
+  String get sortStock;
+
+  /// No description provided for @sortPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price: high first'**
+  String get sortPrice;
+
+  /// No description provided for @itemStockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock · {name}'**
+  String itemStockTitle(String name);
+
+  /// No description provided for @stockAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add stock'**
+  String get stockAdd;
+
+  /// No description provided for @stockAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust'**
+  String get stockAdjust;
+
+  /// No description provided for @stockAdjustTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set stock to counted quantity'**
+  String get stockAdjustTitle;
+
+  /// No description provided for @stockAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add stock'**
+  String get stockAddTitle;
+
+  /// No description provided for @stockAddQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity received ({unit})'**
+  String stockAddQty(String unit);
+
+  /// No description provided for @stockCounted.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted quantity ({unit})'**
+  String stockCounted(String unit);
+
+  /// No description provided for @stockNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get stockNote;
+
+  /// No description provided for @stockNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. supplier, damaged, recount'**
+  String get stockNoteHint;
+
+  /// No description provided for @stockSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock updated'**
+  String get stockSaved;
+
+  /// No description provided for @stockBatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Batches'**
+  String get stockBatches;
+
+  /// No description provided for @stockHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get stockHistory;
+
+  /// No description provided for @stockNoHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No stock changes yet'**
+  String get stockNoHistory;
+
+  /// No description provided for @stockLowLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Low-stock alert at {qty}'**
+  String stockLowLevel(String qty);
+
+  /// No description provided for @expiresOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {date}'**
+  String expiresOn(String date);
+
+  /// No description provided for @expiredOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired {date}'**
+  String expiredOn(String date);
+
+  /// No description provided for @noExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'No expiry'**
+  String get noExpiry;
+
+  /// No description provided for @movementOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening stock'**
+  String get movementOpening;
+
+  /// No description provided for @movementStockIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock in'**
+  String get movementStockIn;
+
+  /// No description provided for @movementSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold · {invoice}'**
+  String movementSale(String invoice);
+
+  /// No description provided for @movementCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill cancelled · {invoice}'**
+  String movementCancel(String invoice);
+
+  /// No description provided for @movementAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjusted'**
+  String get movementAdjust;
+
+  /// No description provided for @balanceAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance {qty}'**
+  String balanceAfter(String qty);
+
+  /// No description provided for @stockOverviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock alerts'**
+  String get stockOverviewTitle;
+
+  /// No description provided for @tabLowStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Low stock'**
+  String get tabLowStock;
+
+  /// No description provided for @tabExpiring.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiring soon'**
+  String get tabExpiring;
+
+  /// No description provided for @tabExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get tabExpired;
+
+  /// No description provided for @emptyLowStock.
+  ///
+  /// In en, this message translates to:
+  /// **'No items are low on stock'**
+  String get emptyLowStock;
+
+  /// No description provided for @emptyExpiring.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing expires in the next 30 days'**
+  String get emptyExpiring;
+
+  /// No description provided for @emptyExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'No expired stock'**
+  String get emptyExpired;
+
+  /// No description provided for @batchLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch {batch} · {qty} {unit}'**
+  String batchLine(String batch, String qty, String unit);
+
+  /// No description provided for @onlyLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {qty} {unit} in stock'**
+  String onlyLeft(String qty, String unit);
+
+  /// No description provided for @lineUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell in'**
+  String get lineUnit;
+
+  /// No description provided for @lowStockNotifTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Low stock: {name}'**
+  String lowStockNotifTitle(String name);
+
+  /// No description provided for @lowStockNotifBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{qty} {unit} left. Time to reorder.'**
+  String lowStockNotifBody(String qty, String unit);
+
+  /// No description provided for @lowStockNotifMany.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} items are low on stock'**
+  String lowStockNotifMany(int count);
+
+  /// No description provided for @lowStockChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Low stock alerts'**
+  String get lowStockChannel;
 }
 
 class _AppLocalizationsDelegate

@@ -5,6 +5,8 @@ import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/india/indian_states.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
+import 'package:shop_app/features/inventory/domain/inventory.dart';
+import 'package:shop_app/features/inventory/presentation/stock_overview_page.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile.dart';
 import 'package:shop_app/features/shop_profile/presentation/cubit/shop_profile_cubit.dart';
 import 'package:shop_app/features/shop_profile/presentation/widgets/shop_logo.dart';
@@ -69,6 +71,17 @@ class HomePage extends StatelessWidget {
                 icon: Icons.inventory_2_outlined,
                 label: l10n.actionItems,
                 onTap: () => context.push(AppRoutes.items),
+              ),
+              StreamBuilder<int>(
+                stream: stockAlertCount(context.read<InventoryRepository>()),
+                builder: (context, snapshot) => _ActionTile(
+                  key: const Key('stockTile'),
+                  icon: Icons.warehouse_outlined,
+                  label: l10n.actionStock,
+                  subtitle: l10n.homeStockAlerts(snapshot.data ?? 0),
+                  alert: (snapshot.data ?? 0) > 0,
+                  onTap: () => context.push(AppRoutes.stock),
+                ),
               ),
               _ActionTile(
                 icon: Icons.people_outline,
@@ -192,6 +205,8 @@ class _ActionTile extends StatelessWidget {
     required this.label,
     this.onTap,
     this.comingSoon = false,
+    this.subtitle,
+    this.alert = false,
     super.key,
   });
 
@@ -199,6 +214,10 @@ class _ActionTile extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
   final bool comingSoon;
+  final String? subtitle;
+
+  /// Highlights the subtitle (something needs attention).
+  final bool alert;
 
   @override
   Widget build(BuildContext context) {
@@ -228,7 +247,14 @@ class _ActionTile extends StatelessWidget {
                   children: [
                     Text(label, style: text.titleSmall),
                     if (comingSoon)
-                      Text(l10n.comingSoon, style: text.labelSmall),
+                      Text(l10n.comingSoon, style: text.labelSmall)
+                    else if (subtitle != null)
+                      Text(
+                        subtitle!,
+                        style: text.labelSmall?.copyWith(
+                          color: alert ? scheme.error : null,
+                        ),
+                      ),
                   ],
                 ),
               ),

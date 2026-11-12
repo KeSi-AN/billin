@@ -6,6 +6,8 @@ import 'package:shop_app/features/billing/presentation/bill_page.dart';
 import 'package:shop_app/features/billing/presentation/billing_page.dart';
 import 'package:shop_app/features/billing/presentation/sales_page.dart';
 import 'package:shop_app/features/home/presentation/home_page.dart';
+import 'package:shop_app/features/inventory/presentation/item_stock_page.dart';
+import 'package:shop_app/features/inventory/presentation/stock_overview_page.dart';
 import 'package:shop_app/features/items/presentation/item_form_page.dart';
 import 'package:shop_app/features/items/presentation/items_page.dart';
 import 'package:shop_app/features/printing/presentation/printer_settings_page.dart';
@@ -28,6 +30,8 @@ abstract final class AppRoutes {
   static String newItemWithBarcode(String barcode) =>
       Uri(path: newItem, queryParameters: {'barcode': barcode}).toString();
   static String editItem(int id) => '/items/$id';
+  static String itemStock(int id) => '/items/$id/stock';
+  static const stock = '/stock';
   static const scan = '/scan';
   static const settings = '/settings';
   static const editShop = '/settings/shop';
@@ -95,6 +99,15 @@ GoRouter buildRouter(ShopProfileCubit profile) => GoRouter(
       path: '/items/:id',
       builder: (context, state) =>
           ItemFormPage(itemId: int.parse(state.pathParameters['id']!)),
+    ),
+    GoRoute(
+      path: '/items/:id/stock',
+      builder: (context, state) =>
+          ItemStockPage(itemId: int.parse(state.pathParameters['id']!)),
+    ),
+    GoRoute(
+      path: AppRoutes.stock,
+      builder: (context, state) => const StockOverviewPage(),
     ),
     GoRoute(
       path: AppRoutes.scan,

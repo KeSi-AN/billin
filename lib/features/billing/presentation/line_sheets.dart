@@ -1,29 +1,34 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/money/quantity.dart';
+import 'package:shop_app/core/money/rounding.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
+import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
 /// Result of the edit-line sheet: an updated line, or `null` to remove it.
 typedef LineEditResult = ({DraftLine? line});
 
-/// Change quantity, price or discount of a cart line.
+/// Change quantity, price, discount, or (for items with a second unit) the
+/// unit of a cart line.
 Future<LineEditResult?> showEditLineSheet(
   BuildContext context,
-  DraftLine line,
-) => showModalBottomSheet<LineEditResult>(
+  DraftLine line, {
+  Item? item,
+}) => showModalBottomSheet<LineEditResult>(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,
-  builder: (_) => _EditLineSheet(line: line),
+  builder: (_) => _EditLineSheet(line: line, item: item),
 );
 
 class _EditLineSheet extends StatefulWidget {
-  const _EditLineSheet({required this.line});
+  const _EditLineSheet({required this.line, this.item});
 
   final DraftLine line;
+  final Item? item;
 
   @override
   State<_EditLineSheet> createState() => _EditLineSheetState();
@@ -38,6 +43,33 @@ class _EditLineSheetState extends State<_EditLineSheet> {
   late final _discount = TextEditingController(
     text: widget.line.discount.isZero ? '' : widget.line.discount.toInput(),
   );
+
+  /// Selling in the item's second unit (e.g. box instead of pcs).
+  late bool _alt = widget.line.unitFactor != Quantity.one;
+
+  Item? get _unitItem =>
+      widget.item != null && widget.item!.hasAltUnit ? widget.item : null;
+
+  String get _unit => _unitItem == null
+      ? widget.line.unit
+      : (_alt ? _unitItem!.altUnit! : _unitItem!.unit);
+
+  void _switchUnit(bool alt) {
+    final item = _unitItem!;
+    final price = alt
+        ? (item.altUnitPrice ??
+              Money.paise(
+                divRound(
+                  item.salePrice.paise * item.altUnitFactor!.milli,
+                  1000,
+                ),
+              ))
+        : item.salePrice;
+    setState(() {
+      _alt = alt;
+      _price.text = price.toInput();
+    });
+  }
 
   @override
   void dispose() {
@@ -54,6 +86,10 @@ class _EditLineSheetState extends State<_EditLineSheet> {
         quantity: Quantity.tryParse(_qty.text),
         unitPrice: Money.tryParse(_price.text),
         discount: Money.tryParse(_discount.text) ?? Money.zero,
+        unit: _unit,
+        unitFactor: _unitItem == null
+            ? null
+            : (_alt ? _unitItem!.altUnitFactor : Quantity.one),
       ),
     ));
   }
@@ -69,6 +105,28 @@ class _EditLineSheetState extends State<_EditLineSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (_unitItem != null) ...[
+              Text(
+                l10n.lineUnit,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 8),
+              SegmentedButton<bool>(
+                key: const Key('lineUnitToggle'),
+                segments: [
+                  ButtonSegment(value: false, label: Text(_unitItem!.unit)),
+                  ButtonSegment(
+                    value: true,
+                    label: Text(
+                      '${_unitItem!.altUnit} (${_unitItem!.altUnitFactor!.format()} ${_unitItem!.unit})',
+                    ),
+                  ),
+                ],
+                selected: {_alt},
+                onSelectionChanged: (s) => _switchUnit(s.first),
+              ),
+              const SizedBox(height: 16),
+            ],
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -76,7 +134,7 @@ class _EditLineSheetState extends State<_EditLineSheet> {
                   child: QuantityField(
                     key: const Key('lineQtyField'),
                     controller: _qty,
-                    label: '${l10n.fieldQuantity} (${widget.line.unit})',
+                    label: '${l10n.fieldQuantity} ($_unit)',
                     autofocus: true,
                   ),
                 ),
@@ -85,7 +143,7 @@ class _EditLineSheetState extends State<_EditLineSheet> {
                   child: MoneyField(
                     key: const Key('linePriceField'),
                     controller: _price,
-                    label: l10n.fieldUnitPrice(widget.line.unit),
+                    label: l10n.fieldUnitPrice(_unit),
                     isRequired: true,
                   ),
                 ),

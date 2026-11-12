@@ -8,6 +8,8 @@ import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/theme/app_theme.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/presentation/bill_actions.dart';
+import 'package:shop_app/features/inventory/domain/inventory.dart';
+import 'package:shop_app/features/inventory/domain/stock_alerts.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/printing/data/printer_service.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
@@ -25,6 +27,8 @@ class AppServices {
     required this.settings,
     required this.billActions,
     required this.printer,
+    required this.inventory,
+    required this.stockAlerts,
   });
 
   final ShopProfileRepository shopProfiles;
@@ -33,6 +37,8 @@ class AppServices {
   final SettingsRepository settings;
   final BillActions billActions;
   final PrinterService printer;
+  final InventoryRepository inventory;
+  final StockAlerts stockAlerts;
 }
 
 class ShopApp extends StatefulWidget {
@@ -70,6 +76,8 @@ class _ShopAppState extends State<ShopApp> {
         RepositoryProvider.value(value: s.settings),
         RepositoryProvider.value(value: s.billActions),
         RepositoryProvider.value(value: s.printer),
+        RepositoryProvider.value(value: s.inventory),
+        RepositoryProvider.value(value: s.stockAlerts),
       ],
       child: BlocProvider.value(
         value: _profileCubit,

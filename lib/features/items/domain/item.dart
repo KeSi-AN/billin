@@ -79,9 +79,54 @@ class DuplicateBarcodeException implements Exception {
       'Barcode $barcode is already used by "$existingItemName"';
 }
 
+enum StockFilter { all, low, out }
+
+enum ItemSort { name, stockLowFirst, priceHighFirst }
+
+/// What the items list shows.
+@immutable
+class ItemFilter {
+  const ItemFilter({
+    this.query = '',
+    this.categoryId,
+    this.stock = StockFilter.all,
+    this.sort = ItemSort.name,
+  });
+
+  final String query;
+
+  /// Matches the category and its subcategories.
+  final int? categoryId;
+  final StockFilter stock;
+  final ItemSort sort;
+
+  ItemFilter copyWith({
+    String? query,
+    int? Function()? categoryId,
+    StockFilter? stock,
+    ItemSort? sort,
+  }) => ItemFilter(
+    query: query ?? this.query,
+    categoryId: categoryId != null ? categoryId() : this.categoryId,
+    stock: stock ?? this.stock,
+    sort: sort ?? this.sort,
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is ItemFilter &&
+      other.query == query &&
+      other.categoryId == categoryId &&
+      other.stock == stock &&
+      other.sort == sort;
+
+  @override
+  int get hashCode => Object.hash(query, categoryId, stock, sort);
+}
+
 abstract interface class ItemRepository {
-  /// Active items, alphabetical, optionally filtered by name or barcode.
-  Stream<List<Item>> watchAll({String query = ''});
+  /// Active items matching [filter].
+  Stream<List<Item>> watchAll({ItemFilter filter = const ItemFilter()});
 
   Future<Item?> byId(int id);
 
@@ -97,4 +142,7 @@ abstract interface class ItemRepository {
 
   /// Hides the item. Past bills keep their copy of its details.
   Future<void> delete(int id);
+
+  /// Copies a picked photo into app storage; returns the stored path.
+  Future<String> importImage(String sourcePath);
 }

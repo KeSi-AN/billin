@@ -1,6 +1,5 @@
 {
   "@@locale": "en",
-
   "appTitle": "Shop App",
   "devBanner": "DEV",
   "loading": "Loading…",
@@ -8,21 +7,18 @@
   "saving": "Saving…",
   "optional": "Optional",
   "comingSoon": "Coming soon",
-
   "setupTitle": "Set up your shop",
   "setupIntro": "These details are printed on every bill. You can change them later.",
   "editShopTitle": "Shop profile",
   "saveAndContinue": "Save and continue",
   "saved": "Shop profile saved",
   "saveFailed": "Couldn't save. Please try again.",
-
   "logoAdd": "Add logo",
   "logoChange": "Change logo",
   "logoRemove": "Remove logo",
   "logoFromGallery": "Choose from gallery",
   "logoFromCamera": "Take a photo",
   "logoFailed": "Couldn't use that image. Please try another.",
-
   "fieldShopName": "Shop name",
   "fieldPhone": "Mobile number",
   "fieldAddress": "Address",
@@ -32,7 +28,6 @@
   "fieldGstin": "GSTIN",
   "gstinHelper": "Leave empty if you are not GST registered",
   "gstinStateSet": "State set from GSTIN",
-
   "errNameRequired": "Enter your shop name",
   "errNameTooLong": "Keep it under 100 characters",
   "errPhoneInvalid": "Enter a valid 10-digit mobile number",
@@ -40,24 +35,40 @@
   "errStateRequired": "Select your state",
   "errGstinInvalid": "This GSTIN isn't valid. Check for typos.",
   "errGstinStateMismatch": "This GSTIN belongs to a different state",
-
   "homeTitle": "Home",
   "homeEditShop": "Edit shop profile",
   "homeGstin": "GSTIN: {gstin}",
-  "@homeGstin": { "placeholders": { "gstin": { "type": "String" } } },
+  "@homeGstin": {
+    "placeholders": {
+      "gstin": {
+        "type": "String"
+      }
+    }
+  },
   "homeNotGst": "Not GST registered",
   "actionNewBill": "New bill",
   "actionItems": "Items",
   "actionCustomers": "Customers",
   "actionReports": "Reports",
   "homeComingSoon": "{feature} arrives in a later build",
-  "@homeComingSoon": { "placeholders": { "feature": { "type": "String" } } },
+  "@homeComingSoon": {
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
   "actionSales": "Sales",
   "actionSettings": "Settings",
   "homeToday": "Today",
   "homeTodaySummary": "{count, plural, =0{No bills yet} =1{1 bill} other{{count} bills}}",
-  "@homeTodaySummary": { "placeholders": { "count": { "type": "int" } } },
-
+  "@homeTodaySummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cancel": "Cancel",
   "delete": "Delete",
   "done": "Done",
@@ -68,19 +79,30 @@
   "errAmountRequired": "Enter a price",
   "errQuantityInvalid": "Enter a quantity like 2 or 0.5",
   "errRequired": "Required",
-
   "itemsTitle": "Items",
   "itemsSearchHint": "Search name or barcode",
   "itemsEmpty": "No items yet. Add the things you sell to bill them faster.",
   "itemsNoMatch": "No items match \"{query}\"",
-  "@itemsNoMatch": { "placeholders": { "query": { "type": "String" } } },
+  "@itemsNoMatch": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "itemAdd": "Add item",
   "itemNew": "New item",
   "itemEdit": "Edit item",
   "itemSaved": "Item saved",
   "itemDeleted": "Item deleted",
   "itemDeleteConfirm": "Delete \"{name}\"? Past bills keep their copy.",
-  "@itemDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@itemDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "fieldItemName": "Item name",
   "fieldBarcode": "Barcode",
   "fieldSalePrice": "Selling price",
@@ -92,28 +114,50 @@
   "fieldHsn": "HSN / SAC code",
   "scanBarcode": "Scan barcode",
   "errDuplicateBarcode": "Barcode already used by \"{name}\"",
-  "@errDuplicateBarcode": { "placeholders": { "name": { "type": "String" } } },
+  "@errDuplicateBarcode": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "errMrpBelowPrice": "MRP can't be lower than the selling price",
-
   "scanTitle": "Scan a barcode",
   "scanHint": "Point the camera at a barcode",
   "scanNoPermission": "Camera permission is needed to scan. You can also type the barcode.",
   "scanTorch": "Torch",
-
   "billingTitle": "New bill",
   "billingSearchHint": "Scan, or type item name / barcode",
   "billingEmpty": "Scan a barcode or search to add items",
   "billingScannerTip": "Bluetooth scanner? Just scan, it types here.",
   "billingNotFound": "No item with barcode {code}",
-  "@billingNotFound": { "placeholders": { "code": { "type": "String" } } },
+  "@billingNotFound": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "billingCreateItem": "Create item",
   "billingQuickItem": "Quick item",
   "billingQuickItemName": "Name (optional)",
   "billingQuickItemDefaultName": "Item",
   "billingCheckout": "Checkout · {amount}",
-  "@billingCheckout": { "placeholders": { "amount": { "type": "String" } } },
+  "@billingCheckout": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "billingItemsCount": "{count, plural, =1{1 item} other{{count} items}}",
-  "@billingItemsCount": { "placeholders": { "count": { "type": "int" } } },
+  "@billingItemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "billingClearConfirm": "Clear this bill?",
   "billingClear": "Clear bill",
   "billingDiscardTitle": "Discard this bill?",
@@ -121,13 +165,24 @@
   "lineEditTitle": "Edit line",
   "fieldQuantity": "Quantity",
   "fieldUnitPrice": "Price per {unit}",
-  "@fieldUnitPrice": { "placeholders": { "unit": { "type": "String" } } },
+  "@fieldUnitPrice": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "fieldDiscount": "Discount (₹)",
   "fieldDiscountPercent": "Discount %",
   "lineRemove": "Remove",
   "lineDiscountTag": "−{amount} off",
-  "@lineDiscountTag": { "placeholders": { "amount": { "type": "String" } } },
-
+  "@lineDiscountTag": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "checkoutTitle": "Checkout",
   "checkoutItemsTotal": "Items total",
   "checkoutBillDiscount": "Bill discount",
@@ -150,40 +205,94 @@
   "checkoutCreditNeedsCustomer": "Add the customer's name for a credit sale",
   "checkoutCashReceived": "Cash received",
   "checkoutChange": "Return {amount}",
-  "@checkoutChange": { "placeholders": { "amount": { "type": "String" } } },
-
+  "@checkoutChange": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "billSaved": "Bill saved",
   "billNewBill": "New bill",
   "billPrint": "Print",
   "billShare": "Share PDF",
   "billCancel": "Cancel bill",
   "billCancelTitle": "Cancel {invoice}?",
-  "@billCancelTitle": { "placeholders": { "invoice": { "type": "String" } } },
+  "@billCancelTitle": {
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      }
+    }
+  },
   "billCancelBody": "The bill stays in your records marked as cancelled. Its number is not reused.",
   "billCancelReason": "Reason (optional)",
   "billCancelled": "Cancelled",
   "billCancelledOn": "Cancelled {date}",
-  "@billCancelledOn": { "placeholders": { "date": { "type": "String" } } },
+  "@billCancelledOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "billCustomer": "Customer",
   "billPaidBy": "Paid by {mode}",
-  "@billPaidBy": { "placeholders": { "mode": { "type": "String" } } },
+  "@billPaidBy": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
   "billQtyAtPrice": "{qty} {unit} × {price}",
-  "@billQtyAtPrice": { "placeholders": { "qty": { "type": "String" }, "unit": { "type": "String" }, "price": { "type": "String" } } },
+  "@billQtyAtPrice": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "billTaxSummary": "GST summary",
   "billTaxRow": "GST {rate} on {taxable}",
-  "@billTaxRow": { "placeholders": { "rate": { "type": "String" }, "taxable": { "type": "String" } } },
+  "@billTaxRow": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "taxable": {
+        "type": "String"
+      }
+    }
+  },
   "billYouSaved": "Saved {amount} in discounts",
-  "@billYouSaved": { "placeholders": { "amount": { "type": "String" } } },
-
+  "@billYouSaved": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "salesTitle": "Sales",
   "salesToday": "Today",
   "salesEmpty": "No bills on this day",
   "salesTotal": "Total sales",
   "salesBills": "{count, plural, =1{1 bill} other{{count} bills}}",
-  "@salesBills": { "placeholders": { "count": { "type": "int" } } },
+  "@salesBills": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "salesPreviousDay": "Previous day",
   "salesNextDay": "Next day",
-
   "settingsTitle": "Settings",
   "settingsShop": "Shop profile",
   "settingsBilling": "Billing",
@@ -193,7 +302,13 @@
   "billingSettingsTitle": "Billing settings",
   "fieldInvoicePrefix": "Invoice prefix",
   "invoicePrefixHelp": "Up to 4 letters/numbers. Next bill: {example}",
-  "@invoicePrefixHelp": { "placeholders": { "example": { "type": "String" } } },
+  "@invoicePrefixHelp": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
   "errInvoicePrefix": "Use up to 4 capital letters or numbers",
   "fieldRoundToRupee": "Round bill total to the nearest rupee",
   "fieldUpiId": "UPI ID",
@@ -202,7 +317,6 @@
   "fieldReceiptFooter": "Bill footer message",
   "receiptFooterHint": "Thank you! Visit again.",
   "settingsSaved": "Settings saved",
-
   "printing": "Printing…",
   "printed": "Printed",
   "printErrNotConfigured": "No printer set up yet",
@@ -222,6 +336,254 @@
   "printerTurnOnBluetooth": "Open Bluetooth settings",
   "sharePreparing": "Preparing PDF…",
   "shareText": "Invoice {invoice} from {shop}: {amount}",
-  "@shareText": { "placeholders": { "invoice": { "type": "String" }, "shop": { "type": "String" }, "amount": { "type": "String" } } },
-  "shareFailed": "Couldn't create the PDF. Please try again."
+  "@shareText": {
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      },
+      "shop": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "shareFailed": "Couldn't create the PDF. Please try again.",
+  "actionStock": "Stock",
+  "homeStockAlerts": "{count, plural, =0{All good} =1{1 needs attention} other{{count} need attention}}",
+  "@homeStockAlerts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sectionStock": "Stock",
+  "fieldTrackStock": "Track stock",
+  "trackStockHelp": "Count stock as you sell, and get low-stock alerts. Off means unlimited.",
+  "fieldOpeningStock": "Opening stock",
+  "fieldLowStock": "Low stock alert at",
+  "lowStockHelp": "Alert when stock falls to this level",
+  "fieldTracksBatches": "Batches & expiry",
+  "tracksBatchesHelp": "For medicines and food: stock is kept per batch and the earliest expiry sells first.",
+  "fieldBatchNo": "Batch no.",
+  "fieldExpiry": "Expiry date",
+  "pickDate": "Pick date",
+  "sectionCategory": "Category",
+  "categoryNone": "No category",
+  "categoryPick": "Choose category",
+  "categoryNew": "New category",
+  "subcategoryNew": "New subcategory in {parent}",
+  "@subcategoryNew": {
+    "placeholders": {
+      "parent": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryName": "Category name",
+  "categoryAll": "All categories",
+  "sectionSecondUnit": "Second unit (optional)",
+  "secondUnitHelp": "Sell in a bigger pack too, e.g. a box of 12 pcs.",
+  "fieldAltUnit": "Unit",
+  "fieldAltUnitFactor": "Contains ({unit})",
+  "@fieldAltUnitFactor": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldAltUnitPrice": "Price per {unit}",
+  "@fieldAltUnitPrice": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "errAltUnitIncomplete": "Fill in the unit, how many it contains, and its price",
+  "errAltUnitSame": "Pick a different unit from the main one",
+  "itemPhoto": "Photo",
+  "itemPhotoAdd": "Add photo",
+  "itemPhotoRemove": "Remove photo",
+  "stockLabel": "Stock: {qty} {unit}",
+  "@stockLabel": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "stockOut": "Out of stock",
+  "stockLowTag": "Low: {qty} {unit}",
+  "@stockLowTag": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "stockNotTracked": "Stock not tracked",
+  "filterAll": "All",
+  "filterLow": "Low stock",
+  "filterOut": "Out of stock",
+  "sortBy": "Sort",
+  "sortName": "Name",
+  "sortStock": "Stock: low first",
+  "sortPrice": "Price: high first",
+  "itemStockTitle": "Stock · {name}",
+  "@itemStockTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stockAdd": "Add stock",
+  "stockAdjust": "Adjust",
+  "stockAdjustTitle": "Set stock to counted quantity",
+  "stockAddTitle": "Add stock",
+  "stockAddQty": "Quantity received ({unit})",
+  "@stockAddQty": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "stockCounted": "Counted quantity ({unit})",
+  "@stockCounted": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "stockNote": "Note (optional)",
+  "stockNoteHint": "e.g. supplier, damaged, recount",
+  "stockSaved": "Stock updated",
+  "stockBatches": "Batches",
+  "stockHistory": "History",
+  "stockNoHistory": "No stock changes yet",
+  "stockLowLevel": "Low-stock alert at {qty}",
+  "@stockLowLevel": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "expiresOn": "Expires {date}",
+  "@expiresOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "expiredOn": "Expired {date}",
+  "@expiredOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noExpiry": "No expiry",
+  "movementOpening": "Opening stock",
+  "movementStockIn": "Stock in",
+  "movementSale": "Sold · {invoice}",
+  "@movementSale": {
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      }
+    }
+  },
+  "movementCancel": "Bill cancelled · {invoice}",
+  "@movementCancel": {
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      }
+    }
+  },
+  "movementAdjust": "Adjusted",
+  "balanceAfter": "Balance {qty}",
+  "@balanceAfter": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stockOverviewTitle": "Stock alerts",
+  "tabLowStock": "Low stock",
+  "tabExpiring": "Expiring soon",
+  "tabExpired": "Expired",
+  "emptyLowStock": "No items are low on stock",
+  "emptyExpiring": "Nothing expires in the next 30 days",
+  "emptyExpired": "No expired stock",
+  "batchLine": "Batch {batch} · {qty} {unit}",
+  "@batchLine": {
+    "placeholders": {
+      "batch": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "onlyLeft": "Only {qty} {unit} in stock",
+  "@onlyLeft": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "lineUnit": "Sell in",
+  "lowStockNotifTitle": "Low stock: {name}",
+  "@lowStockNotifTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lowStockNotifBody": "{qty} {unit} left. Time to reorder.",
+  "@lowStockNotifBody": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "lowStockNotifMany": "{count} items are low on stock",
+  "@lowStockNotifMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lowStockChannel": "Low stock alerts"
 }
