@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:shop_app/features/printing/domain/ean.dart';
+
 enum PrintAlign { left, center, right }
 
 /// Builds ESC/POS bytes: the command language virtually every cheap
 /// Bluetooth thermal printer speaks.
 ///
 /// Text is sent as plain ASCII. Thermal printers' built-in fonts rarely
-/// have `₹` or Indian scripts, so [ascii] swaps those for safe characters.
+/// have `₹` or Indian scripts, so [toAscii] swaps those for safe characters.
 class EscPosBuilder {
   final _bytes = BytesBuilder(copy: false);
 
@@ -33,6 +35,31 @@ class EscPosBuilder {
   }
 
   EscPosBuilder feed([int lines = 1]) => _cmd([0x1B, 0x64, lines]);
+
+  /// A 1-D barcode with its digits printed underneath (GS k, format B).
+  /// EAN-13/EAN-8 when the data is a valid EAN, otherwise Code 128, which
+  /// accepts any printable text.
+  EscPosBuilder barcode(String data, {int height = 80, int moduleWidth = 2}) {
+    final code = data.trim();
+    final List<int> payload;
+    final int type;
+    if (Ean.isValid(code) && code.length == 13) {
+      type = 67; // EAN-13
+      payload = ascii.encode(code.substring(0, 12)); // printer adds check
+    } else if (Ean.isValid(code) && code.length == 8) {
+      type = 68; // EAN-8
+      payload = ascii.encode(code.substring(0, 7));
+    } else {
+      type = 73; // Code 128, code set B
+      payload = [0x7B, 0x42, ...ascii.encode(toAscii(code))];
+    }
+    return _cmd([0x1D, 0x68, height]) // height in dots
+        ._cmd([0x1D, 0x77, moduleWidth]) // bar width 2–6
+        ._cmd([0x1D, 0x48, 2]) // human-readable digits below
+        ._cmd([0x1D, 0x66, 0]) // font A for the digits
+        ._cmd([0x1D, 0x6B, type, payload.length, ...payload])
+        ._cmd([0x0A]);
+  }
 
   /// A QR code using the printer's built-in generator (GS ( k).
   EscPosBuilder qr(String data, {int moduleSize = 6}) {

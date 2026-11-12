@@ -1827,6 +1827,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t create the file. Please try again.'**
   String get exportFailed;
+
+  /// No description provided for @labelsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Print labels'**
+  String get labelsTitle;
+
+  /// No description provided for @labelsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose items and how many labels of each.'**
+  String get labelsHint;
+
+  /// No description provided for @labelsPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Print labels} =1{Print 1 label} other{Print {count} labels}}'**
+  String labelsPrint(int count);
+
+  /// No description provided for @labelsNoBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'No barcode'**
+  String get labelsNoBarcode;
+
+  /// No description provided for @labelsCreateBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Create barcode'**
+  String get labelsCreateBarcode;
+
+  /// No description provided for @labelsBarcodeCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode {code} saved for {name}'**
+  String labelsBarcodeCreated(String code, String name);
+
+  /// No description provided for @labelsShowPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Show price'**
+  String get labelsShowPrice;
+
+  /// No description provided for @labelsShowShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Show shop name'**
+  String get labelsShowShop;
 }
 
 class _AppLocalizationsDelegate

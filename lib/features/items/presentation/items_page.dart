@@ -41,6 +41,12 @@ class _ItemsPageState extends State<ItemsPage> {
         title: Text(l10n.itemsTitle),
         actions: [
           IconButton(
+            key: const Key('labelsButton'),
+            tooltip: l10n.labelsTitle,
+            icon: const Icon(Icons.qr_code_2),
+            onPressed: () => context.push(AppRoutes.labels),
+          ),
+          IconButton(
             key: const Key('importExportButton'),
             tooltip: l10n.importExportTitle,
             icon: const Icon(Icons.import_export),

@@ -271,8 +271,12 @@ class _BillingViewState extends State<_BillingView> {
                   },
                 ),
               ),
-              _BottomBar(onQuickItem: _quickItem, onCheckout: _checkout),
             ],
+          ),
+          // Bottom bar slot: snackbars ("not found") appear above it.
+          bottomNavigationBar: _BottomBar(
+            onQuickItem: _quickItem,
+            onCheckout: _checkout,
           ),
         ),
       ),

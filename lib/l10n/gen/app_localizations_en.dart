@@ -1026,4 +1026,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exportFailed => 'Couldn\'t create the file. Please try again.';
+
+  @override
+  String get labelsTitle => 'Print labels';
+
+  @override
+  String get labelsHint => 'Choose items and how many labels of each.';
+
+  @override
+  String labelsPrint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Print $count labels',
+      one: 'Print 1 label',
+      zero: 'Print labels',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get labelsNoBarcode => 'No barcode';
+
+  @override
+  String get labelsCreateBarcode => 'Create barcode';
+
+  @override
+  String labelsBarcodeCreated(String code, String name) {
+    return 'Barcode $code saved for $name';
+  }
+
+  @override
+  String get labelsShowPrice => 'Show price';
+
+  @override
+  String get labelsShowShop => 'Show shop name';
 }
