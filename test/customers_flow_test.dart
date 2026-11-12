@@ -52,6 +52,8 @@ void main() {
     await tester.tap(find.text('Ravi'));
     await tester.pumpAndSettle();
     expect(find.text('Opening due'), findsOneWidget);
+    // Month keeps its capital; only am/pm is lower-cased.
+    expect(find.textContaining('12 Nov 2026, 10:00 am'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('remindButton')));
     await tester.tap(find.byKey(const Key('statementButton')));

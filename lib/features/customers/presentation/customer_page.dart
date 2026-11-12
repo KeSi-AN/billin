@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/format/dates.dart';
@@ -157,9 +156,10 @@ class EntryTile extends StatelessWidget {
       EntryType.adjust => l10n.entryAdjust,
     };
     final sub = [
-      DateFormat('d MMM y, h:mm a', appLocale).format(e.at).toLowerCase(),
+      formatDateTime(e.at),
       if (e.paymentMode != null && e.billId == null) e.paymentMode!.label(l10n),
-      ?e.note,
+      // Bill-linked entries already say what they are in the title.
+      if (e.billId == null) ?e.note,
       l10n.balanceAfter(e.balanceAfter.format()),
     ].join(' · ');
     final owesMore = e.amount.isPositive;

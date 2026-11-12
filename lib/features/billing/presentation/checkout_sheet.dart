@@ -49,6 +49,18 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
     super.dispose();
   }
 
+  /// Phone and current due under the chosen customer, or nothing (an empty
+  /// second line would push the name up).
+  Widget? _customerDetails(AppLocalizations l10n) {
+    final c = _customer;
+    if (c == null) return null;
+    final details = [
+      if (c.phone != null) '+91 ${c.phone}',
+      if (c.hasDue) l10n.customerCurrentDue(c.balance.format()),
+    ];
+    return details.isEmpty ? null : Text(details.join(' · '));
+  }
+
   Future<void> _pickCustomer() async {
     final party = await showCustomerPicker(context);
     if (party != null && mounted) {
@@ -178,18 +190,7 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
                         color: Theme.of(context).colorScheme.error,
                       ),
                     )
-                  : (_customer == null
-                        ? null
-                        : Text(
-                            [
-                              if (_customer!.phone != null)
-                                '+91 ${_customer!.phone}',
-                              if (_customer!.hasDue)
-                                l10n.customerCurrentDue(
-                                  _customer!.balance.format(),
-                                ),
-                            ].join(' · '),
-                          )),
+                  : _customerDetails(l10n),
               trailing: _customer == null
                   ? const Icon(Icons.chevron_right)
                   : IconButton(

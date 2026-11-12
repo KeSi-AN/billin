@@ -1,9 +1,9 @@
 # Shop App (working name)
 
 Offline-first billing and inventory for small Indian shops. It runs entirely on an Android phone, with an optional Bluetooth barcode scanner and thermal printer.
-The phased plan is in [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md). **This is build 0.2 (Phase 2: inventory).**
+The phased plan is in [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md). **This is build 0.3 (Phase 3: customers & dues).**
 
-## What build 0.2 does
+## What build 0.3 does
 
 - **Shop setup** on first launch: name, logo, mobile, address, state, and GSTIN with checksum validation (a valid GSTIN fills in the state).
 - **Items**: add, edit, delete and search, with barcode (typed, Bluetooth scanner or camera), price, MRP, unit, GST rate, tax-inclusive/exclusive pricing and HSN.
@@ -26,6 +26,12 @@ The phased plan is in [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md). **This is buil
   - **Barcode labels** on the receipt printer, plus in-store barcodes for loose items.
 - **Settings**: invoice prefix, round-off, UPI ID, bill footer, printer.
 - Everything is stored in a local SQLite database; no internet is needed.
+
+- **Customers & dues (khata)** (build 0.3):
+  - Credit sales need a customer (picked or added at checkout) and can take a part payment there. The rest goes into an append-only ledger with running balances; cancelling a bill reverses its entries.
+  - Customers list with total due, a "with dues" filter and search. The customer page shows the balance and full khata.
+  - Receive full or part payments (cash/UPI/card). Opening dues, and picking a contact via Android's picker (no contacts permission).
+  - WhatsApp reminder with the due and a UPI pay link. Account statement PDF.
 
 **Not yet verified on real hardware:** Bluetooth printing of receipts and labels (no printer tested yet). Shop logos aren't printed on thermal receipts yet; they do appear on the PDF.
 

@@ -2,8 +2,8 @@ name: shop_app
 description: "Offline-first billing and inventory for small shops"
 publish_to: 'none'
 
-# Build 0.2 = Phase 2 (inventory). See docs/BUILD_PLAN.md.
-version: 0.2.0+3
+# Build 0.3 = Phase 3 (customers & dues). See docs/BUILD_PLAN.md.
+version: 0.3.0+4
 
 environment:
   sdk: ^3.14.0
