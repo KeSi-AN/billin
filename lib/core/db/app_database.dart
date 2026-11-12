@@ -22,13 +22,15 @@ part 'app_database.g.dart';
     Categories,
     ItemBatches,
     StockMovements,
+    Parties,
+    PartyEntries,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -67,6 +69,15 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(schema.itemBatches);
         await m.createTable(schema.stockMovements);
         await m.createIndex(schema.movementsItem);
+      },
+      // Phase 3 (build 0.3): customers and dues.
+      from3To4: (m, schema) async {
+        await m.createTable(schema.parties);
+        await m.createIndex(schema.partiesName);
+        await m.createTable(schema.partyEntries);
+        await m.createIndex(schema.partyEntriesParty);
+        await m.addColumn(schema.bills, schema.bills.partyId);
+        await m.addColumn(schema.bills, schema.bills.duePaise);
       },
     ),
     beforeOpen: (details) async {

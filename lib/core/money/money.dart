@@ -41,6 +41,7 @@ extension type const Money._(int paise) {
 
   bool get isZero => paise == 0;
   bool get isNegative => paise < 0;
+  bool get isPositive => paise > 0;
 
   /// For pre-filling an input: `1250`, `49.5`, `0.05`. No symbol, no commas.
   String toInput() {

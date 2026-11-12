@@ -149,10 +149,62 @@ class Bills extends Table {
   DateTimeColumn get cancelledAt => dateTime().nullable()();
   TextColumn get cancelReason => text().nullable()();
 
+  // --- Phase 3: customers and dues (schema v4) ---
+
+  /// The customer, when one was chosen (always for credit sales).
+  IntColumn get partyId => integer().nullable().references(Parties, #id)();
+
+  /// Part of the total left to pay later (credit). 0 for paid bills.
+  IntColumn get duePaise => integer().withDefault(const Constant(0))();
+
   @override
   List<Set<Column<Object>>> get uniqueKeys => [
     {fyStart, sequence},
   ];
+}
+
+/// Customers (and, from Phase 4, suppliers).
+@DataClassName('PartyRow')
+@TableIndex(name: 'parties_name', columns: {#name})
+class Parties extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  /// `customer` or `supplier`.
+  TextColumn get type => text().withDefault(const Constant('customer'))();
+  TextColumn get name => text().withLength(min: 1, max: 100)();
+  TextColumn get phone => text().nullable()();
+  TextColumn get addressLine => text().nullable()();
+  TextColumn get gstin => text().nullable()();
+  TextColumn get notes => text().nullable()();
+
+  /// Cached sum of this party's ledger: what they owe the shop (positive)
+  /// or the shop owes them (negative, an advance). Written only by the
+  /// party ledger, in the same transaction as the entry.
+  IntColumn get balancePaise => integer().withDefault(const Constant(0))();
+  BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+}
+
+/// Append-only "khata": every change to what a party owes.
+@DataClassName('PartyEntryRow')
+@TableIndex(name: 'party_entries_party', columns: {#partyId, #at})
+class PartyEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get partyId => integer().references(Parties, #id)();
+
+  /// `opening`, `sale`, `payment`, `cancel`, `adjust`.
+  TextColumn get type => text()();
+
+  /// Signed: + they owe more (credit sale), − they paid.
+  IntColumn get amountPaise => integer()();
+  IntColumn get billId => integer().nullable().references(Bills, #id)();
+
+  /// For payments: `cash`, `upi`, `card`.
+  TextColumn get paymentMode => text().nullable()();
+  TextColumn get note => text().nullable()();
+  IntColumn get balanceAfterPaise => integer()();
+  DateTimeColumn get at => dateTime()();
 }
 
 @DataClassName('BillLineRow')

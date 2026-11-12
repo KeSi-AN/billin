@@ -2104,6 +2104,662 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
   }
 }
 
+class $PartiesTable extends Parties with TableInfo<$PartiesTable, PartyRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PartiesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('customer'),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 100,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _phoneMeta = const VerificationMeta('phone');
+  @override
+  late final GeneratedColumn<String> phone = GeneratedColumn<String>(
+    'phone',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _addressLineMeta = const VerificationMeta(
+    'addressLine',
+  );
+  @override
+  late final GeneratedColumn<String> addressLine = GeneratedColumn<String>(
+    'address_line',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _gstinMeta = const VerificationMeta('gstin');
+  @override
+  late final GeneratedColumn<String> gstin = GeneratedColumn<String>(
+    'gstin',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _balancePaiseMeta = const VerificationMeta(
+    'balancePaise',
+  );
+  @override
+  late final GeneratedColumn<int> balancePaise = GeneratedColumn<int>(
+    'balance_paise',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _isActiveMeta = const VerificationMeta(
+    'isActive',
+  );
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+    'is_active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_active" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    type,
+    name,
+    phone,
+    addressLine,
+    gstin,
+    notes,
+    balancePaise,
+    isActive,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'parties';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PartyRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('phone')) {
+      context.handle(
+        _phoneMeta,
+        phone.isAcceptableOrUnknown(data['phone']!, _phoneMeta),
+      );
+    }
+    if (data.containsKey('address_line')) {
+      context.handle(
+        _addressLineMeta,
+        addressLine.isAcceptableOrUnknown(
+          data['address_line']!,
+          _addressLineMeta,
+        ),
+      );
+    }
+    if (data.containsKey('gstin')) {
+      context.handle(
+        _gstinMeta,
+        gstin.isAcceptableOrUnknown(data['gstin']!, _gstinMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('balance_paise')) {
+      context.handle(
+        _balancePaiseMeta,
+        balancePaise.isAcceptableOrUnknown(
+          data['balance_paise']!,
+          _balancePaiseMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(
+        _isActiveMeta,
+        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PartyRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PartyRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      phone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phone'],
+      ),
+      addressLine: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}address_line'],
+      ),
+      gstin: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}gstin'],
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      balancePaise: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}balance_paise'],
+      )!,
+      isActive: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_active'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PartiesTable createAlias(String alias) {
+    return $PartiesTable(attachedDatabase, alias);
+  }
+}
+
+class PartyRow extends DataClass implements Insertable<PartyRow> {
+  final int id;
+
+  /// `customer` or `supplier`.
+  final String type;
+  final String name;
+  final String? phone;
+  final String? addressLine;
+  final String? gstin;
+  final String? notes;
+
+  /// Cached sum of this party's ledger: what they owe the shop (positive)
+  /// or the shop owes them (negative, an advance). Written only by the
+  /// party ledger, in the same transaction as the entry.
+  final int balancePaise;
+  final bool isActive;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const PartyRow({
+    required this.id,
+    required this.type,
+    required this.name,
+    this.phone,
+    this.addressLine,
+    this.gstin,
+    this.notes,
+    required this.balancePaise,
+    required this.isActive,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['type'] = Variable<String>(type);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || phone != null) {
+      map['phone'] = Variable<String>(phone);
+    }
+    if (!nullToAbsent || addressLine != null) {
+      map['address_line'] = Variable<String>(addressLine);
+    }
+    if (!nullToAbsent || gstin != null) {
+      map['gstin'] = Variable<String>(gstin);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['balance_paise'] = Variable<int>(balancePaise);
+    map['is_active'] = Variable<bool>(isActive);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  PartiesCompanion toCompanion(bool nullToAbsent) {
+    return PartiesCompanion(
+      id: Value(id),
+      type: Value(type),
+      name: Value(name),
+      phone: phone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(phone),
+      addressLine: addressLine == null && nullToAbsent
+          ? const Value.absent()
+          : Value(addressLine),
+      gstin: gstin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gstin),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      balancePaise: Value(balancePaise),
+      isActive: Value(isActive),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory PartyRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PartyRow(
+      id: serializer.fromJson<int>(json['id']),
+      type: serializer.fromJson<String>(json['type']),
+      name: serializer.fromJson<String>(json['name']),
+      phone: serializer.fromJson<String?>(json['phone']),
+      addressLine: serializer.fromJson<String?>(json['addressLine']),
+      gstin: serializer.fromJson<String?>(json['gstin']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      balancePaise: serializer.fromJson<int>(json['balancePaise']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'type': serializer.toJson<String>(type),
+      'name': serializer.toJson<String>(name),
+      'phone': serializer.toJson<String?>(phone),
+      'addressLine': serializer.toJson<String?>(addressLine),
+      'gstin': serializer.toJson<String?>(gstin),
+      'notes': serializer.toJson<String?>(notes),
+      'balancePaise': serializer.toJson<int>(balancePaise),
+      'isActive': serializer.toJson<bool>(isActive),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  PartyRow copyWith({
+    int? id,
+    String? type,
+    String? name,
+    Value<String?> phone = const Value.absent(),
+    Value<String?> addressLine = const Value.absent(),
+    Value<String?> gstin = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+    int? balancePaise,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => PartyRow(
+    id: id ?? this.id,
+    type: type ?? this.type,
+    name: name ?? this.name,
+    phone: phone.present ? phone.value : this.phone,
+    addressLine: addressLine.present ? addressLine.value : this.addressLine,
+    gstin: gstin.present ? gstin.value : this.gstin,
+    notes: notes.present ? notes.value : this.notes,
+    balancePaise: balancePaise ?? this.balancePaise,
+    isActive: isActive ?? this.isActive,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  PartyRow copyWithCompanion(PartiesCompanion data) {
+    return PartyRow(
+      id: data.id.present ? data.id.value : this.id,
+      type: data.type.present ? data.type.value : this.type,
+      name: data.name.present ? data.name.value : this.name,
+      phone: data.phone.present ? data.phone.value : this.phone,
+      addressLine: data.addressLine.present
+          ? data.addressLine.value
+          : this.addressLine,
+      gstin: data.gstin.present ? data.gstin.value : this.gstin,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      balancePaise: data.balancePaise.present
+          ? data.balancePaise.value
+          : this.balancePaise,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PartyRow(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('name: $name, ')
+          ..write('phone: $phone, ')
+          ..write('addressLine: $addressLine, ')
+          ..write('gstin: $gstin, ')
+          ..write('notes: $notes, ')
+          ..write('balancePaise: $balancePaise, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    type,
+    name,
+    phone,
+    addressLine,
+    gstin,
+    notes,
+    balancePaise,
+    isActive,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PartyRow &&
+          other.id == this.id &&
+          other.type == this.type &&
+          other.name == this.name &&
+          other.phone == this.phone &&
+          other.addressLine == this.addressLine &&
+          other.gstin == this.gstin &&
+          other.notes == this.notes &&
+          other.balancePaise == this.balancePaise &&
+          other.isActive == this.isActive &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class PartiesCompanion extends UpdateCompanion<PartyRow> {
+  final Value<int> id;
+  final Value<String> type;
+  final Value<String> name;
+  final Value<String?> phone;
+  final Value<String?> addressLine;
+  final Value<String?> gstin;
+  final Value<String?> notes;
+  final Value<int> balancePaise;
+  final Value<bool> isActive;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const PartiesCompanion({
+    this.id = const Value.absent(),
+    this.type = const Value.absent(),
+    this.name = const Value.absent(),
+    this.phone = const Value.absent(),
+    this.addressLine = const Value.absent(),
+    this.gstin = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.balancePaise = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  PartiesCompanion.insert({
+    this.id = const Value.absent(),
+    this.type = const Value.absent(),
+    required String name,
+    this.phone = const Value.absent(),
+    this.addressLine = const Value.absent(),
+    this.gstin = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.balancePaise = const Value.absent(),
+    this.isActive = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) : name = Value(name),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<PartyRow> custom({
+    Expression<int>? id,
+    Expression<String>? type,
+    Expression<String>? name,
+    Expression<String>? phone,
+    Expression<String>? addressLine,
+    Expression<String>? gstin,
+    Expression<String>? notes,
+    Expression<int>? balancePaise,
+    Expression<bool>? isActive,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (type != null) 'type': type,
+      if (name != null) 'name': name,
+      if (phone != null) 'phone': phone,
+      if (addressLine != null) 'address_line': addressLine,
+      if (gstin != null) 'gstin': gstin,
+      if (notes != null) 'notes': notes,
+      if (balancePaise != null) 'balance_paise': balancePaise,
+      if (isActive != null) 'is_active': isActive,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  PartiesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? type,
+    Value<String>? name,
+    Value<String?>? phone,
+    Value<String?>? addressLine,
+    Value<String?>? gstin,
+    Value<String?>? notes,
+    Value<int>? balancePaise,
+    Value<bool>? isActive,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return PartiesCompanion(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      name: name ?? this.name,
+      phone: phone ?? this.phone,
+      addressLine: addressLine ?? this.addressLine,
+      gstin: gstin ?? this.gstin,
+      notes: notes ?? this.notes,
+      balancePaise: balancePaise ?? this.balancePaise,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (phone.present) {
+      map['phone'] = Variable<String>(phone.value);
+    }
+    if (addressLine.present) {
+      map['address_line'] = Variable<String>(addressLine.value);
+    }
+    if (gstin.present) {
+      map['gstin'] = Variable<String>(gstin.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (balancePaise.present) {
+      map['balance_paise'] = Variable<int>(balancePaise.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PartiesCompanion(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('name: $name, ')
+          ..write('phone: $phone, ')
+          ..write('addressLine: $addressLine, ')
+          ..write('gstin: $gstin, ')
+          ..write('notes: $notes, ')
+          ..write('balancePaise: $balancePaise, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $BillsTable extends Bills with TableInfo<$BillsTable, BillRow> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -2298,6 +2954,32 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, BillRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _partyIdMeta = const VerificationMeta(
+    'partyId',
+  );
+  @override
+  late final GeneratedColumn<int> partyId = GeneratedColumn<int>(
+    'party_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES parties (id)',
+    ),
+  );
+  static const VerificationMeta _duePaiseMeta = const VerificationMeta(
+    'duePaise',
+  );
+  @override
+  late final GeneratedColumn<int> duePaise = GeneratedColumn<int>(
+    'due_paise',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2317,6 +2999,8 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, BillRow> {
     status,
     cancelledAt,
     cancelReason,
+    partyId,
+    duePaise,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2481,6 +3165,18 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, BillRow> {
         ),
       );
     }
+    if (data.containsKey('party_id')) {
+      context.handle(
+        _partyIdMeta,
+        partyId.isAcceptableOrUnknown(data['party_id']!, _partyIdMeta),
+      );
+    }
+    if (data.containsKey('due_paise')) {
+      context.handle(
+        _duePaiseMeta,
+        duePaise.isAcceptableOrUnknown(data['due_paise']!, _duePaiseMeta),
+      );
+    }
     return context;
   }
 
@@ -2562,6 +3258,14 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, BillRow> {
         DriftSqlType.string,
         data['${effectivePrefix}cancel_reason'],
       ),
+      partyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}party_id'],
+      ),
+      duePaise: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}due_paise'],
+      )!,
     );
   }
 
@@ -2593,6 +3297,12 @@ class BillRow extends DataClass implements Insertable<BillRow> {
   final String status;
   final DateTime? cancelledAt;
   final String? cancelReason;
+
+  /// The customer, when one was chosen (always for credit sales).
+  final int? partyId;
+
+  /// Part of the total left to pay later (credit). 0 for paid bills.
+  final int duePaise;
   const BillRow({
     required this.id,
     required this.invoiceNo,
@@ -2611,6 +3321,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
     required this.status,
     this.cancelledAt,
     this.cancelReason,
+    this.partyId,
+    required this.duePaise,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2640,6 +3352,10 @@ class BillRow extends DataClass implements Insertable<BillRow> {
     if (!nullToAbsent || cancelReason != null) {
       map['cancel_reason'] = Variable<String>(cancelReason);
     }
+    if (!nullToAbsent || partyId != null) {
+      map['party_id'] = Variable<int>(partyId);
+    }
+    map['due_paise'] = Variable<int>(duePaise);
     return map;
   }
 
@@ -2670,6 +3386,10 @@ class BillRow extends DataClass implements Insertable<BillRow> {
       cancelReason: cancelReason == null && nullToAbsent
           ? const Value.absent()
           : Value(cancelReason),
+      partyId: partyId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(partyId),
+      duePaise: Value(duePaise),
     );
   }
 
@@ -2696,6 +3416,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
       status: serializer.fromJson<String>(json['status']),
       cancelledAt: serializer.fromJson<DateTime?>(json['cancelledAt']),
       cancelReason: serializer.fromJson<String?>(json['cancelReason']),
+      partyId: serializer.fromJson<int?>(json['partyId']),
+      duePaise: serializer.fromJson<int>(json['duePaise']),
     );
   }
   @override
@@ -2719,6 +3441,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
       'status': serializer.toJson<String>(status),
       'cancelledAt': serializer.toJson<DateTime?>(cancelledAt),
       'cancelReason': serializer.toJson<String?>(cancelReason),
+      'partyId': serializer.toJson<int?>(partyId),
+      'duePaise': serializer.toJson<int>(duePaise),
     };
   }
 
@@ -2740,6 +3464,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
     String? status,
     Value<DateTime?> cancelledAt = const Value.absent(),
     Value<String?> cancelReason = const Value.absent(),
+    Value<int?> partyId = const Value.absent(),
+    int? duePaise,
   }) => BillRow(
     id: id ?? this.id,
     invoiceNo: invoiceNo ?? this.invoiceNo,
@@ -2760,6 +3486,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
     status: status ?? this.status,
     cancelledAt: cancelledAt.present ? cancelledAt.value : this.cancelledAt,
     cancelReason: cancelReason.present ? cancelReason.value : this.cancelReason,
+    partyId: partyId.present ? partyId.value : this.partyId,
+    duePaise: duePaise ?? this.duePaise,
   );
   BillRow copyWithCompanion(BillsCompanion data) {
     return BillRow(
@@ -2800,6 +3528,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
       cancelReason: data.cancelReason.present
           ? data.cancelReason.value
           : this.cancelReason,
+      partyId: data.partyId.present ? data.partyId.value : this.partyId,
+      duePaise: data.duePaise.present ? data.duePaise.value : this.duePaise,
     );
   }
 
@@ -2822,7 +3552,9 @@ class BillRow extends DataClass implements Insertable<BillRow> {
           ..write('paymentMode: $paymentMode, ')
           ..write('status: $status, ')
           ..write('cancelledAt: $cancelledAt, ')
-          ..write('cancelReason: $cancelReason')
+          ..write('cancelReason: $cancelReason, ')
+          ..write('partyId: $partyId, ')
+          ..write('duePaise: $duePaise')
           ..write(')'))
         .toString();
   }
@@ -2846,6 +3578,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
     status,
     cancelledAt,
     cancelReason,
+    partyId,
+    duePaise,
   );
   @override
   bool operator ==(Object other) =>
@@ -2867,7 +3601,9 @@ class BillRow extends DataClass implements Insertable<BillRow> {
           other.paymentMode == this.paymentMode &&
           other.status == this.status &&
           other.cancelledAt == this.cancelledAt &&
-          other.cancelReason == this.cancelReason);
+          other.cancelReason == this.cancelReason &&
+          other.partyId == this.partyId &&
+          other.duePaise == this.duePaise);
 }
 
 class BillsCompanion extends UpdateCompanion<BillRow> {
@@ -2888,6 +3624,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
   final Value<String> status;
   final Value<DateTime?> cancelledAt;
   final Value<String?> cancelReason;
+  final Value<int?> partyId;
+  final Value<int> duePaise;
   const BillsCompanion({
     this.id = const Value.absent(),
     this.invoiceNo = const Value.absent(),
@@ -2906,6 +3644,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
     this.status = const Value.absent(),
     this.cancelledAt = const Value.absent(),
     this.cancelReason = const Value.absent(),
+    this.partyId = const Value.absent(),
+    this.duePaise = const Value.absent(),
   });
   BillsCompanion.insert({
     this.id = const Value.absent(),
@@ -2925,6 +3665,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
     this.status = const Value.absent(),
     this.cancelledAt = const Value.absent(),
     this.cancelReason = const Value.absent(),
+    this.partyId = const Value.absent(),
+    this.duePaise = const Value.absent(),
   }) : invoiceNo = Value(invoiceNo),
        fyStart = Value(fyStart),
        sequence = Value(sequence),
@@ -2954,6 +3696,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
     Expression<String>? status,
     Expression<DateTime>? cancelledAt,
     Expression<String>? cancelReason,
+    Expression<int>? partyId,
+    Expression<int>? duePaise,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2973,6 +3717,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
       if (status != null) 'status': status,
       if (cancelledAt != null) 'cancelled_at': cancelledAt,
       if (cancelReason != null) 'cancel_reason': cancelReason,
+      if (partyId != null) 'party_id': partyId,
+      if (duePaise != null) 'due_paise': duePaise,
     });
   }
 
@@ -2994,6 +3740,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
     Value<String>? status,
     Value<DateTime?>? cancelledAt,
     Value<String?>? cancelReason,
+    Value<int?>? partyId,
+    Value<int>? duePaise,
   }) {
     return BillsCompanion(
       id: id ?? this.id,
@@ -3013,6 +3761,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
       status: status ?? this.status,
       cancelledAt: cancelledAt ?? this.cancelledAt,
       cancelReason: cancelReason ?? this.cancelReason,
+      partyId: partyId ?? this.partyId,
+      duePaise: duePaise ?? this.duePaise,
     );
   }
 
@@ -3070,6 +3820,12 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
     if (cancelReason.present) {
       map['cancel_reason'] = Variable<String>(cancelReason.value);
     }
+    if (partyId.present) {
+      map['party_id'] = Variable<int>(partyId.value);
+    }
+    if (duePaise.present) {
+      map['due_paise'] = Variable<int>(duePaise.value);
+    }
     return map;
   }
 
@@ -3092,7 +3848,9 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
           ..write('paymentMode: $paymentMode, ')
           ..write('status: $status, ')
           ..write('cancelledAt: $cancelledAt, ')
-          ..write('cancelReason: $cancelReason')
+          ..write('cancelReason: $cancelReason, ')
+          ..write('partyId: $partyId, ')
+          ..write('duePaise: $duePaise')
           ..write(')'))
         .toString();
   }
@@ -5788,12 +6546,580 @@ class StockMovementsCompanion extends UpdateCompanion<MovementRow> {
   }
 }
 
+class $PartyEntriesTable extends PartyEntries
+    with TableInfo<$PartyEntriesTable, PartyEntryRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PartyEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _partyIdMeta = const VerificationMeta(
+    'partyId',
+  );
+  @override
+  late final GeneratedColumn<int> partyId = GeneratedColumn<int>(
+    'party_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES parties (id)',
+    ),
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountPaiseMeta = const VerificationMeta(
+    'amountPaise',
+  );
+  @override
+  late final GeneratedColumn<int> amountPaise = GeneratedColumn<int>(
+    'amount_paise',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _billIdMeta = const VerificationMeta('billId');
+  @override
+  late final GeneratedColumn<int> billId = GeneratedColumn<int>(
+    'bill_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES bills (id)',
+    ),
+  );
+  static const VerificationMeta _paymentModeMeta = const VerificationMeta(
+    'paymentMode',
+  );
+  @override
+  late final GeneratedColumn<String> paymentMode = GeneratedColumn<String>(
+    'payment_mode',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _balanceAfterPaiseMeta = const VerificationMeta(
+    'balanceAfterPaise',
+  );
+  @override
+  late final GeneratedColumn<int> balanceAfterPaise = GeneratedColumn<int>(
+    'balance_after_paise',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _atMeta = const VerificationMeta('at');
+  @override
+  late final GeneratedColumn<DateTime> at = GeneratedColumn<DateTime>(
+    'at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    partyId,
+    type,
+    amountPaise,
+    billId,
+    paymentMode,
+    note,
+    balanceAfterPaise,
+    at,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'party_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PartyEntryRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('party_id')) {
+      context.handle(
+        _partyIdMeta,
+        partyId.isAcceptableOrUnknown(data['party_id']!, _partyIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_partyIdMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('amount_paise')) {
+      context.handle(
+        _amountPaiseMeta,
+        amountPaise.isAcceptableOrUnknown(
+          data['amount_paise']!,
+          _amountPaiseMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_amountPaiseMeta);
+    }
+    if (data.containsKey('bill_id')) {
+      context.handle(
+        _billIdMeta,
+        billId.isAcceptableOrUnknown(data['bill_id']!, _billIdMeta),
+      );
+    }
+    if (data.containsKey('payment_mode')) {
+      context.handle(
+        _paymentModeMeta,
+        paymentMode.isAcceptableOrUnknown(
+          data['payment_mode']!,
+          _paymentModeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('balance_after_paise')) {
+      context.handle(
+        _balanceAfterPaiseMeta,
+        balanceAfterPaise.isAcceptableOrUnknown(
+          data['balance_after_paise']!,
+          _balanceAfterPaiseMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_balanceAfterPaiseMeta);
+    }
+    if (data.containsKey('at')) {
+      context.handle(_atMeta, at.isAcceptableOrUnknown(data['at']!, _atMeta));
+    } else if (isInserting) {
+      context.missing(_atMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PartyEntryRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PartyEntryRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      partyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}party_id'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      amountPaise: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount_paise'],
+      )!,
+      billId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bill_id'],
+      ),
+      paymentMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payment_mode'],
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      balanceAfterPaise: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}balance_after_paise'],
+      )!,
+      at: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}at'],
+      )!,
+    );
+  }
+
+  @override
+  $PartyEntriesTable createAlias(String alias) {
+    return $PartyEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
+  final int id;
+  final int partyId;
+
+  /// `opening`, `sale`, `payment`, `cancel`, `adjust`.
+  final String type;
+
+  /// Signed: + they owe more (credit sale), − they paid.
+  final int amountPaise;
+  final int? billId;
+
+  /// For payments: `cash`, `upi`, `card`.
+  final String? paymentMode;
+  final String? note;
+  final int balanceAfterPaise;
+  final DateTime at;
+  const PartyEntryRow({
+    required this.id,
+    required this.partyId,
+    required this.type,
+    required this.amountPaise,
+    this.billId,
+    this.paymentMode,
+    this.note,
+    required this.balanceAfterPaise,
+    required this.at,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['party_id'] = Variable<int>(partyId);
+    map['type'] = Variable<String>(type);
+    map['amount_paise'] = Variable<int>(amountPaise);
+    if (!nullToAbsent || billId != null) {
+      map['bill_id'] = Variable<int>(billId);
+    }
+    if (!nullToAbsent || paymentMode != null) {
+      map['payment_mode'] = Variable<String>(paymentMode);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['balance_after_paise'] = Variable<int>(balanceAfterPaise);
+    map['at'] = Variable<DateTime>(at);
+    return map;
+  }
+
+  PartyEntriesCompanion toCompanion(bool nullToAbsent) {
+    return PartyEntriesCompanion(
+      id: Value(id),
+      partyId: Value(partyId),
+      type: Value(type),
+      amountPaise: Value(amountPaise),
+      billId: billId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(billId),
+      paymentMode: paymentMode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(paymentMode),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      balanceAfterPaise: Value(balanceAfterPaise),
+      at: Value(at),
+    );
+  }
+
+  factory PartyEntryRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PartyEntryRow(
+      id: serializer.fromJson<int>(json['id']),
+      partyId: serializer.fromJson<int>(json['partyId']),
+      type: serializer.fromJson<String>(json['type']),
+      amountPaise: serializer.fromJson<int>(json['amountPaise']),
+      billId: serializer.fromJson<int?>(json['billId']),
+      paymentMode: serializer.fromJson<String?>(json['paymentMode']),
+      note: serializer.fromJson<String?>(json['note']),
+      balanceAfterPaise: serializer.fromJson<int>(json['balanceAfterPaise']),
+      at: serializer.fromJson<DateTime>(json['at']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'partyId': serializer.toJson<int>(partyId),
+      'type': serializer.toJson<String>(type),
+      'amountPaise': serializer.toJson<int>(amountPaise),
+      'billId': serializer.toJson<int?>(billId),
+      'paymentMode': serializer.toJson<String?>(paymentMode),
+      'note': serializer.toJson<String?>(note),
+      'balanceAfterPaise': serializer.toJson<int>(balanceAfterPaise),
+      'at': serializer.toJson<DateTime>(at),
+    };
+  }
+
+  PartyEntryRow copyWith({
+    int? id,
+    int? partyId,
+    String? type,
+    int? amountPaise,
+    Value<int?> billId = const Value.absent(),
+    Value<String?> paymentMode = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+    int? balanceAfterPaise,
+    DateTime? at,
+  }) => PartyEntryRow(
+    id: id ?? this.id,
+    partyId: partyId ?? this.partyId,
+    type: type ?? this.type,
+    amountPaise: amountPaise ?? this.amountPaise,
+    billId: billId.present ? billId.value : this.billId,
+    paymentMode: paymentMode.present ? paymentMode.value : this.paymentMode,
+    note: note.present ? note.value : this.note,
+    balanceAfterPaise: balanceAfterPaise ?? this.balanceAfterPaise,
+    at: at ?? this.at,
+  );
+  PartyEntryRow copyWithCompanion(PartyEntriesCompanion data) {
+    return PartyEntryRow(
+      id: data.id.present ? data.id.value : this.id,
+      partyId: data.partyId.present ? data.partyId.value : this.partyId,
+      type: data.type.present ? data.type.value : this.type,
+      amountPaise: data.amountPaise.present
+          ? data.amountPaise.value
+          : this.amountPaise,
+      billId: data.billId.present ? data.billId.value : this.billId,
+      paymentMode: data.paymentMode.present
+          ? data.paymentMode.value
+          : this.paymentMode,
+      note: data.note.present ? data.note.value : this.note,
+      balanceAfterPaise: data.balanceAfterPaise.present
+          ? data.balanceAfterPaise.value
+          : this.balanceAfterPaise,
+      at: data.at.present ? data.at.value : this.at,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PartyEntryRow(')
+          ..write('id: $id, ')
+          ..write('partyId: $partyId, ')
+          ..write('type: $type, ')
+          ..write('amountPaise: $amountPaise, ')
+          ..write('billId: $billId, ')
+          ..write('paymentMode: $paymentMode, ')
+          ..write('note: $note, ')
+          ..write('balanceAfterPaise: $balanceAfterPaise, ')
+          ..write('at: $at')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    partyId,
+    type,
+    amountPaise,
+    billId,
+    paymentMode,
+    note,
+    balanceAfterPaise,
+    at,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PartyEntryRow &&
+          other.id == this.id &&
+          other.partyId == this.partyId &&
+          other.type == this.type &&
+          other.amountPaise == this.amountPaise &&
+          other.billId == this.billId &&
+          other.paymentMode == this.paymentMode &&
+          other.note == this.note &&
+          other.balanceAfterPaise == this.balanceAfterPaise &&
+          other.at == this.at);
+}
+
+class PartyEntriesCompanion extends UpdateCompanion<PartyEntryRow> {
+  final Value<int> id;
+  final Value<int> partyId;
+  final Value<String> type;
+  final Value<int> amountPaise;
+  final Value<int?> billId;
+  final Value<String?> paymentMode;
+  final Value<String?> note;
+  final Value<int> balanceAfterPaise;
+  final Value<DateTime> at;
+  const PartyEntriesCompanion({
+    this.id = const Value.absent(),
+    this.partyId = const Value.absent(),
+    this.type = const Value.absent(),
+    this.amountPaise = const Value.absent(),
+    this.billId = const Value.absent(),
+    this.paymentMode = const Value.absent(),
+    this.note = const Value.absent(),
+    this.balanceAfterPaise = const Value.absent(),
+    this.at = const Value.absent(),
+  });
+  PartyEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required int partyId,
+    required String type,
+    required int amountPaise,
+    this.billId = const Value.absent(),
+    this.paymentMode = const Value.absent(),
+    this.note = const Value.absent(),
+    required int balanceAfterPaise,
+    required DateTime at,
+  }) : partyId = Value(partyId),
+       type = Value(type),
+       amountPaise = Value(amountPaise),
+       balanceAfterPaise = Value(balanceAfterPaise),
+       at = Value(at);
+  static Insertable<PartyEntryRow> custom({
+    Expression<int>? id,
+    Expression<int>? partyId,
+    Expression<String>? type,
+    Expression<int>? amountPaise,
+    Expression<int>? billId,
+    Expression<String>? paymentMode,
+    Expression<String>? note,
+    Expression<int>? balanceAfterPaise,
+    Expression<DateTime>? at,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (partyId != null) 'party_id': partyId,
+      if (type != null) 'type': type,
+      if (amountPaise != null) 'amount_paise': amountPaise,
+      if (billId != null) 'bill_id': billId,
+      if (paymentMode != null) 'payment_mode': paymentMode,
+      if (note != null) 'note': note,
+      if (balanceAfterPaise != null) 'balance_after_paise': balanceAfterPaise,
+      if (at != null) 'at': at,
+    });
+  }
+
+  PartyEntriesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? partyId,
+    Value<String>? type,
+    Value<int>? amountPaise,
+    Value<int?>? billId,
+    Value<String?>? paymentMode,
+    Value<String?>? note,
+    Value<int>? balanceAfterPaise,
+    Value<DateTime>? at,
+  }) {
+    return PartyEntriesCompanion(
+      id: id ?? this.id,
+      partyId: partyId ?? this.partyId,
+      type: type ?? this.type,
+      amountPaise: amountPaise ?? this.amountPaise,
+      billId: billId ?? this.billId,
+      paymentMode: paymentMode ?? this.paymentMode,
+      note: note ?? this.note,
+      balanceAfterPaise: balanceAfterPaise ?? this.balanceAfterPaise,
+      at: at ?? this.at,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (partyId.present) {
+      map['party_id'] = Variable<int>(partyId.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (amountPaise.present) {
+      map['amount_paise'] = Variable<int>(amountPaise.value);
+    }
+    if (billId.present) {
+      map['bill_id'] = Variable<int>(billId.value);
+    }
+    if (paymentMode.present) {
+      map['payment_mode'] = Variable<String>(paymentMode.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (balanceAfterPaise.present) {
+      map['balance_after_paise'] = Variable<int>(balanceAfterPaise.value);
+    }
+    if (at.present) {
+      map['at'] = Variable<DateTime>(at.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PartyEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('partyId: $partyId, ')
+          ..write('type: $type, ')
+          ..write('amountPaise: $amountPaise, ')
+          ..write('billId: $billId, ')
+          ..write('paymentMode: $paymentMode, ')
+          ..write('note: $note, ')
+          ..write('balanceAfterPaise: $balanceAfterPaise, ')
+          ..write('at: $at')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ShopProfilesTable shopProfiles = $ShopProfilesTable(this);
   late final $CategoriesTable categories = $CategoriesTable(this);
   late final $ItemsTable items = $ItemsTable(this);
+  late final $PartiesTable parties = $PartiesTable(this);
   late final $BillsTable bills = $BillsTable(this);
   late final $BillLinesTable billLines = $BillLinesTable(this);
   late final $InvoiceCountersTable invoiceCounters = $InvoiceCountersTable(
@@ -5802,6 +7128,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final $ItemBatchesTable itemBatches = $ItemBatchesTable(this);
   late final $StockMovementsTable stockMovements = $StockMovementsTable(this);
+  late final $PartyEntriesTable partyEntries = $PartyEntriesTable(this);
   late final Index itemsName = Index(
     'items_name',
     'CREATE INDEX items_name ON items (name)',
@@ -5814,6 +7141,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'movements_item',
     'CREATE INDEX movements_item ON stock_movements (item_id, at)',
   );
+  late final Index partiesName = Index(
+    'parties_name',
+    'CREATE INDEX parties_name ON parties (name)',
+  );
+  late final Index partyEntriesParty = Index(
+    'party_entries_party',
+    'CREATE INDEX party_entries_party ON party_entries (party_id, at)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5822,15 +7157,19 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     shopProfiles,
     categories,
     items,
+    parties,
     bills,
     billLines,
     invoiceCounters,
     appSettings,
     itemBatches,
     stockMovements,
+    partyEntries,
     itemsName,
     billsBilledAt,
     movementsItem,
+    partiesName,
+    partyEntriesParty,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -7424,6 +8763,507 @@ typedef $$ItemsTableProcessedTableManager =
         bool stockMovementsRefs,
       })
     >;
+typedef $$PartiesTableCreateCompanionBuilder = PartiesCompanion Function({
+  Value<int> id,
+  Value<String> type,
+  required String name,
+  Value<String?> phone,
+  Value<String?> addressLine,
+  Value<String?> gstin,
+  Value<String?> notes,
+  Value<int> balancePaise,
+  Value<bool> isActive,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+});
+typedef $$PartiesTableUpdateCompanionBuilder = PartiesCompanion Function({
+  Value<int> id,
+  Value<String> type,
+  Value<String> name,
+  Value<String?> phone,
+  Value<String?> addressLine,
+  Value<String?> gstin,
+  Value<String?> notes,
+  Value<int> balancePaise,
+  Value<bool> isActive,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+
+final class $$PartiesTableReferences
+    extends BaseReferences<_$AppDatabase, $PartiesTable, PartyRow> {
+  $$PartiesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$BillsTable, List<BillRow>> _billsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.bills,
+    aliasName: 'parties__id__bills__party_id',
+  );
+
+  $$BillsTableProcessedTableManager get billsRefs {
+    final manager = $$BillsTableTableManager(
+      $_db,
+      $_db.bills,
+    ).filter((f) => f.partyId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_billsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$PartyEntriesTable, List<PartyEntryRow>>
+  _partyEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.partyEntries,
+    aliasName: 'parties__id__party_entries__party_id',
+  );
+
+  $$PartyEntriesTableProcessedTableManager get partyEntriesRefs {
+    final manager = $$PartyEntriesTableTableManager(
+      $_db,
+      $_db.partyEntries,
+    ).filter((f) => f.partyId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_partyEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$PartiesTableFilterComposer
+    extends Composer<_$AppDatabase, $PartiesTable> {
+  $$PartiesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get phone => $composableBuilder(
+    column: $table.phone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get addressLine => $composableBuilder(
+    column: $table.addressLine,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get gstin => $composableBuilder(
+    column: $table.gstin,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get balancePaise => $composableBuilder(
+    column: $table.balancePaise,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> billsRefs(
+    Expression<bool> Function($$BillsTableFilterComposer f) f,
+  ) {
+    final $$BillsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.bills,
+      getReferencedColumn: (t) => t.partyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BillsTableFilterComposer(
+            $db: $db,
+            $table: $db.bills,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> partyEntriesRefs(
+    Expression<bool> Function($$PartyEntriesTableFilterComposer f) f,
+  ) {
+    final $$PartyEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.partyEntries,
+      getReferencedColumn: (t) => t.partyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PartyEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.partyEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PartiesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PartiesTable> {
+  $$PartiesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get phone => $composableBuilder(
+    column: $table.phone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get addressLine => $composableBuilder(
+    column: $table.addressLine,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get gstin => $composableBuilder(
+    column: $table.gstin,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get balancePaise => $composableBuilder(
+    column: $table.balancePaise,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PartiesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PartiesTable> {
+  $$PartiesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get phone =>
+      $composableBuilder(column: $table.phone, builder: (column) => column);
+
+  GeneratedColumn<String> get addressLine => $composableBuilder(
+    column: $table.addressLine,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get gstin =>
+      $composableBuilder(column: $table.gstin, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<int> get balancePaise => $composableBuilder(
+    column: $table.balancePaise,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> billsRefs<T extends Object>(
+    Expression<T> Function($$BillsTableAnnotationComposer a) f,
+  ) {
+    final $$BillsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.bills,
+      getReferencedColumn: (t) => t.partyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BillsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.bills,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> partyEntriesRefs<T extends Object>(
+    Expression<T> Function($$PartyEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$PartyEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.partyEntries,
+      getReferencedColumn: (t) => t.partyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PartyEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.partyEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PartiesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PartiesTable,
+          PartyRow,
+          $$PartiesTableFilterComposer,
+          $$PartiesTableOrderingComposer,
+          $$PartiesTableAnnotationComposer,
+          $$PartiesTableCreateCompanionBuilder,
+          $$PartiesTableUpdateCompanionBuilder,
+          (PartyRow, $$PartiesTableReferences),
+          PartyRow,
+          PrefetchHooks Function({bool billsRefs, bool partyEntriesRefs})
+        > {
+  $$PartiesTableTableManager(_$AppDatabase db, $PartiesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PartiesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PartiesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PartiesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> phone = const Value.absent(),
+                Value<String?> addressLine = const Value.absent(),
+                Value<String?> gstin = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<int> balancePaise = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => PartiesCompanion(
+                id: id,
+                type: type,
+                name: name,
+                phone: phone,
+                addressLine: addressLine,
+                gstin: gstin,
+                notes: notes,
+                balancePaise: balancePaise,
+                isActive: isActive,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                required String name,
+                Value<String?> phone = const Value.absent(),
+                Value<String?> addressLine = const Value.absent(),
+                Value<String?> gstin = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<int> balancePaise = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+              }) => PartiesCompanion.insert(
+                id: id,
+                type: type,
+                name: name,
+                phone: phone,
+                addressLine: addressLine,
+                gstin: gstin,
+                notes: notes,
+                balancePaise: balancePaise,
+                isActive: isActive,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PartiesTable, PartyRow>(table),
+                  $$PartiesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({billsRefs = false, partyEntriesRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (billsRefs) db.bills,
+                    if (partyEntriesRefs) db.partyEntries,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (billsRefs)
+                        await $_getPrefetchedDataByColumns<
+                          PartyRow,
+                          $PartiesTable,
+                          BillRow,
+                          $BillsTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PartiesTableReferences
+                              ._billsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PartiesTableReferences(db, table, p0).billsRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'party_id',
+                          typedResults: items,
+                        ),
+                      if (partyEntriesRefs)
+                        await $_getPrefetchedDataByColumns<
+                          PartyRow,
+                          $PartiesTable,
+                          PartyEntryRow,
+                          $PartyEntriesTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PartiesTableReferences
+                              ._partyEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PartiesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).partyEntriesRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'party_id',
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$PartiesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PartiesTable,
+      PartyRow,
+      $$PartiesTableFilterComposer,
+      $$PartiesTableOrderingComposer,
+      $$PartiesTableAnnotationComposer,
+      $$PartiesTableCreateCompanionBuilder,
+      $$PartiesTableUpdateCompanionBuilder,
+      (PartyRow, $$PartiesTableReferences),
+      PartyRow,
+      PrefetchHooks Function({bool billsRefs, bool partyEntriesRefs})
+    >;
 typedef $$BillsTableCreateCompanionBuilder = BillsCompanion Function({
   Value<int> id,
   required String invoiceNo,
@@ -7442,6 +9282,8 @@ typedef $$BillsTableCreateCompanionBuilder = BillsCompanion Function({
   Value<String> status,
   Value<DateTime?> cancelledAt,
   Value<String?> cancelReason,
+  Value<int?> partyId,
+  Value<int> duePaise,
 });
 typedef $$BillsTableUpdateCompanionBuilder = BillsCompanion Function({
   Value<int> id,
@@ -7461,11 +9303,30 @@ typedef $$BillsTableUpdateCompanionBuilder = BillsCompanion Function({
   Value<String> status,
   Value<DateTime?> cancelledAt,
   Value<String?> cancelReason,
+  Value<int?> partyId,
+  Value<int> duePaise,
 });
 
 final class $$BillsTableReferences
     extends BaseReferences<_$AppDatabase, $BillsTable, BillRow> {
   $$BillsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $PartiesTable _partyIdTable(_$AppDatabase db) =>
+      db.parties.createAlias('bills__party_id__parties__id');
+
+  $$PartiesTableProcessedTableManager? get partyId {
+    final $_column = $_itemColumn<int>('party_id');
+    if ($_column == null) return null;
+    final manager = $$PartiesTableTableManager(
+      $_db,
+      $_db.parties,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_partyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static MultiTypedResultKey<$BillLinesTable, List<BillLineRow>>
   _billLinesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
@@ -7498,6 +9359,24 @@ final class $$BillsTableReferences
     ).filter((f) => f.billId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_stockMovementsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$PartyEntriesTable, List<PartyEntryRow>>
+  _partyEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.partyEntries,
+    aliasName: 'bills__id__party_entries__bill_id',
+  );
+
+  $$PartyEntriesTableProcessedTableManager get partyEntriesRefs {
+    final manager = $$PartyEntriesTableTableManager(
+      $_db,
+      $_db.partyEntries,
+    ).filter((f) => f.billId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_partyEntriesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -7597,6 +9476,34 @@ class $$BillsTableFilterComposer extends Composer<_$AppDatabase, $BillsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get duePaise => $composableBuilder(
+    column: $table.duePaise,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PartiesTableFilterComposer get partyId {
+    final $$PartiesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.partyId,
+      referencedTable: $db.parties,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PartiesTableFilterComposer(
+            $db: $db,
+            $table: $db.parties,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<bool> billLinesRefs(
     Expression<bool> Function($$BillLinesTableFilterComposer f) f,
   ) {
@@ -7638,6 +9545,31 @@ class $$BillsTableFilterComposer extends Composer<_$AppDatabase, $BillsTable> {
           }) => $$StockMovementsTableFilterComposer(
             $db: $db,
             $table: $db.stockMovements,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> partyEntriesRefs(
+    Expression<bool> Function($$PartyEntriesTableFilterComposer f) f,
+  ) {
+    final $$PartyEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.partyEntries,
+      getReferencedColumn: (t) => t.billId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PartyEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.partyEntries,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7741,6 +9673,34 @@ class $$BillsTableOrderingComposer
     column: $table.cancelReason,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get duePaise => $composableBuilder(
+    column: $table.duePaise,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PartiesTableOrderingComposer get partyId {
+    final $$PartiesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.partyId,
+      referencedTable: $db.parties,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PartiesTableOrderingComposer(
+            $db: $db,
+            $table: $db.parties,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$BillsTableAnnotationComposer
@@ -7823,6 +9783,32 @@ class $$BillsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get duePaise =>
+      $composableBuilder(column: $table.duePaise, builder: (column) => column);
+
+  $$PartiesTableAnnotationComposer get partyId {
+    final $$PartiesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.partyId,
+      referencedTable: $db.parties,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PartiesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.parties,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<T> billLinesRefs<T extends Object>(
     Expression<T> Function($$BillLinesTableAnnotationComposer a) f,
   ) {
@@ -7872,6 +9858,31 @@ class $$BillsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> partyEntriesRefs<T extends Object>(
+    Expression<T> Function($$PartyEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$PartyEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.partyEntries,
+      getReferencedColumn: (t) => t.billId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PartyEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.partyEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$BillsTableTableManager
@@ -7887,7 +9898,12 @@ class $$BillsTableTableManager
           $$BillsTableUpdateCompanionBuilder,
           (BillRow, $$BillsTableReferences),
           BillRow,
-          PrefetchHooks Function({bool billLinesRefs, bool stockMovementsRefs})
+          PrefetchHooks Function({
+            bool partyId,
+            bool billLinesRefs,
+            bool stockMovementsRefs,
+            bool partyEntriesRefs,
+          })
         > {
   $$BillsTableTableManager(_$AppDatabase db, $BillsTable table)
     : super(
@@ -7919,6 +9935,8 @@ class $$BillsTableTableManager
                 Value<String> status = const Value.absent(),
                 Value<DateTime?> cancelledAt = const Value.absent(),
                 Value<String?> cancelReason = const Value.absent(),
+                Value<int?> partyId = const Value.absent(),
+                Value<int> duePaise = const Value.absent(),
               }) => BillsCompanion(
                 id: id,
                 invoiceNo: invoiceNo,
@@ -7937,6 +9955,8 @@ class $$BillsTableTableManager
                 status: status,
                 cancelledAt: cancelledAt,
                 cancelReason: cancelReason,
+                partyId: partyId,
+                duePaise: duePaise,
               ),
           createCompanionCallback:
               ({
@@ -7957,6 +9977,8 @@ class $$BillsTableTableManager
                 Value<String> status = const Value.absent(),
                 Value<DateTime?> cancelledAt = const Value.absent(),
                 Value<String?> cancelReason = const Value.absent(),
+                Value<int?> partyId = const Value.absent(),
+                Value<int> duePaise = const Value.absent(),
               }) => BillsCompanion.insert(
                 id: id,
                 invoiceNo: invoiceNo,
@@ -7975,6 +9997,8 @@ class $$BillsTableTableManager
                 status: status,
                 cancelledAt: cancelledAt,
                 cancelReason: cancelReason,
+                partyId: partyId,
+                duePaise: duePaise,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -7985,14 +10009,49 @@ class $$BillsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({billLinesRefs = false, stockMovementsRefs = false}) {
+              ({
+                partyId = false,
+                billLinesRefs = false,
+                stockMovementsRefs = false,
+                partyEntriesRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (billLinesRefs) db.billLines,
                     if (stockMovementsRefs) db.stockMovements,
+                    if (partyEntriesRefs) db.partyEntries,
                   ],
-                  addJoins: null,
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (partyId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.partyId,
+                            referencedTable: $$BillsTableReferences
+                                ._partyIdTable(db),
+                            referencedColumn: $$BillsTableReferences
+                                ._partyIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+
+                        return state;
+                      },
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (billLinesRefs)
@@ -8035,6 +10094,26 @@ class $$BillsTableTableManager
                           referencedColumn: 'bill_id',
                           typedResults: items,
                         ),
+                      if (partyEntriesRefs)
+                        await $_getPrefetchedDataByColumns<
+                          BillRow,
+                          $BillsTable,
+                          PartyEntryRow,
+                          $PartyEntriesTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BillsTableReferences
+                              ._partyEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BillsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).partyEntriesRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'bill_id',
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -8055,7 +10134,12 @@ typedef $$BillsTableProcessedTableManager =
       $$BillsTableUpdateCompanionBuilder,
       (BillRow, $$BillsTableReferences),
       BillRow,
-      PrefetchHooks Function({bool billLinesRefs, bool stockMovementsRefs})
+      PrefetchHooks Function({
+        bool partyId,
+        bool billLinesRefs,
+        bool stockMovementsRefs,
+        bool partyEntriesRefs,
+      })
     >;
 typedef $$BillLinesTableCreateCompanionBuilder = BillLinesCompanion Function({
   Value<int> id,
@@ -10104,6 +12188,481 @@ typedef $$StockMovementsTableProcessedTableManager =
       MovementRow,
       PrefetchHooks Function({bool itemId, bool batchId, bool billId})
     >;
+typedef $$PartyEntriesTableCreateCompanionBuilder =
+    PartyEntriesCompanion Function({
+      Value<int> id,
+      required int partyId,
+      required String type,
+      required int amountPaise,
+      Value<int?> billId,
+      Value<String?> paymentMode,
+      Value<String?> note,
+      required int balanceAfterPaise,
+      required DateTime at,
+    });
+typedef $$PartyEntriesTableUpdateCompanionBuilder =
+    PartyEntriesCompanion Function({
+      Value<int> id,
+      Value<int> partyId,
+      Value<String> type,
+      Value<int> amountPaise,
+      Value<int?> billId,
+      Value<String?> paymentMode,
+      Value<String?> note,
+      Value<int> balanceAfterPaise,
+      Value<DateTime> at,
+    });
+
+final class $$PartyEntriesTableReferences
+    extends BaseReferences<_$AppDatabase, $PartyEntriesTable, PartyEntryRow> {
+  $$PartyEntriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $PartiesTable _partyIdTable(_$AppDatabase db) =>
+      db.parties.createAlias('party_entries__party_id__parties__id');
+
+  $$PartiesTableProcessedTableManager get partyId {
+    final $_column = $_itemColumn<int>('party_id')!;
+
+    final manager = $$PartiesTableTableManager(
+      $_db,
+      $_db.parties,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_partyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $BillsTable _billIdTable(_$AppDatabase db) =>
+      db.bills.createAlias('party_entries__bill_id__bills__id');
+
+  $$BillsTableProcessedTableManager? get billId {
+    final $_column = $_itemColumn<int>('bill_id');
+    if ($_column == null) return null;
+    final manager = $$BillsTableTableManager(
+      $_db,
+      $_db.bills,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_billIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PartyEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $PartyEntriesTable> {
+  $$PartyEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get amountPaise => $composableBuilder(
+    column: $table.amountPaise,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get paymentMode => $composableBuilder(
+    column: $table.paymentMode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get balanceAfterPaise => $composableBuilder(
+    column: $table.balanceAfterPaise,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get at => $composableBuilder(
+    column: $table.at,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PartiesTableFilterComposer get partyId {
+    final $$PartiesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.partyId,
+      referencedTable: $db.parties,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PartiesTableFilterComposer(
+            $db: $db,
+            $table: $db.parties,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BillsTableFilterComposer get billId {
+    final $$BillsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.billId,
+      referencedTable: $db.bills,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BillsTableFilterComposer(
+            $db: $db,
+            $table: $db.bills,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PartyEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PartyEntriesTable> {
+  $$PartyEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get amountPaise => $composableBuilder(
+    column: $table.amountPaise,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get paymentMode => $composableBuilder(
+    column: $table.paymentMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get balanceAfterPaise => $composableBuilder(
+    column: $table.balanceAfterPaise,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get at => $composableBuilder(
+    column: $table.at,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PartiesTableOrderingComposer get partyId {
+    final $$PartiesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.partyId,
+      referencedTable: $db.parties,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PartiesTableOrderingComposer(
+            $db: $db,
+            $table: $db.parties,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BillsTableOrderingComposer get billId {
+    final $$BillsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.billId,
+      referencedTable: $db.bills,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BillsTableOrderingComposer(
+            $db: $db,
+            $table: $db.bills,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PartyEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PartyEntriesTable> {
+  $$PartyEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<int> get amountPaise => $composableBuilder(
+    column: $table.amountPaise,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get paymentMode => $composableBuilder(
+    column: $table.paymentMode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<int> get balanceAfterPaise => $composableBuilder(
+    column: $table.balanceAfterPaise,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get at =>
+      $composableBuilder(column: $table.at, builder: (column) => column);
+
+  $$PartiesTableAnnotationComposer get partyId {
+    final $$PartiesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.partyId,
+      referencedTable: $db.parties,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PartiesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.parties,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BillsTableAnnotationComposer get billId {
+    final $$BillsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.billId,
+      referencedTable: $db.bills,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BillsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.bills,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PartyEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PartyEntriesTable,
+          PartyEntryRow,
+          $$PartyEntriesTableFilterComposer,
+          $$PartyEntriesTableOrderingComposer,
+          $$PartyEntriesTableAnnotationComposer,
+          $$PartyEntriesTableCreateCompanionBuilder,
+          $$PartyEntriesTableUpdateCompanionBuilder,
+          (PartyEntryRow, $$PartyEntriesTableReferences),
+          PartyEntryRow,
+          PrefetchHooks Function({bool partyId, bool billId})
+        > {
+  $$PartyEntriesTableTableManager(_$AppDatabase db, $PartyEntriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PartyEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PartyEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PartyEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> partyId = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<int> amountPaise = const Value.absent(),
+                Value<int?> billId = const Value.absent(),
+                Value<String?> paymentMode = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<int> balanceAfterPaise = const Value.absent(),
+                Value<DateTime> at = const Value.absent(),
+              }) => PartyEntriesCompanion(
+                id: id,
+                partyId: partyId,
+                type: type,
+                amountPaise: amountPaise,
+                billId: billId,
+                paymentMode: paymentMode,
+                note: note,
+                balanceAfterPaise: balanceAfterPaise,
+                at: at,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int partyId,
+                required String type,
+                required int amountPaise,
+                Value<int?> billId = const Value.absent(),
+                Value<String?> paymentMode = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                required int balanceAfterPaise,
+                required DateTime at,
+              }) => PartyEntriesCompanion.insert(
+                id: id,
+                partyId: partyId,
+                type: type,
+                amountPaise: amountPaise,
+                billId: billId,
+                paymentMode: paymentMode,
+                note: note,
+                balanceAfterPaise: balanceAfterPaise,
+                at: at,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PartyEntriesTable, PartyEntryRow>(table),
+                  $$PartyEntriesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({partyId = false, billId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (partyId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.partyId,
+                        referencedTable: $$PartyEntriesTableReferences
+                            ._partyIdTable(db),
+                        referencedColumn: $$PartyEntriesTableReferences
+                            ._partyIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+                    if (billId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.billId,
+                        referencedTable: $$PartyEntriesTableReferences
+                            ._billIdTable(db),
+                        referencedColumn: $$PartyEntriesTableReferences
+                            ._billIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PartyEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PartyEntriesTable,
+      PartyEntryRow,
+      $$PartyEntriesTableFilterComposer,
+      $$PartyEntriesTableOrderingComposer,
+      $$PartyEntriesTableAnnotationComposer,
+      $$PartyEntriesTableCreateCompanionBuilder,
+      $$PartyEntriesTableUpdateCompanionBuilder,
+      (PartyEntryRow, $$PartyEntriesTableReferences),
+      PartyEntryRow,
+      PrefetchHooks Function({bool partyId, bool billId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -10114,6 +12673,8 @@ class $AppDatabaseManager {
       $$CategoriesTableTableManager(_db, _db.categories);
   $$ItemsTableTableManager get items =>
       $$ItemsTableTableManager(_db, _db.items);
+  $$PartiesTableTableManager get parties =>
+      $$PartiesTableTableManager(_db, _db.parties);
   $$BillsTableTableManager get bills =>
       $$BillsTableTableManager(_db, _db.bills);
   $$BillLinesTableTableManager get billLines =>
@@ -10126,4 +12687,6 @@ class $AppDatabaseManager {
       $$ItemBatchesTableTableManager(_db, _db.itemBatches);
   $$StockMovementsTableTableManager get stockMovements =>
       $$StockMovementsTableTableManager(_db, _db.stockMovements);
+  $$PartyEntriesTableTableManager get partyEntries =>
+      $$PartyEntriesTableTableManager(_db, _db.partyEntries);
 }

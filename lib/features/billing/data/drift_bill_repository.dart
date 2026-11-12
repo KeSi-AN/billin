@@ -6,15 +6,19 @@ import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
 import 'package:shop_app/features/billing/domain/invoice_number.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
+import 'package:shop_app/features/customers/data/party_ledger.dart';
+import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/inventory/data/stock_ledger.dart';
 
 class DriftBillRepository implements BillRepository {
   DriftBillRepository(this._db, {this._clock = DateTime.now})
-    : _ledger = StockLedger(_db, _clock);
+    : _ledger = StockLedger(_db, _clock),
+      _dues = PartyLedger(_db, _clock);
 
   final AppDatabase _db;
   final DateTime Function() _clock;
   final StockLedger _ledger;
+  final PartyLedger _dues;
 
   @override
   Future<Bill> create(BillDraft draft) async {
@@ -23,6 +27,13 @@ class DriftBillRepository implements BillRepository {
         draft,
         'draft',
         'A bill needs at least one line',
+      );
+    }
+    if (draft.paymentMode == PaymentMode.credit && draft.partyId == null) {
+      throw ArgumentError.value(
+        draft,
+        'draft',
+        'A credit sale needs a customer',
       );
     }
     final now = _clock();
@@ -73,6 +84,8 @@ class DriftBillRepository implements BillRepository {
               roundOffPaise: totals.roundOff.paise,
               grandTotalPaise: totals.grandTotal.paise,
               paymentMode: draft.paymentMode.name,
+              partyId: Value(draft.partyId),
+              duePaise: Value(_due(draft, totals.grandTotal).paise),
             ),
           );
 
@@ -90,6 +103,25 @@ class DriftBillRepository implements BillRepository {
           itemId: line.itemId!,
           quantityMilli: line.baseQuantity.milli,
           billId: billId,
+        );
+      }
+      // Credit: the bill goes on the customer's account; anything paid at
+      // the counter comes straight off it.
+      if (draft.paymentMode == PaymentMode.credit) {
+        await _dues.post(
+          partyId: draft.partyId!,
+          amountPaise: totals.grandTotal.paise,
+          type: EntryType.sale,
+          billId: billId,
+        );
+        final paid = totals.grandTotal - _due(draft, totals.grandTotal);
+        await _dues.post(
+          partyId: draft.partyId!,
+          amountPaise: -paid.paise,
+          type: EntryType.payment,
+          billId: billId,
+          paymentMode: PaymentMode.cash.name,
+          note: 'Paid at billing',
         );
       }
       return billId;
@@ -173,8 +205,11 @@ class DriftBillRepository implements BillRepository {
             cancelReason: Value(_blankToNull(reason)),
           ),
         );
-    // Only the first cancel puts the stock back.
-    if (changed > 0) await _ledger.reverseBill(id);
+    // Only the first cancel puts stock back and reverses any dues.
+    if (changed > 0) {
+      await _ledger.reverseBill(id);
+      await _dues.reverseBill(id);
+    }
   });
 
   static Bill _toDomain(BillRow r, List<BillLineRow> lines) => Bill(
@@ -193,6 +228,8 @@ class DriftBillRepository implements BillRepository {
     status: BillStatus.values.byName(r.status),
     cancelledAt: r.cancelledAt,
     cancelReason: r.cancelReason,
+    partyId: r.partyId,
+    due: Money.paise(r.duePaise),
     lines: [
       for (final l in lines)
         BillLine(
@@ -223,7 +260,18 @@ class DriftBillRepository implements BillRepository {
     status: BillStatus.values.byName(r.status),
     lineCount: lineCount,
     customerName: r.customerName,
+    due: Money.paise(r.duePaise),
   );
+
+  /// Unpaid part of a credit bill: total minus what was paid at the counter
+  /// (never below zero or above the total).
+  static Money _due(BillDraft draft, Money grandTotal) {
+    if (draft.paymentMode != PaymentMode.credit) return Money.zero;
+    final paid = draft.paidNow.isNegative
+        ? Money.zero
+        : (draft.paidNow > grandTotal ? grandTotal : draft.paidNow);
+    return grandTotal - paid;
+  }
 
   static String? _blankToNull(String? v) {
     final t = v?.trim();

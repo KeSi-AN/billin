@@ -77,6 +77,8 @@ class BillDraft {
     this.paymentMode = PaymentMode.cash,
     this.customerName,
     this.customerPhone,
+    this.partyId,
+    this.paidNow = Money.zero,
   });
 
   final List<DraftLine> lines;
@@ -84,6 +86,12 @@ class BillDraft {
   final PaymentMode paymentMode;
   final String? customerName;
   final String? customerPhone;
+
+  /// The customer. Required for credit sales.
+  final int? partyId;
+
+  /// Credit sales only: paid at the counter; the rest becomes a due.
+  final Money paidNow;
 }
 
 class BillLine {
@@ -139,10 +147,18 @@ class Bill {
     this.customerPhone,
     this.cancelledAt,
     this.cancelReason,
+    this.partyId,
+    this.due = Money.zero,
   });
 
   final int id;
   final String invoiceNo;
+  final int? partyId;
+
+  /// Left to pay (credit). Zero for paid bills.
+  final Money due;
+
+  Money get paid => grandTotal - due;
   final DateTime billedAt;
   final List<BillLine> lines;
   final Money itemsTotal;
@@ -193,6 +209,7 @@ class BillSummary {
     required this.status,
     required this.lineCount,
     this.customerName,
+    this.due = Money.zero,
   });
 
   final int id;
@@ -203,6 +220,7 @@ class BillSummary {
   final BillStatus status;
   final int lineCount;
   final String? customerName;
+  final Money due;
 
   bool get isCancelled => status == BillStatus.cancelled;
 }
