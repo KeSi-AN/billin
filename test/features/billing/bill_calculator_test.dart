@@ -31,7 +31,9 @@ void main() {
   });
 
   test('tax-exclusive price: GST is added on top', () {
-    final t = BillCalculator.calculate([line(10000, taxBp: 1800, inclusive: false)]);
+    final t = BillCalculator.calculate([
+      line(10000, taxBp: 1800, inclusive: false),
+    ]);
     expect(t.taxable, const Money.rupees(100));
     expect(t.tax, const Money.rupees(18));
     expect(t.grandTotal, const Money.rupees(118));
@@ -39,10 +41,9 @@ void main() {
 
   test('fractional quantity rounds to the nearest paisa', () {
     // 0.5 kg × ₹45.99 = ₹22.995 → ₹23.00
-    final t = BillCalculator.calculate(
-      [line(4599, qtyMilli: 500)],
-      roundToRupee: false,
-    );
+    final t = BillCalculator.calculate([
+      line(4599, qtyMilli: 500),
+    ], roundToRupee: false);
     expect(t.lines.single.gross, const Money.paise(2300));
   });
 
@@ -63,18 +64,14 @@ void main() {
       billDiscount: const Money.paise(100),
       roundToRupee: false,
     );
-    expect(
-      t.lines.map((l) => l.billDiscountShare.paise),
-      [17, 33, 50],
-    );
+    expect(t.lines.map((l) => l.billDiscountShare.paise), [17, 33, 50]);
     expect(t.grandTotal, const Money.paise(59900));
   });
 
   test('bill discount cannot exceed the bill', () {
-    final t = BillCalculator.calculate(
-      [line(1000)],
-      billDiscount: const Money.rupees(50),
-    );
+    final t = BillCalculator.calculate([
+      line(1000),
+    ], billDiscount: const Money.rupees(50));
     expect(t.billDiscount, const Money.rupees(10));
     expect(t.grandTotal, Money.zero);
   });
@@ -94,7 +91,10 @@ void main() {
       line(10500, taxBp: 500),
       line(5000),
     ]);
-    expect(t.taxBuckets.map((b) => b.rate), [const TaxRate(500), const TaxRate(1800)]);
+    expect(t.taxBuckets.map((b) => b.rate), [
+      const TaxRate(500),
+      const TaxRate(1800),
+    ]);
     final gst18 = t.taxBuckets.last;
     expect(gst18.tax, const Money.paise(1525));
     expect(gst18.cgst, const Money.paise(762));
@@ -126,16 +126,26 @@ void main() {
         billDiscount: Money.paise(random.nextInt(100000)),
         roundToRupee: random.nextBool(),
       );
-      final shareSum = t.lines.fold(Money.zero, (s, l) => s + l.billDiscountShare);
+      final shareSum = t.lines.fold(
+        Money.zero,
+        (s, l) => s + l.billDiscountShare,
+      );
       final lineSum = t.lines.fold(Money.zero, (s, l) => s + l.total);
       final bucketTax = t.taxBuckets.fold(Money.zero, (s, b) => s + b.tax);
 
       expect(shareSum, t.billDiscount, reason: 'run $run');
       expect(lineSum, t.beforeRounding, reason: 'run $run');
       expect(bucketTax, t.tax, reason: 'run $run');
-      expect(t.itemsTotal - t.billDiscount, t.beforeRounding - _exclusiveTax(inputs, t), reason: 'run $run');
+      expect(
+        t.itemsTotal - t.billDiscount,
+        t.beforeRounding - _exclusiveTax(inputs, t),
+        reason: 'run $run',
+      );
       expect(t.roundOff.paise.abs() <= 50, isTrue, reason: 'run $run');
-      expect(t.lines.every((l) => !l.total.isNegative && !l.tax.isNegative), isTrue);
+      expect(
+        t.lines.every((l) => !l.total.isNegative && !l.tax.isNegative),
+        isTrue,
+      );
     }
   });
 }

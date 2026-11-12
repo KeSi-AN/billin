@@ -17,5 +17,7 @@ linter:
     lines_longer_than_80_chars: false
     # Keep classic `ClassName(...)` constructors: familiar and well documented.
     unnecessary_type_name_in_constructor: false
+    # Fluent builders (EscPosBuilder) return `this` on purpose.
+    avoid_returning_this: false
     # pubspec dependencies are grouped by purpose instead.
     sort_pub_dependencies: false

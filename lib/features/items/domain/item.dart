@@ -6,7 +6,17 @@ part 'item.freezed.dart';
 
 /// Units a shop commonly sells in. Stored as the short code.
 const itemUnits = [
-  'pcs', 'kg', 'g', 'l', 'ml', 'm', 'box', 'pack', 'dozen', 'pair', 'bottle',
+  'pcs',
+  'kg',
+  'g',
+  'l',
+  'ml',
+  'm',
+  'box',
+  'pack',
+  'dozen',
+  'pair',
+  'bottle',
 ];
 
 @freezed

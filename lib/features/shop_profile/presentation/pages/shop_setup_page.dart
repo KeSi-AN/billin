@@ -280,9 +280,7 @@ class _ShopSetupViewState extends State<_ShopSetupView> {
                         FilteringTextInputFormatter.digitsOnly,
                         LengthLimitingTextInputFormatter(6),
                       ],
-                      decoration: InputDecoration(
-                        labelText: l10n.fieldPincode,
-                      ),
+                      decoration: InputDecoration(labelText: l10n.fieldPincode),
                       validator: (v) => err(ShopProfileValidators.pincode(v)),
                     ),
                   ),
@@ -299,9 +297,8 @@ class _ShopSetupViewState extends State<_ShopSetupView> {
                   labelText: l10n.fieldGstin,
                   helperText: l10n.gstinHelper,
                 ),
-                validator: (v) => err(
-                  ShopProfileValidators.gstin(v, stateCode: _stateCode),
-                ),
+                validator: (v) =>
+                    err(ShopProfileValidators.gstin(v, stateCode: _stateCode)),
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(

@@ -1,57 +1,17 @@
-import 'dart:async';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:shop_app/app/app.dart';
-import 'package:shop_app/app/flavor.dart';
 import 'package:shop_app/core/india/gstin.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile.dart';
-import 'package:shop_app/features/shop_profile/domain/shop_profile_repository.dart';
 
-/// In-memory repository that behaves like the real one (stream + save).
-class FakeRepo implements ShopProfileRepository {
-  FakeRepo([this._profile]);
-
-  ShopProfile? _profile;
-  final _changes = StreamController<ShopProfile?>.broadcast();
-
-  ShopProfile? get current => _profile;
-
-  @override
-  Stream<ShopProfile?> watch() async* {
-    yield _profile;
-    yield* _changes.stream;
-  }
-
-  @override
-  Future<ShopProfile?> load() async => _profile;
-
-  @override
-  Future<void> save(ShopProfile profile) async {
-    _profile = profile;
-    _changes.add(profile);
-  }
-
-  @override
-  Future<String> importLogo(String sourcePath) async => sourcePath;
-}
-
-Future<void> pumpApp(WidgetTester tester, FakeRepo repo) async {
-  tester.view.physicalSize = const Size(1080, 2400);
-  tester.view.devicePixelRatio = 2.6;
-  addTearDown(tester.view.reset);
-  await tester.pumpWidget(
-    ShopApp(shopProfileRepository: repo, flavor: Flavor.prod),
-  );
-  await tester.pumpAndSettle();
-}
+import 'helpers/fakes.dart';
 
 void main() {
   testWidgets('first launch: setup is required, then lands on Home', (
     tester,
   ) async {
-    final repo = FakeRepo();
-    await pumpApp(tester, repo);
+    final h = TestHarness();
+    final repo = h.shopProfiles;
+    await h.pump(tester);
 
     expect(find.text('Set up your shop'), findsOneWidget);
 
@@ -81,25 +41,33 @@ void main() {
   });
 
   testWidgets('rejects a bad phone and a mistyped GSTIN', (tester) async {
-    final repo = FakeRepo();
-    await pumpApp(tester, repo);
+    final h = TestHarness();
+    final repo = h.shopProfiles;
+    await h.pump(tester);
 
     await tester.enterText(find.byKey(const Key('nameField')), 'A');
     await tester.enterText(find.byKey(const Key('phoneField')), '12345');
-    await tester.enterText(find.byKey(const Key('gstinField')), '29ABCDE1234F1Z0');
+    await tester.enterText(
+      find.byKey(const Key('gstinField')),
+      '29ABCDE1234F1Z0',
+    );
     await tester.tap(find.byKey(const Key('saveButton')));
     await tester.pumpAndSettle();
 
     expect(find.text('Enter a valid 10-digit mobile number'), findsOneWidget);
-    expect(find.text("This GSTIN isn't valid. Check for typos."), findsOneWidget);
+    expect(
+      find.text("This GSTIN isn't valid. Check for typos."),
+      findsOneWidget,
+    );
     expect(repo.current, isNull);
   });
 
   testWidgets('existing shop opens Home and can be edited', (tester) async {
-    final repo = FakeRepo(
-      const ShopProfile(name: 'Old Name', stateCode: '27', city: 'Pune'),
+    final h = TestHarness(
+      shop: const ShopProfile(name: 'Old Name', stateCode: '27', city: 'Pune'),
     );
-    await pumpApp(tester, repo);
+    final repo = h.shopProfiles;
+    await h.pump(tester);
 
     expect(find.text('Not GST registered'), findsOneWidget);
     await tester.tap(find.byKey(const Key('editShopButton')));

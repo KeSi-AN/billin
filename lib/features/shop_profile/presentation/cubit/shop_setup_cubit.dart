@@ -8,10 +8,7 @@ import 'package:shop_app/features/shop_profile/domain/shop_profile_repository.da
 enum SetupStatus { editing, saving, saved, saveFailed, logoFailed }
 
 class ShopSetupState extends Equatable {
-  const ShopSetupState({
-    this.logoPath,
-    this.status = SetupStatus.editing,
-  });
+  const ShopSetupState({this.logoPath, this.status = SetupStatus.editing});
 
   final String? logoPath;
   final SetupStatus status;
@@ -45,9 +42,8 @@ class ShopSetupCubit extends Cubit<ShopSetupState> {
     }
   }
 
-  void removedLogo() => emit(
-    state.copyWith(logoPath: () => null, status: SetupStatus.editing),
-  );
+  void removedLogo() =>
+      emit(state.copyWith(logoPath: () => null, status: SetupStatus.editing));
 
   /// Saves already-validated form values, normalizing what people type.
   Future<void> save({

@@ -48,7 +48,13 @@ void main() {
     test('rejects a barcode already used by another item', () async {
       await items.save(parle);
       expect(
-        () => items.save(const Item(name: 'Other', salePrice: Money.rupees(5), barcode: '8901719110054')),
+        () => items.save(
+          const Item(
+            name: 'Other',
+            salePrice: Money.rupees(5),
+            barcode: '8901719110054',
+          ),
+        ),
         throwsA(isA<DuplicateBarcodeException>()),
       );
     });
@@ -113,19 +119,20 @@ void main() {
       final b = await bills.create(draft());
       now = DateTime(2027, 4, 1, 9);
       final c = await bills.create(draft());
-      expect([a.invoiceNo, b.invoiceNo, c.invoiceNo], [
-        'INV/26-27/0001',
-        'INV/26-27/0002',
-        'INV/27-28/0001',
-      ]);
+      expect(
+        [a.invoiceNo, b.invoiceNo, c.invoiceNo],
+        ['INV/26-27/0001', 'INV/26-27/0002', 'INV/27-28/0001'],
+      );
     });
 
     test('uses the invoice prefix and round-off setting', () async {
-      await DriftSettingsRepository(db).save(
-        const AppSettingsData(invoicePrefix: 'sk', roundToRupee: false),
-      );
+      await DriftSettingsRepository(
+        db,
+      ).save(const AppSettingsData(invoicePrefix: 'sk', roundToRupee: false));
       final bill = await bills.create(
-        const BillDraft(lines: [DraftLine(name: 'x', unitPrice: Money.paise(1234))]),
+        const BillDraft(
+          lines: [DraftLine(name: 'x', unitPrice: Money.paise(1234))],
+        ),
       );
       expect(bill.invoiceNo, 'SK/26-27/0001');
       expect(bill.grandTotal, const Money.paise(1234));
@@ -156,7 +163,10 @@ void main() {
     });
 
     test('refuses an empty bill', () {
-      expect(() => bills.create(const BillDraft(lines: [])), throwsArgumentError);
+      expect(
+        () => bills.create(const BillDraft(lines: [])),
+        throwsArgumentError,
+      );
     });
   });
 

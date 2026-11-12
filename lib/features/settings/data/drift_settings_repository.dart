@@ -11,8 +11,7 @@ class DriftSettingsRepository implements SettingsRepository {
       _db.select(_db.appSettings)..where((t) => t.id.equals(1));
 
   @override
-  Stream<AppSettingsData> watch() =>
-      _row.watchSingleOrNull().map(_toDomain);
+  Stream<AppSettingsData> watch() => _row.watchSingleOrNull().map(_toDomain);
 
   @override
   Future<AppSettingsData> load() async =>
@@ -20,7 +19,8 @@ class DriftSettingsRepository implements SettingsRepository {
 
   @override
   Future<void> save(AppSettingsData s) async {
-    String? blank(String? v) => (v == null || v.trim().isEmpty) ? null : v.trim();
+    String? blank(String? v) =>
+        (v == null || v.trim().isEmpty) ? null : v.trim();
     await _db
         .into(_db.appSettings)
         .insertOnConflictUpdate(

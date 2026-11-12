@@ -7,8 +7,11 @@ const appLocale = 'en_IN';
 Future<void> initDateFormatting() => initializeDateFormatting(appLocale);
 
 /// `12 Nov 2026`
-String formatDate(DateTime date) => DateFormat('d MMM y', appLocale).format(date);
+String formatDate(DateTime date) =>
+    DateFormat('d MMM y', appLocale).format(date);
 
 /// `12 Nov 2026, 4:05 pm`
-String formatDateTime(DateTime date) =>
-    DateFormat('d MMM y, h:mm a', appLocale).format(date).replaceAll('AM', 'am').replaceAll('PM', 'pm');
+String formatDateTime(DateTime date) => DateFormat(
+  'd MMM y, h:mm a',
+  appLocale,
+).format(date).replaceAll('AM', 'am').replaceAll('PM', 'pm');

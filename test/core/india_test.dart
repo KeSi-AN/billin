@@ -29,7 +29,10 @@ void main() {
     test('reports structural problems', () {
       expect(Gstin.validate('27AAPFU0939F1Z'), GstinError.length);
       expect(Gstin.validate('27AAPFU0939F1X5'), GstinError.format);
-      expect(Gstin.validate(withCheck('99AAPFU0939F1Z')), GstinError.unknownState);
+      expect(
+        Gstin.validate(withCheck('99AAPFU0939F1Z')),
+        GstinError.unknownState,
+      );
     });
   });
 

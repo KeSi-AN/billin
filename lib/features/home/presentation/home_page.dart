@@ -3,12 +3,13 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/india/indian_states.dart';
+import 'package:shop_app/core/money/money.dart';
+import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile.dart';
 import 'package:shop_app/features/shop_profile/presentation/cubit/shop_profile_cubit.dart';
 import 'package:shop_app/features/shop_profile/presentation/widgets/shop_logo.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
-/// Phase 0 home: shows the shop and where later features will live.
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -19,22 +20,16 @@ class HomePage extends StatelessWidget {
     if (state is! ShopProfileReady) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    final actions = <(IconData, String)>[
-      (Icons.receipt_long_outlined, l10n.actionNewBill),
-      (Icons.inventory_2_outlined, l10n.actionItems),
-      (Icons.people_outline, l10n.actionCustomers),
-      (Icons.bar_chart_outlined, l10n.actionReports),
-    ];
 
     return Scaffold(
       appBar: AppBar(
         title: Text(state.profile.name, overflow: TextOverflow.ellipsis),
         actions: [
           IconButton(
-            key: const Key('editShopButton'),
-            tooltip: l10n.homeEditShop,
-            icon: const Icon(Icons.storefront_outlined),
-            onPressed: () => context.push(AppRoutes.editShop),
+            key: const Key('settingsButton'),
+            tooltip: l10n.actionSettings,
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => context.push(AppRoutes.settings),
           ),
         ],
       ),
@@ -42,21 +37,103 @@ class HomePage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           _ShopCard(profile: state.profile),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
+          const _TodayCard(),
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            key: const Key('newBillButton'),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(64),
+            ),
+            onPressed: () => context.push(AppRoutes.billing),
+            icon: const Icon(Icons.add_shopping_cart),
+            label: Text(l10n.actionNewBill),
+          ),
+          const SizedBox(height: 12),
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.6,
+            childAspectRatio: 1.9,
             children: [
-              for (final (icon, label) in actions)
-                _ActionTile(icon: icon, label: label),
+              _ActionTile(
+                key: const Key('salesTile'),
+                icon: Icons.receipt_long_outlined,
+                label: l10n.actionSales,
+                onTap: () => context.push(AppRoutes.sales),
+              ),
+              _ActionTile(
+                key: const Key('itemsTile'),
+                icon: Icons.inventory_2_outlined,
+                label: l10n.actionItems,
+                onTap: () => context.push(AppRoutes.items),
+              ),
+              _ActionTile(
+                icon: Icons.people_outline,
+                label: l10n.actionCustomers,
+                comingSoon: true,
+              ),
+              _ActionTile(
+                icon: Icons.bar_chart_outlined,
+                label: l10n.actionReports,
+                comingSoon: true,
+              ),
             ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _TodayCard extends StatelessWidget {
+  const _TodayCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return StreamBuilder<List<BillSummary>>(
+      stream: context.read<BillRepository>().watchBetween(
+        today,
+        today.add(const Duration(days: 1)),
+      ),
+      builder: (context, snapshot) {
+        final bills = (snapshot.data ?? const []).where((b) => !b.isCancelled);
+        final total = bills.fold(Money.zero, (sum, b) => sum + b.grandTotal);
+        return Card.outlined(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => context.push(AppRoutes.sales),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(l10n.homeToday, style: text.labelLarge),
+                        Text(
+                          total.format(),
+                          key: const Key('todayTotal'),
+                          style: text.headlineSmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(l10n.homeTodaySummary(bills.length)),
+                  const Icon(Icons.chevron_right),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -71,21 +148,20 @@ class _ShopCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final place = [
-      profile.addressLine,
       profile.city,
       stateByCode(profile.stateCode)?.name,
-      profile.pincode,
     ].whereType<String>().where((s) => s.isNotEmpty).join(', ');
 
     return Card(
       child: InkWell(
+        key: const Key('editShopButton'),
         borderRadius: BorderRadius.circular(12),
         onTap: () => context.push(AppRoutes.editShop),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              ShopLogo(path: profile.logoPath, name: profile.name, radius: 28),
+              ShopLogo(path: profile.logoPath, name: profile.name, radius: 24),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -93,9 +169,6 @@ class _ShopCard extends StatelessWidget {
                   children: [
                     Text(profile.name, style: text.titleMedium),
                     if (place.isNotEmpty) Text(place, style: text.bodySmall),
-                    if (profile.phone != null)
-                      Text('+91 ${profile.phone}', style: text.bodySmall),
-                    const SizedBox(height: 4),
                     Text(
                       profile.gstin != null
                           ? l10n.homeGstin(profile.gstin!)
@@ -114,39 +187,50 @@ class _ShopCard extends StatelessWidget {
 }
 
 class _ActionTile extends StatelessWidget {
-  const _ActionTile({required this.icon, required this.label});
+  const _ActionTile({
+    required this.icon,
+    required this.label,
+    this.onTap,
+    this.comingSoon = false,
+    super.key,
+  });
 
   final IconData icon;
   final String label;
+  final VoidCallback? onTap;
+  final bool comingSoon;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
     return Card.outlined(
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(content: Text(l10n.homeComingSoon(label))),
-          ),
+        onTap:
+            onTap ??
+            () => ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(content: Text(l10n.homeComingSoon(label))),
+              ),
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Row(
             children: [
-              Icon(icon, color: scheme.primary),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: Theme.of(context).textTheme.titleSmall),
-                  Text(
-                    l10n.comingSoon,
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                ],
+              Icon(icon, color: comingSoon ? scheme.outline : scheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(label, style: text.titleSmall),
+                    if (comingSoon)
+                      Text(l10n.comingSoon, style: text.labelSmall),
+                  ],
+                ),
               ),
             ],
           ),

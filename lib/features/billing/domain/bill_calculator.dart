@@ -55,7 +55,11 @@ class LineAmounts {
 
 /// GST collected at one rate, for the invoice's tax summary.
 class TaxBucket {
-  const TaxBucket({required this.rate, required this.taxable, required this.tax});
+  const TaxBucket({
+    required this.rate,
+    required this.taxable,
+    required this.tax,
+  });
 
   final TaxRate rate;
   final Money taxable;

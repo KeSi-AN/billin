@@ -6,19 +6,39 @@ import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/app/flavor.dart';
 import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/theme/app_theme.dart';
+import 'package:shop_app/features/billing/domain/bill.dart';
+import 'package:shop_app/features/billing/presentation/bill_actions.dart';
+import 'package:shop_app/features/items/domain/item.dart';
+import 'package:shop_app/features/printing/data/printer_service.dart';
+import 'package:shop_app/features/settings/domain/app_settings.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile_repository.dart';
 import 'package:shop_app/features/shop_profile/presentation/cubit/shop_profile_cubit.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
-/// Root widget. Takes its repositories from outside so tests can pass fakes.
-class ShopApp extends StatefulWidget {
-  const ShopApp({
-    required this.shopProfileRepository,
-    this.flavor,
-    super.key,
+/// Everything the screens need from outside. `main.dart` passes the real
+/// implementations; tests pass fakes.
+class AppServices {
+  const AppServices({
+    required this.shopProfiles,
+    required this.items,
+    required this.bills,
+    required this.settings,
+    required this.billActions,
+    required this.printer,
   });
 
-  final ShopProfileRepository shopProfileRepository;
+  final ShopProfileRepository shopProfiles;
+  final ItemRepository items;
+  final BillRepository bills;
+  final SettingsRepository settings;
+  final BillActions billActions;
+  final PrinterService printer;
+}
+
+class ShopApp extends StatefulWidget {
+  const ShopApp({required this.services, this.flavor, super.key});
+
+  final AppServices services;
   final Flavor? flavor;
 
   @override
@@ -27,7 +47,7 @@ class ShopApp extends StatefulWidget {
 
 class _ShopAppState extends State<ShopApp> {
   late final ShopProfileCubit _profileCubit = ShopProfileCubit(
-    widget.shopProfileRepository,
+    widget.services.shopProfiles,
   );
   late final GoRouter _router = buildRouter(_profileCubit);
 
@@ -41,8 +61,16 @@ class _ShopAppState extends State<ShopApp> {
   @override
   Widget build(BuildContext context) {
     final flavor = widget.flavor ?? Flavor.current;
-    return RepositoryProvider.value(
-      value: widget.shopProfileRepository,
+    final s = widget.services;
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider.value(value: s.shopProfiles),
+        RepositoryProvider.value(value: s.items),
+        RepositoryProvider.value(value: s.bills),
+        RepositoryProvider.value(value: s.settings),
+        RepositoryProvider.value(value: s.billActions),
+        RepositoryProvider.value(value: s.printer),
+      ],
       child: BlocProvider.value(
         value: _profileCubit,
         child: MaterialApp.router(

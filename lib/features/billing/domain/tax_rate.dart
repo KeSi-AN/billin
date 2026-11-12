@@ -23,10 +23,10 @@ extension type const TaxRate(int bp) {
     final whole = bp ~/ 100;
     final fraction = bp % 100;
     if (fraction == 0) return '$whole%';
-    final digits = fraction.toString().padLeft(2, '0').replaceFirst(
-      RegExp(r'0$'),
-      '',
-    );
+    final digits = fraction
+        .toString()
+        .padLeft(2, '0')
+        .replaceFirst(RegExp(r'0$'), '');
     return '$whole.$digits%';
   }
 

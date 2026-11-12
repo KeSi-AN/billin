@@ -31,10 +31,10 @@ extension type const Quantity._(int milli) {
     final whole = milli ~/ 1000;
     final fraction = milli % 1000;
     if (fraction == 0) return '$whole';
-    final digits = fraction.toString().padLeft(3, '0').replaceFirst(
-      RegExp(r'0+$'),
-      '',
-    );
+    final digits = fraction
+        .toString()
+        .padLeft(3, '0')
+        .replaceFirst(RegExp(r'0+$'), '');
     return '$whole.$digits';
   }
 }

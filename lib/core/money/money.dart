@@ -42,6 +42,18 @@ extension type const Money._(int paise) {
   bool get isZero => paise == 0;
   bool get isNegative => paise < 0;
 
+  /// For pre-filling an input: `1250`, `49.5`, `0.05`. No symbol, no commas.
+  String toInput() {
+    final rupees = paise ~/ 100;
+    final fraction = paise.abs() % 100;
+    if (fraction == 0) return '$rupees';
+    final digits = fraction
+        .toString()
+        .padLeft(2, '0')
+        .replaceFirst(RegExp(r'0$'), '');
+    return '$rupees.$digits';
+  }
+
   /// Indian formatting with lakh/crore grouping: `₹1,00,000.00`.
   String format({bool withSymbol = true}) {
     final abs = paise.abs();

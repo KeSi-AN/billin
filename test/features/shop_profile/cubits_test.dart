@@ -11,7 +11,9 @@ import 'package:shop_app/features/shop_profile/presentation/cubit/shop_setup_cub
 class MockRepo extends Mock implements ShopProfileRepository;
 
 void main() {
-  setUpAll(() => registerFallbackValue(const ShopProfile(name: 'x', stateCode: '27')));
+  setUpAll(
+    () => registerFallbackValue(const ShopProfile(name: 'x', stateCode: '27')),
+  );
 
   late MockRepo repo;
   setUp(() => repo = MockRepo());
@@ -21,9 +23,9 @@ void main() {
 
     blocTest<ShopProfileCubit, ShopProfileState>(
       'follows the repository: missing, then ready',
-      setUp: () => when(repo.watch).thenAnswer(
-        (_) => Stream.fromIterable([null, profile]),
-      ),
+      setUp: () =>
+          when(repo.watch)
+              .thenAnswer((_) => Stream.fromIterable([null, profile])),
       build: () => ShopProfileCubit(repo),
       expect: () => const [ShopProfileMissing(), ShopProfileReady(profile)],
     );
@@ -47,7 +49,8 @@ void main() {
       ],
       verify: (_) {
         final saved =
-            verify(() => repo.save(captureAny())).captured.single as ShopProfile;
+            verify(() => repo.save(captureAny())).captured.single
+                as ShopProfile;
         expect(saved.name, 'My Shop');
         expect(saved.phone, '9876543210');
         expect(saved.gstin, '27AAPFU0939F1ZV');
@@ -68,8 +71,9 @@ void main() {
 
     blocTest<ShopSetupCubit, ShopSetupState>(
       'stores a picked logo, and can remove it',
-      setUp: () => when(() => repo.importLogo('/tmp/pick.png'))
-          .thenAnswer((_) async => '/app/logos/logo_1.png'),
+      setUp: () =>
+          when(() => repo.importLogo('/tmp/pick.png'))
+              .thenAnswer((_) async => '/app/logos/logo_1.png'),
       build: () => ShopSetupCubit(repo),
       act: (c) async {
         await c.pickedLogo('/tmp/pick.png');

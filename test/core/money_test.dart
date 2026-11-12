@@ -23,7 +23,10 @@ void main() {
       // 0.1 + 0.2 != 0.3 with doubles; in paise it is exact.
       final total = Money.tryParse('0.10')! + Money.tryParse('0.20')!;
       expect(total, Money.tryParse('0.30'));
-      expect(const Money.rupees(10) - const Money.paise(1), const Money.paise(999));
+      expect(
+        const Money.rupees(10) - const Money.paise(1),
+        const Money.paise(999),
+      );
       expect(const Money.paise(1250).times(3), const Money.paise(3750));
     });
 

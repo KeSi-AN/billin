@@ -50,9 +50,19 @@ void main() {
 
     test('format stays within the GST 16-character limit', () {
       const fy = FinancialYear(2026);
-      expect(InvoiceNumber.format(prefix: 'INV', year: fy, sequence: 1), 'INV/26-27/0001');
-      expect(InvoiceNumber.format(prefix: '', year: fy, sequence: 42), '26-27/0042');
-      final longest = InvoiceNumber.format(prefix: 'ABCD', year: fy, sequence: 99999);
+      expect(
+        InvoiceNumber.format(prefix: 'INV', year: fy, sequence: 1),
+        'INV/26-27/0001',
+      );
+      expect(
+        InvoiceNumber.format(prefix: '', year: fy, sequence: 42),
+        '26-27/0042',
+      );
+      final longest = InvoiceNumber.format(
+        prefix: 'ABCD',
+        year: fy,
+        sequence: 99999,
+      );
       expect(longest.length <= 16, isTrue, reason: longest);
     });
 
@@ -82,7 +92,10 @@ void main() {
         amountInWords(const Money.paise(125050)),
         'Rupees One Thousand Two Hundred Fifty and Fifty Paise Only',
       );
-      expect(amountInWords(const Money.rupees(500)), 'Rupees Five Hundred Only');
+      expect(
+        amountInWords(const Money.rupees(500)),
+        'Rupees Five Hundred Only',
+      );
     });
   });
 }

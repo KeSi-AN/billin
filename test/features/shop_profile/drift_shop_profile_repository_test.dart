@@ -74,22 +74,25 @@ void main() {
     expect(emitted, [null, 'Sharma General Store', 'B']);
   });
 
-  test('imports a logo into app storage and deletes the replaced one', () async {
-    final picked = File(p.join(storage.path, 'picked.JPG'))
-      ..writeAsBytesSync([1, 2, 3]);
+  test(
+    'imports a logo into app storage and deletes the replaced one',
+    () async {
+      final picked = File(p.join(storage.path, 'picked.JPG'))
+        ..writeAsBytesSync([1, 2, 3]);
 
-    final first = await repo.importLogo(picked.path);
-    expect(p.isWithin(p.join(storage.path, 'logos'), first), isTrue);
-    expect(p.extension(first), '.jpg');
-    await repo.save(profile.copyWith(logoPath: first));
+      final first = await repo.importLogo(picked.path);
+      expect(p.isWithin(p.join(storage.path, 'logos'), first), isTrue);
+      expect(p.extension(first), '.jpg');
+      await repo.save(profile.copyWith(logoPath: first));
 
-    now = now.add(const Duration(seconds: 1));
-    final second = await repo.importLogo(picked.path);
-    await repo.save(profile.copyWith(logoPath: second));
+      now = now.add(const Duration(seconds: 1));
+      final second = await repo.importLogo(picked.path);
+      await repo.save(profile.copyWith(logoPath: second));
 
-    expect(File(first).existsSync(), isFalse);
-    expect(File(second).existsSync(), isTrue);
-  });
+      expect(File(first).existsSync(), isFalse);
+      expect(File(second).existsSync(), isTrue);
+    },
+  );
 
   test('survives an app restart (database file closed and reopened)', () async {
     final file = File(p.join(storage.path, 'restart.sqlite'));

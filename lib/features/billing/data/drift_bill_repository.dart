@@ -16,7 +16,11 @@ class DriftBillRepository implements BillRepository {
   @override
   Future<Bill> create(BillDraft draft) async {
     if (draft.lines.isEmpty) {
-      throw ArgumentError.value(draft, 'draft', 'A bill needs at least one line');
+      throw ArgumentError.value(
+        draft,
+        'draft',
+        'A bill needs at least one line',
+      );
     }
     final now = _clock();
     final id = await _db.transaction(() async {
@@ -145,15 +149,15 @@ class DriftBillRepository implements BillRepository {
 
   @override
   Future<void> cancel(int id, {String? reason}) async {
-    await (_db.update(_db.bills)
-          ..where((t) => t.id.equals(id) & t.status.equals('completed')))
-        .write(
-          BillsCompanion(
-            status: Value(BillStatus.cancelled.name),
-            cancelledAt: Value(_clock()),
-            cancelReason: Value(_blankToNull(reason)),
-          ),
-        );
+    await (_db.update(
+      _db.bills,
+    )..where((t) => t.id.equals(id) & t.status.equals('completed'))).write(
+      BillsCompanion(
+        status: Value(BillStatus.cancelled.name),
+        cancelledAt: Value(_clock()),
+        cancelReason: Value(_blankToNull(reason)),
+      ),
+    );
   }
 
   static Bill _toDomain(BillRow r, List<BillLineRow> lines) => Bill(

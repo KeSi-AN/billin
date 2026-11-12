@@ -357,6 +357,870 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{feature} arrives in a later build'**
   String homeComingSoon(String feature);
+
+  /// No description provided for @actionSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get actionSales;
+
+  /// No description provided for @actionSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get actionSettings;
+
+  /// No description provided for @homeToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get homeToday;
+
+  /// No description provided for @homeTodaySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No bills yet} =1{1 bill} other{{count} bills}}'**
+  String homeTodaySummary(int count);
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @errAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount like 120 or 49.50'**
+  String get errAmountInvalid;
+
+  /// No description provided for @errAmountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a price'**
+  String get errAmountRequired;
+
+  /// No description provided for @errQuantityInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a quantity like 2 or 0.5'**
+  String get errQuantityInvalid;
+
+  /// No description provided for @errRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get errRequired;
+
+  /// No description provided for @itemsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get itemsTitle;
+
+  /// No description provided for @itemsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search name or barcode'**
+  String get itemsSearchHint;
+
+  /// No description provided for @itemsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No items yet. Add the things you sell to bill them faster.'**
+  String get itemsEmpty;
+
+  /// No description provided for @itemsNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No items match \"{query}\"'**
+  String itemsNoMatch(String query);
+
+  /// No description provided for @itemAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get itemAdd;
+
+  /// No description provided for @itemNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New item'**
+  String get itemNew;
+
+  /// No description provided for @itemEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit item'**
+  String get itemEdit;
+
+  /// No description provided for @itemSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Item saved'**
+  String get itemSaved;
+
+  /// No description provided for @itemDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Item deleted'**
+  String get itemDeleted;
+
+  /// No description provided for @itemDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"? Past bills keep their copy.'**
+  String itemDeleteConfirm(String name);
+
+  /// No description provided for @fieldItemName.
+  ///
+  /// In en, this message translates to:
+  /// **'Item name'**
+  String get fieldItemName;
+
+  /// No description provided for @fieldBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode'**
+  String get fieldBarcode;
+
+  /// No description provided for @fieldSalePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Selling price'**
+  String get fieldSalePrice;
+
+  /// No description provided for @fieldMrp.
+  ///
+  /// In en, this message translates to:
+  /// **'MRP'**
+  String get fieldMrp;
+
+  /// No description provided for @fieldUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get fieldUnit;
+
+  /// No description provided for @fieldGstRate.
+  ///
+  /// In en, this message translates to:
+  /// **'GST rate'**
+  String get fieldGstRate;
+
+  /// No description provided for @fieldPriceIncludesTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Price includes GST'**
+  String get fieldPriceIncludesTax;
+
+  /// No description provided for @priceIncludesTaxHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'On for MRP-style prices. Off to add GST on top.'**
+  String get priceIncludesTaxHelp;
+
+  /// No description provided for @fieldHsn.
+  ///
+  /// In en, this message translates to:
+  /// **'HSN / SAC code'**
+  String get fieldHsn;
+
+  /// No description provided for @scanBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan barcode'**
+  String get scanBarcode;
+
+  /// No description provided for @errDuplicateBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode already used by \"{name}\"'**
+  String errDuplicateBarcode(String name);
+
+  /// No description provided for @errMrpBelowPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'MRP can\'t be lower than the selling price'**
+  String get errMrpBelowPrice;
+
+  /// No description provided for @scanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a barcode'**
+  String get scanTitle;
+
+  /// No description provided for @scanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at a barcode'**
+  String get scanHint;
+
+  /// No description provided for @scanNoPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera permission is needed to scan. You can also type the barcode.'**
+  String get scanNoPermission;
+
+  /// No description provided for @scanTorch.
+  ///
+  /// In en, this message translates to:
+  /// **'Torch'**
+  String get scanTorch;
+
+  /// No description provided for @billingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New bill'**
+  String get billingTitle;
+
+  /// No description provided for @billingSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan, or type item name / barcode'**
+  String get billingSearchHint;
+
+  /// No description provided for @billingEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a barcode or search to add items'**
+  String get billingEmpty;
+
+  /// No description provided for @billingScannerTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth scanner? Just scan, it types here.'**
+  String get billingScannerTip;
+
+  /// No description provided for @billingNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No item with barcode {code}'**
+  String billingNotFound(String code);
+
+  /// No description provided for @billingCreateItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Create item'**
+  String get billingCreateItem;
+
+  /// No description provided for @billingQuickItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick item'**
+  String get billingQuickItem;
+
+  /// No description provided for @billingQuickItemName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get billingQuickItemName;
+
+  /// No description provided for @billingQuickItemDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get billingQuickItemDefaultName;
+
+  /// No description provided for @billingCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout · {amount}'**
+  String billingCheckout(String amount);
+
+  /// No description provided for @billingItemsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String billingItemsCount(int count);
+
+  /// No description provided for @billingClearConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear this bill?'**
+  String get billingClearConfirm;
+
+  /// No description provided for @billingClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear bill'**
+  String get billingClear;
+
+  /// No description provided for @billingDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this bill?'**
+  String get billingDiscardTitle;
+
+  /// No description provided for @billingDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get billingDiscard;
+
+  /// No description provided for @lineEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit line'**
+  String get lineEditTitle;
+
+  /// No description provided for @fieldQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get fieldQuantity;
+
+  /// No description provided for @fieldUnitPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per {unit}'**
+  String fieldUnitPrice(String unit);
+
+  /// No description provided for @fieldDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount (₹)'**
+  String get fieldDiscount;
+
+  /// No description provided for @fieldDiscountPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount %'**
+  String get fieldDiscountPercent;
+
+  /// No description provided for @lineRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get lineRemove;
+
+  /// No description provided for @lineDiscountTag.
+  ///
+  /// In en, this message translates to:
+  /// **'−{amount} off'**
+  String lineDiscountTag(String amount);
+
+  /// No description provided for @checkoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout'**
+  String get checkoutTitle;
+
+  /// No description provided for @checkoutItemsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Items total'**
+  String get checkoutItemsTotal;
+
+  /// No description provided for @checkoutBillDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill discount'**
+  String get checkoutBillDiscount;
+
+  /// No description provided for @checkoutTaxable.
+  ///
+  /// In en, this message translates to:
+  /// **'Taxable value'**
+  String get checkoutTaxable;
+
+  /// No description provided for @checkoutCgst.
+  ///
+  /// In en, this message translates to:
+  /// **'CGST'**
+  String get checkoutCgst;
+
+  /// No description provided for @checkoutSgst.
+  ///
+  /// In en, this message translates to:
+  /// **'SGST'**
+  String get checkoutSgst;
+
+  /// No description provided for @checkoutGst.
+  ///
+  /// In en, this message translates to:
+  /// **'GST'**
+  String get checkoutGst;
+
+  /// No description provided for @checkoutRoundOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Round off'**
+  String get checkoutRoundOff;
+
+  /// No description provided for @checkoutGrandTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get checkoutGrandTotal;
+
+  /// No description provided for @checkoutPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get checkoutPayment;
+
+  /// No description provided for @paymentCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get paymentCash;
+
+  /// No description provided for @paymentUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI'**
+  String get paymentUpi;
+
+  /// No description provided for @paymentCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get paymentCard;
+
+  /// No description provided for @paymentCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit'**
+  String get paymentCredit;
+
+  /// No description provided for @checkoutCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer (optional)'**
+  String get checkoutCustomer;
+
+  /// No description provided for @fieldCustomerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer name'**
+  String get fieldCustomerName;
+
+  /// No description provided for @fieldCustomerPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer mobile'**
+  String get fieldCustomerPhone;
+
+  /// No description provided for @checkoutSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save bill'**
+  String get checkoutSave;
+
+  /// No description provided for @checkoutSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the bill. Please try again.'**
+  String get checkoutSaveFailed;
+
+  /// No description provided for @checkoutCreditNeedsCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the customer\'s name for a credit sale'**
+  String get checkoutCreditNeedsCustomer;
+
+  /// No description provided for @checkoutCashReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash received'**
+  String get checkoutCashReceived;
+
+  /// No description provided for @checkoutChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Return {amount}'**
+  String checkoutChange(String amount);
+
+  /// No description provided for @billSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill saved'**
+  String get billSaved;
+
+  /// No description provided for @billNewBill.
+  ///
+  /// In en, this message translates to:
+  /// **'New bill'**
+  String get billNewBill;
+
+  /// No description provided for @billPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get billPrint;
+
+  /// No description provided for @billShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share PDF'**
+  String get billShare;
+
+  /// No description provided for @billCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel bill'**
+  String get billCancel;
+
+  /// No description provided for @billCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel {invoice}?'**
+  String billCancelTitle(String invoice);
+
+  /// No description provided for @billCancelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The bill stays in your records marked as cancelled. Its number is not reused.'**
+  String get billCancelBody;
+
+  /// No description provided for @billCancelReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get billCancelReason;
+
+  /// No description provided for @billCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get billCancelled;
+
+  /// No description provided for @billCancelledOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled {date}'**
+  String billCancelledOn(String date);
+
+  /// No description provided for @billCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get billCustomer;
+
+  /// No description provided for @billPaidBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by {mode}'**
+  String billPaidBy(String mode);
+
+  /// No description provided for @billQtyAtPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'{qty} {unit} × {price}'**
+  String billQtyAtPrice(String qty, String unit, String price);
+
+  /// No description provided for @billTaxSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'GST summary'**
+  String get billTaxSummary;
+
+  /// No description provided for @billTaxRow.
+  ///
+  /// In en, this message translates to:
+  /// **'GST {rate} on {taxable}'**
+  String billTaxRow(String rate, String taxable);
+
+  /// No description provided for @billYouSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {amount} in discounts'**
+  String billYouSaved(String amount);
+
+  /// No description provided for @salesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get salesTitle;
+
+  /// No description provided for @salesToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get salesToday;
+
+  /// No description provided for @salesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No bills on this day'**
+  String get salesEmpty;
+
+  /// No description provided for @salesTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total sales'**
+  String get salesTotal;
+
+  /// No description provided for @salesBills.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 bill} other{{count} bills}}'**
+  String salesBills(int count);
+
+  /// No description provided for @salesPreviousDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous day'**
+  String get salesPreviousDay;
+
+  /// No description provided for @salesNextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Next day'**
+  String get salesNextDay;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop profile'**
+  String get settingsShop;
+
+  /// No description provided for @settingsBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing'**
+  String get settingsBilling;
+
+  /// No description provided for @settingsBillingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice number, round-off, UPI'**
+  String get settingsBillingSubtitle;
+
+  /// No description provided for @settingsPrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer'**
+  String get settingsPrinter;
+
+  /// No description provided for @settingsPrinterNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No printer set up'**
+  String get settingsPrinterNone;
+
+  /// No description provided for @billingSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing settings'**
+  String get billingSettingsTitle;
+
+  /// No description provided for @fieldInvoicePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice prefix'**
+  String get fieldInvoicePrefix;
+
+  /// No description provided for @invoicePrefixHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 4 letters/numbers. Next bill: {example}'**
+  String invoicePrefixHelp(String example);
+
+  /// No description provided for @errInvoicePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Use up to 4 capital letters or numbers'**
+  String get errInvoicePrefix;
+
+  /// No description provided for @fieldRoundToRupee.
+  ///
+  /// In en, this message translates to:
+  /// **'Round bill total to the nearest rupee'**
+  String get fieldRoundToRupee;
+
+  /// No description provided for @fieldUpiId.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI ID'**
+  String get fieldUpiId;
+
+  /// No description provided for @upiIdHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows a pay-by-UPI QR on bills, e.g. shopname@okaxis'**
+  String get upiIdHelp;
+
+  /// No description provided for @errUpiId.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a UPI ID like name@bank'**
+  String get errUpiId;
+
+  /// No description provided for @fieldReceiptFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill footer message'**
+  String get fieldReceiptFooter;
+
+  /// No description provided for @receiptFooterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you! Visit again.'**
+  String get receiptFooterHint;
+
+  /// No description provided for @settingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings saved'**
+  String get settingsSaved;
+
+  /// No description provided for @printing.
+  ///
+  /// In en, this message translates to:
+  /// **'Printing…'**
+  String get printing;
+
+  /// No description provided for @printed.
+  ///
+  /// In en, this message translates to:
+  /// **'Printed'**
+  String get printed;
+
+  /// No description provided for @printErrNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'No printer set up yet'**
+  String get printErrNotConfigured;
+
+  /// No description provided for @printErrPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow \"Nearby devices\" so the app can reach your printer'**
+  String get printErrPermission;
+
+  /// No description provided for @printErrBluetoothOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Bluetooth to print'**
+  String get printErrBluetoothOff;
+
+  /// No description provided for @printErrUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone doesn\'t have Bluetooth'**
+  String get printErrUnsupported;
+
+  /// No description provided for @printErrFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach the printer. Is it on and nearby?'**
+  String get printErrFailed;
+
+  /// No description provided for @setUpPrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up'**
+  String get setUpPrinter;
+
+  /// No description provided for @printerSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer'**
+  String get printerSettingsTitle;
+
+  /// No description provided for @printerPaired.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired Bluetooth devices'**
+  String get printerPaired;
+
+  /// No description provided for @printerNoneFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No paired devices. Pair your printer in Bluetooth settings first (PIN is usually 0000 or 1234).'**
+  String get printerNoneFound;
+
+  /// No description provided for @printerPairNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair a new printer'**
+  String get printerPairNew;
+
+  /// No description provided for @printerPaperWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper width'**
+  String get printerPaperWidth;
+
+  /// No description provided for @printerTestPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Test print'**
+  String get printerTestPrint;
+
+  /// No description provided for @printerLikely.
+  ///
+  /// In en, this message translates to:
+  /// **'Looks like a printer'**
+  String get printerLikely;
+
+  /// No description provided for @printerAllowAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow access'**
+  String get printerAllowAccess;
+
+  /// No description provided for @printerTurnOnBluetooth.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Bluetooth settings'**
+  String get printerTurnOnBluetooth;
+
+  /// No description provided for @sharePreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing PDF…'**
+  String get sharePreparing;
+
+  /// No description provided for @shareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice {invoice} from {shop}: {amount}'**
+  String shareText(String invoice, String shop, String amount);
+
+  /// No description provided for @shareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t create the PDF. Please try again.'**
+  String get shareFailed;
 }
 
 class _AppLocalizationsDelegate
