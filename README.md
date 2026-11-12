@@ -1,14 +1,25 @@
 # Shop App (working name)
 
 Offline-first billing and inventory for small Indian shops. It runs entirely on an Android phone, with an optional Bluetooth barcode scanner and thermal printer.
-The phased plan is in [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md). **This is build 0.0 (Phase 0: foundation).**
+The phased plan is in [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md). **This is build 0.1 (Phase 1: billing MVP).**
 
-## What build 0.0 does
+## What build 0.1 does
 
-- First-launch **shop setup**: name, logo (gallery or camera), mobile, address, city, PIN code, state, and GSTIN with checksum validation. A valid GSTIN fills in the state automatically.
-- **Home** shows the shop card and placeholders for New bill, Items, Customers and Reports, which arrive in later builds.
-- Editing the shop profile from Home.
+- **Shop setup** on first launch: name, logo, mobile, address, state, and GSTIN with checksum validation (a valid GSTIN fills in the state).
+- **Items**: add, edit, delete and search, with barcode (typed, Bluetooth scanner or camera), price, MRP, unit, GST rate, tax-inclusive/exclusive pricing and HSN.
+- **Billing**:
+  - A **Bluetooth barcode scanner** works with no setup: it types into the always-focused search box. Scanning an item again bumps its quantity; an unknown barcode offers "Create item".
+  - Name search, quick (unsaved) items, quantity stepper, and per-line price/quantity/discount.
+  - Checkout with bill discount, Cash/UPI/Card/Credit (credit needs a customer name), change due, and the customer's name and phone.
+- **GST math** in exact paise: inclusive/exclusive prices, line and bill discounts, CGST/SGST by rate, round-off. Invoice numbers restart each financial year (`INV/26-27/0001`).
+- **Saved bills**: view, cancel (the number stays used), **print** and **share PDF**.
+- **Printing**: ESC/POS receipts on 58/80 mm Bluetooth thermal printers (classic SPP), with a UPI pay QR. Printer setup screen with test print.
+- **PDF**: A4 tax invoice (or bill of supply if not GST registered), with GST summary, amount in words and UPI QR, shared via the phone's share sheet (WhatsApp etc.).
+- **Sales**: bills by day with totals per payment mode; Home shows today's sales.
+- **Settings**: invoice prefix, round-off, UPI ID, bill footer, printer.
 - Everything is stored in a local SQLite database; no internet is needed.
+
+**Not yet verified on real hardware:** Bluetooth printing (no printer tested yet). Shop logos aren't printed on thermal receipts yet; they do appear on the PDF.
 
 ## Project layout
 

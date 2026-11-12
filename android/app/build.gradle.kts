@@ -6,7 +6,9 @@ plugins {
 
 android {
     namespace = "com.shopapp.shop_app"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler needs API 37 to compile against. Only affects which
+    // APIs the code can call, not which phones can install the app (minSdk).
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
