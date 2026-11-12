@@ -1689,6 +1689,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Low stock alerts'**
   String get lowStockChannel;
+
+  /// No description provided for @importExportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import / export'**
+  String get importExportTitle;
+
+  /// No description provided for @importTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import items'**
+  String get importTitle;
+
+  /// No description provided for @importSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'From an Excel (.xlsx) or CSV file. New items are added, matching ones updated.'**
+  String get importSubtitle;
+
+  /// No description provided for @exportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export items'**
+  String get exportTitle;
+
+  /// No description provided for @exportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All items as an Excel file: edit it and import it back.'**
+  String get exportSubtitle;
+
+  /// No description provided for @templateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download template'**
+  String get templateTitle;
+
+  /// No description provided for @templateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'An Excel file with the right columns and two example rows.'**
+  String get templateSubtitle;
+
+  /// No description provided for @importReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading file…'**
+  String get importReading;
+
+  /// No description provided for @importFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read this file: {reason}'**
+  String importFailed(String reason);
+
+  /// No description provided for @importSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{creates} new · {updates} updated · {errors} with problems'**
+  String importSummary(int creates, int updates, int errors);
+
+  /// No description provided for @importUnknownColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Ignored columns: {columns}'**
+  String importUnknownColumns(String columns);
+
+  /// No description provided for @importErrorsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows that won\'t be imported'**
+  String get importErrorsTitle;
+
+  /// No description provided for @importRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}'**
+  String importRow(int row);
+
+  /// No description provided for @importStockNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock is only set for new items. Change stock of existing items with Adjust.'**
+  String get importStockNote;
+
+  /// No description provided for @importGo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Import 1 item} other{Import {count} items}}'**
+  String importGo(int count);
+
+  /// No description provided for @importNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to import'**
+  String get importNothing;
+
+  /// No description provided for @importProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing {done} of {total}…'**
+  String importProgress(int done, int total);
+
+  /// No description provided for @importDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done: {created} added, {updated} updated'**
+  String importDone(int created, int updated);
+
+  /// No description provided for @importDoneFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} couldn\'t be saved'**
+  String importDoneFailed(int count);
+
+  /// No description provided for @importViewItems.
+  ///
+  /// In en, this message translates to:
+  /// **'View items'**
+  String get importViewItems;
+
+  /// No description provided for @importChooseFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file'**
+  String get importChooseFile;
+
+  /// No description provided for @exportShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Items from {shop}'**
+  String exportShareText(String shop);
+
+  /// No description provided for @exportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t create the file. Please try again.'**
+  String get exportFailed;
 }
 
 class _AppLocalizationsDelegate

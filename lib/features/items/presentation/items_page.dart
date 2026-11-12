@@ -40,6 +40,12 @@ class _ItemsPageState extends State<ItemsPage> {
       appBar: AppBar(
         title: Text(l10n.itemsTitle),
         actions: [
+          IconButton(
+            key: const Key('importExportButton'),
+            tooltip: l10n.importExportTitle,
+            icon: const Icon(Icons.import_export),
+            onPressed: () => context.push(AppRoutes.importExport),
+          ),
           PopupMenuButton<ItemSort>(
             tooltip: l10n.sortBy,
             icon: const Icon(Icons.sort),

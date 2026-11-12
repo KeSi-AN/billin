@@ -929,4 +929,101 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lowStockChannel => 'Low stock alerts';
+
+  @override
+  String get importExportTitle => 'Import / export';
+
+  @override
+  String get importTitle => 'Import items';
+
+  @override
+  String get importSubtitle =>
+      'From an Excel (.xlsx) or CSV file. New items are added, matching ones updated.';
+
+  @override
+  String get exportTitle => 'Export items';
+
+  @override
+  String get exportSubtitle =>
+      'All items as an Excel file: edit it and import it back.';
+
+  @override
+  String get templateTitle => 'Download template';
+
+  @override
+  String get templateSubtitle =>
+      'An Excel file with the right columns and two example rows.';
+
+  @override
+  String get importReading => 'Reading file…';
+
+  @override
+  String importFailed(String reason) {
+    return 'Couldn\'t read this file: $reason';
+  }
+
+  @override
+  String importSummary(int creates, int updates, int errors) {
+    return '$creates new · $updates updated · $errors with problems';
+  }
+
+  @override
+  String importUnknownColumns(String columns) {
+    return 'Ignored columns: $columns';
+  }
+
+  @override
+  String get importErrorsTitle => 'Rows that won\'t be imported';
+
+  @override
+  String importRow(int row) {
+    return 'Row $row';
+  }
+
+  @override
+  String get importStockNote =>
+      'Stock is only set for new items. Change stock of existing items with Adjust.';
+
+  @override
+  String importGo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Import $count items',
+      one: 'Import 1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importNothing => 'Nothing to import';
+
+  @override
+  String importProgress(int done, int total) {
+    return 'Importing $done of $total…';
+  }
+
+  @override
+  String importDone(int created, int updated) {
+    return 'Done: $created added, $updated updated';
+  }
+
+  @override
+  String importDoneFailed(int count) {
+    return '$count couldn\'t be saved';
+  }
+
+  @override
+  String get importViewItems => 'View items';
+
+  @override
+  String get importChooseFile => 'Choose file';
+
+  @override
+  String exportShareText(String shop) {
+    return 'Items from $shop';
+  }
+
+  @override
+  String get exportFailed => 'Couldn\'t create the file. Please try again.';
 }

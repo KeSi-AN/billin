@@ -8,6 +8,7 @@ import 'package:shop_app/features/billing/presentation/sales_page.dart';
 import 'package:shop_app/features/home/presentation/home_page.dart';
 import 'package:shop_app/features/inventory/presentation/item_stock_page.dart';
 import 'package:shop_app/features/inventory/presentation/stock_overview_page.dart';
+import 'package:shop_app/features/items/import_export/import_export_page.dart';
 import 'package:shop_app/features/items/presentation/item_form_page.dart';
 import 'package:shop_app/features/items/presentation/items_page.dart';
 import 'package:shop_app/features/printing/presentation/printer_settings_page.dart';
@@ -32,6 +33,7 @@ abstract final class AppRoutes {
   static String editItem(int id) => '/items/$id';
   static String itemStock(int id) => '/items/$id/stock';
   static const stock = '/stock';
+  static const importExport = '/items/transfer';
   static const scan = '/scan';
   static const settings = '/settings';
   static const editShop = '/settings/shop';
@@ -94,6 +96,10 @@ GoRouter buildRouter(ShopProfileCubit profile) => GoRouter(
       path: AppRoutes.newItem,
       builder: (context, state) =>
           ItemFormPage(initialBarcode: state.uri.queryParameters['barcode']),
+    ),
+    GoRoute(
+      path: AppRoutes.importExport,
+      builder: (context, state) => const ImportExportPage(),
     ),
     GoRoute(
       path: '/items/:id',
