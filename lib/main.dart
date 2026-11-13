@@ -1,8 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shop_app/app/app.dart';
+import 'package:shop_app/app/app_restarter.dart';
 import 'package:shop_app/core/db/app_database.dart';
 import 'package:shop_app/core/format/dates.dart';
+import 'package:shop_app/features/backup/data/file_backup_service.dart';
 import 'package:shop_app/features/billing/data/drift_bill_repository.dart';
 import 'package:shop_app/features/billing/data/drift_returns_repository.dart';
 import 'package:shop_app/features/customers/data/channel_contact_picker.dart';
@@ -22,7 +24,12 @@ import 'package:shop_app/features/shop_profile/data/drift_shop_profile_repositor
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initDateFormatting();
+  runApp(const AppRestarter(create: createServices));
+}
 
+/// Opens the database and wires every repository. Runs again after a
+/// restore (see [AppRestarter]).
+Future<AppServices> createServices() async {
   final db = AppDatabase();
   final shopProfiles = DriftShopProfileRepository(
     db,
@@ -32,38 +39,37 @@ Future<void> main() async {
   final printer = PrinterService(MethodChannelPrinterTransport(), settings);
   final parties = DriftPartyRepository(db);
 
-  runApp(
-    ShopApp(
-      services: AppServices(
-        shopProfiles: shopProfiles,
-        items: DriftItemRepository(
-          db,
-          storageDir: getApplicationSupportDirectory,
-        ),
-        bills: DriftBillRepository(db),
-        settings: settings,
-        printer: printer,
-        inventory: DriftInventoryRepository(db),
-        stockAlerts: NotificationStockAlerts(),
-        parties: parties,
-        contactPicker: ChannelContactPicker(),
-        purchases: DriftPurchaseRepository(db),
-        returns: DriftReturnsRepository(db),
-        expenses: DriftExpenseRepository(db),
-        customerActions: AppCustomerActions(
-          parties: parties,
-          shopProfiles: shopProfiles,
-          settings: settings,
-          tempDir: getTemporaryDirectory,
-          shareFile: shareFileWithSystem,
-        ),
-        billActions: AppBillActions(
-          printer: printer,
-          settings: settings,
-          shopProfiles: shopProfiles,
-          tempDir: getTemporaryDirectory,
-        ),
-      ),
+  return AppServices(
+    shopProfiles: shopProfiles,
+    items: DriftItemRepository(db, storageDir: getApplicationSupportDirectory),
+    bills: DriftBillRepository(db),
+    settings: settings,
+    printer: printer,
+    inventory: DriftInventoryRepository(db),
+    stockAlerts: NotificationStockAlerts(),
+    parties: parties,
+    contactPicker: ChannelContactPicker(),
+    purchases: DriftPurchaseRepository(db),
+    returns: DriftReturnsRepository(db),
+    expenses: DriftExpenseRepository(db),
+    backup: FileBackupService(
+      db,
+      databaseFile: AppDatabase.file,
+      storageDir: getApplicationSupportDirectory,
+      tempDir: getTemporaryDirectory,
+    ),
+    customerActions: AppCustomerActions(
+      parties: parties,
+      shopProfiles: shopProfiles,
+      settings: settings,
+      tempDir: getTemporaryDirectory,
+      shareFile: shareFileWithSystem,
+    ),
+    billActions: AppBillActions(
+      printer: printer,
+      settings: settings,
+      shopProfiles: shopProfiles,
+      tempDir: getTemporaryDirectory,
     ),
   );
 }

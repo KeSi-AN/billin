@@ -3393,6 +3393,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Top items · last 7 days'**
   String get homeTopItems;
+
+  /// No description provided for @backupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & restore'**
+  String get backupTitle;
+
+  /// No description provided for @settingsBackupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save all your data to Google Drive or a file'**
+  String get settingsBackupSubtitle;
+
+  /// No description provided for @backupWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bills, items and khata live only on this phone. If the phone is lost or reset, a backup is the only way to get them back.'**
+  String get backupWhy;
+
+  /// No description provided for @backupNever.
+  ///
+  /// In en, this message translates to:
+  /// **'No backup yet'**
+  String get backupNever;
+
+  /// No description provided for @backupLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup: {when}'**
+  String backupLast(String when);
+
+  /// No description provided for @backupNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get backupNow;
+
+  /// No description provided for @backupHowTo.
+  ///
+  /// In en, this message translates to:
+  /// **'This makes one file with everything (including item photos). In the share sheet, choose Drive to keep it in your Google account, or send it to yourself on WhatsApp.'**
+  String get backupHowTo;
+
+  /// No description provided for @backupShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop app backup'**
+  String get backupShareText;
+
+  /// No description provided for @backupDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup ready'**
+  String get backupDone;
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t make the backup. Please try again.'**
+  String get backupFailed;
+
+  /// No description provided for @restoreFromFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from a backup file'**
+  String get restoreFromFile;
+
+  /// No description provided for @restoreHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For a new or reset phone: pick a backup file (from Drive, Downloads or WhatsApp). Everything on this phone is replaced by what is in the backup.'**
+  String get restoreHelp;
+
+  /// No description provided for @restoreInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That file isn\'t a backup from this app'**
+  String get restoreInvalid;
+
+  /// No description provided for @restoreConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace all data on this phone?'**
+  String get restoreConfirmTitle;
+
+  /// No description provided for @restoreConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup of {shop} from {date}: {bills} bills, {items} items. Everything on this phone now will be replaced. This can\'t be undone.'**
+  String restoreConfirmBody(String shop, String date, int bills, int items);
+
+  /// No description provided for @restoreConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restoreConfirm;
+
+  /// No description provided for @restoreTooNew.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is from a newer version of the app. Update the app, then restore.'**
+  String get restoreTooNew;
+
+  /// No description provided for @restoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t restore. Your data wasn\'t changed.'**
+  String get restoreFailed;
+
+  /// No description provided for @restoreDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored. Close and reopen the app.'**
+  String get restoreDone;
+
+  /// No description provided for @backupReminderNever.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t backed up yet. Tap to save your data.'**
+  String get backupReminderNever;
+
+  /// No description provided for @backupReminderOld.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, other{Last backup was {days} days ago. Tap to back up.}}'**
+  String backupReminderOld(int days);
 }
 
 class _AppLocalizationsDelegate

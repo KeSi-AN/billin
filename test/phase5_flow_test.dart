@@ -1,10 +1,13 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/money/quantity.dart';
+import 'package:shop_app/features/backup/domain/backup.dart';
+import 'package:shop_app/features/backup/presentation/backup_page.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/credit_note.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
@@ -65,6 +68,8 @@ String textOf(WidgetTester tester, Key key) =>
     tester.widget<Text>(find.byKey(key)).data!;
 
 void main() {
+  backupTests();
+
   testWidgets('Home: today by payment mode, and top items', (tester) async {
     final h = await todaysTrade();
     await h.pump(tester);
@@ -188,5 +193,104 @@ void main() {
       expect(text, startsWith('Day book · '));
       expect(text, endsWith('Sharma Kirana'));
     }
+  });
+}
+
+Future<void> pumpBackupPage(
+  WidgetTester tester,
+  TestHarness h, {
+  required Future<Uint8List?> Function() pick,
+  required List<String> shared,
+}) async {
+  await tester.pumpWidget(
+    MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<BackupService>.value(value: h.backup),
+        RepositoryProvider<BillRepository>.value(value: h.bills),
+      ],
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: BackupPage(
+          pickFile: pick,
+          shareFile: (path, text) async => shared.add(path),
+        ),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+void backupTests() {
+  testWidgets('backup now shares the file and updates "last backup"', (
+    tester,
+  ) async {
+    final h = TestHarness(shop: testShop)..backup.last = null;
+    final shared = <String>[];
+    await pumpBackupPage(tester, h, pick: () async => null, shared: shared);
+    expect(find.text('No backup yet'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('backupNowButton')));
+    await tester.pumpAndSettle();
+    expect(shared, ['ShopBackup_1.zip']);
+    expect(find.text('Backup ready'), findsOneWidget);
+    expect(find.textContaining('Last backup: '), findsOneWidget);
+  });
+
+  testWidgets('restore asks first, then replaces the data', (tester) async {
+    final h = TestHarness(shop: testShop);
+    h.backup.info = BackupInfo(
+      createdAt: DateTime(2026, 11, 1, 20),
+      schemaVersion: 5,
+      shopName: 'Sharma Kirana',
+      bills: 412,
+      items: 230,
+    );
+    final file = Uint8List.fromList([1, 2, 3]);
+    await pumpBackupPage(tester, h, pick: () async => file, shared: []);
+
+    await tester.tap(find.byKey(const Key('restoreButton')));
+    await tester.pumpAndSettle();
+    expect(find.text('Replace all data on this phone?'), findsOneWidget);
+    expect(find.textContaining('412 bills, 230 items'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(h.backup.restored, isEmpty);
+
+    await tester.tap(find.byKey(const Key('restoreButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Restore'));
+    await tester.pumpAndSettle();
+    expect(h.backup.restored.single, file);
+  });
+
+  testWidgets('a file that is not a backup is refused', (tester) async {
+    final h = TestHarness(shop: testShop);
+    await pumpBackupPage(
+      tester,
+      h,
+      pick: () async => Uint8List.fromList([9]),
+      shared: [],
+    );
+    await tester.tap(find.byKey(const Key('restoreButton')));
+    await tester.pumpAndSettle();
+    expect(find.text("That file isn't a backup from this app"), findsOneWidget);
+    expect(h.backup.restored, isEmpty);
+  });
+
+  testWidgets('Home nags once there are bills and no backup', (tester) async {
+    final h = await todaysTrade();
+    h.backup.last = null;
+    await h.pump(tester);
+    expect(find.byKey(const Key('backupReminder')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('backupReminder')));
+    await tester.pumpAndSettle();
+    expect(find.text('Backup & restore'), findsOneWidget);
+
+    // A fresh backup makes the reminder go away on the way back.
+    h.backup.last = DateTime.now();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('backupReminder')), findsNothing);
   });
 }

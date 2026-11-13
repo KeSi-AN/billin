@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:shop_app/core/db/app_database.steps.dart';
 import 'package:shop_app/core/db/tables.dart';
 
@@ -114,5 +118,12 @@ class AppDatabase extends _$AppDatabase {
     },
   );
 
-  static QueryExecutor _open() => driftDatabase(name: 'shop_app');
+  static const _name = 'shop_app';
+
+  static QueryExecutor _open() => driftDatabase(name: _name);
+
+  /// Where [driftDatabase] keeps the file (used by backup and restore).
+  static Future<File> file() async => File(
+    p.join((await getApplicationDocumentsDirectory()).path, '$_name.sqlite'),
+  );
 }

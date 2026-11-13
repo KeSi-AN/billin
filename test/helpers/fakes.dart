@@ -9,6 +9,7 @@ import 'package:shop_app/app/flavor.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/money/quantity.dart';
 import 'package:shop_app/core/money/rounding.dart';
+import 'package:shop_app/features/backup/domain/backup.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
 import 'package:shop_app/features/billing/domain/credit_note.dart';
@@ -915,6 +916,32 @@ class FakeExpenses implements ExpenseRepository {
   }
 }
 
+class FakeBackup implements BackupService {
+  /// Recent by default so Home shows no reminder in unrelated tests.
+  DateTime? last = DateTime.now();
+  BackupInfo? info;
+  final created = <String>[];
+  final restored = <Uint8List>[];
+
+  @override
+  Future<String> create() async {
+    last = DateTime.now();
+    final path = 'ShopBackup_${created.length + 1}.zip';
+    created.add(path);
+    return path;
+  }
+
+  @override
+  Future<BackupInfo> inspect(Uint8List bytes) async =>
+      info ?? (throw const InvalidBackupException());
+
+  @override
+  Future<void> restore(Uint8List bytes) async => restored.add(bytes);
+
+  @override
+  Future<DateTime?> lastBackupAt() async => last;
+}
+
 /// Everything wired with fakes, plus handles to inspect them.
 class TestHarness {
   TestHarness({
@@ -944,6 +971,7 @@ class TestHarness {
   late final FakePurchases purchases;
   late final FakeReturns returns;
   final expenses = FakeExpenses();
+  final backup = FakeBackup();
 
   AppServices get services => AppServices(
     shopProfiles: shopProfiles,
@@ -960,6 +988,7 @@ class TestHarness {
     purchases: purchases,
     returns: returns,
     expenses: expenses,
+    backup: backup,
   );
 
   Future<void> pump(WidgetTester tester) async {

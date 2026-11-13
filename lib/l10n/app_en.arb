@@ -1297,5 +1297,56 @@
       }
     }
   },
-  "homeTopItems": "Top items · last 7 days"
+  "homeTopItems": "Top items · last 7 days",
+  "backupTitle": "Backup & restore",
+  "settingsBackupSubtitle": "Save all your data to Google Drive or a file",
+  "backupWhy": "Your bills, items and khata live only on this phone. If the phone is lost or reset, a backup is the only way to get them back.",
+  "backupNever": "No backup yet",
+  "backupLast": "Last backup: {when}",
+  "@backupLast": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "backupNow": "Back up now",
+  "backupHowTo": "This makes one file with everything (including item photos). In the share sheet, choose Drive to keep it in your Google account, or send it to yourself on WhatsApp.",
+  "backupShareText": "Shop app backup",
+  "backupDone": "Backup ready",
+  "backupFailed": "Couldn't make the backup. Please try again.",
+  "restoreFromFile": "Restore from a backup file",
+  "restoreHelp": "For a new or reset phone: pick a backup file (from Drive, Downloads or WhatsApp). Everything on this phone is replaced by what is in the backup.",
+  "restoreInvalid": "That file isn't a backup from this app",
+  "restoreConfirmTitle": "Replace all data on this phone?",
+  "restoreConfirmBody": "Backup of {shop} from {date}: {bills} bills, {items} items. Everything on this phone now will be replaced. This can't be undone.",
+  "@restoreConfirmBody": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "bills": {
+        "type": "int"
+      },
+      "items": {
+        "type": "int"
+      }
+    }
+  },
+  "restoreConfirm": "Restore",
+  "restoreTooNew": "This backup is from a newer version of the app. Update the app, then restore.",
+  "restoreFailed": "Couldn't restore. Your data wasn't changed.",
+  "restoreDone": "Restored. Close and reopen the app.",
+  "backupReminderNever": "You haven't backed up yet. Tap to save your data.",
+  "backupReminderOld": "{days, plural, other{Last backup was {days} days ago. Tap to back up.}}",
+  "@backupReminderOld": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -1944,4 +1944,84 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeTopItems => 'Top items · last 7 days';
+
+  @override
+  String get backupTitle => 'Backup & restore';
+
+  @override
+  String get settingsBackupSubtitle =>
+      'Save all your data to Google Drive or a file';
+
+  @override
+  String get backupWhy =>
+      'Your bills, items and khata live only on this phone. If the phone is lost or reset, a backup is the only way to get them back.';
+
+  @override
+  String get backupNever => 'No backup yet';
+
+  @override
+  String backupLast(String when) {
+    return 'Last backup: $when';
+  }
+
+  @override
+  String get backupNow => 'Back up now';
+
+  @override
+  String get backupHowTo =>
+      'This makes one file with everything (including item photos). In the share sheet, choose Drive to keep it in your Google account, or send it to yourself on WhatsApp.';
+
+  @override
+  String get backupShareText => 'Shop app backup';
+
+  @override
+  String get backupDone => 'Backup ready';
+
+  @override
+  String get backupFailed => 'Couldn\'t make the backup. Please try again.';
+
+  @override
+  String get restoreFromFile => 'Restore from a backup file';
+
+  @override
+  String get restoreHelp =>
+      'For a new or reset phone: pick a backup file (from Drive, Downloads or WhatsApp). Everything on this phone is replaced by what is in the backup.';
+
+  @override
+  String get restoreInvalid => 'That file isn\'t a backup from this app';
+
+  @override
+  String get restoreConfirmTitle => 'Replace all data on this phone?';
+
+  @override
+  String restoreConfirmBody(String shop, String date, int bills, int items) {
+    return 'Backup of $shop from $date: $bills bills, $items items. Everything on this phone now will be replaced. This can\'t be undone.';
+  }
+
+  @override
+  String get restoreConfirm => 'Restore';
+
+  @override
+  String get restoreTooNew =>
+      'This backup is from a newer version of the app. Update the app, then restore.';
+
+  @override
+  String get restoreFailed => 'Couldn\'t restore. Your data wasn\'t changed.';
+
+  @override
+  String get restoreDone => 'Restored. Close and reopen the app.';
+
+  @override
+  String get backupReminderNever =>
+      'You haven\'t backed up yet. Tap to save your data.';
+
+  @override
+  String backupReminderOld(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Last backup was $days days ago. Tap to back up.',
+    );
+    return '$_temp0';
+  }
 }

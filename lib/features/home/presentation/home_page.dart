@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/india/indian_states.dart';
 import 'package:shop_app/core/money/money.dart';
+import 'package:shop_app/features/backup/presentation/backup_page.dart';
 import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/home/presentation/dashboard_cards.dart';
 import 'package:shop_app/features/inventory/domain/inventory.dart';
@@ -42,6 +43,7 @@ class HomePage extends StatelessWidget {
           _ShopCard(profile: state.profile),
           const SizedBox(height: 12),
           const TodayCard(),
+          const BackupReminder(),
           const SizedBox(height: 12),
           FilledButton.icon(
             key: const Key('newBillButton'),

@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/app/flavor.dart';
 import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/theme/app_theme.dart';
+import 'package:shop_app/features/backup/domain/backup.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/credit_note.dart';
 import 'package:shop_app/features/billing/presentation/bill_actions.dart';
@@ -41,6 +42,7 @@ class AppServices {
     required this.purchases,
     required this.returns,
     required this.expenses,
+    required this.backup,
   });
 
   final ShopProfileRepository shopProfiles;
@@ -57,6 +59,7 @@ class AppServices {
   final PurchaseRepository purchases;
   final ReturnsRepository returns;
   final ExpenseRepository expenses;
+  final BackupService backup;
 }
 
 class ShopApp extends StatefulWidget {
@@ -102,6 +105,7 @@ class _ShopAppState extends State<ShopApp> {
         RepositoryProvider.value(value: s.purchases),
         RepositoryProvider.value(value: s.returns),
         RepositoryProvider.value(value: s.expenses),
+        RepositoryProvider.value(value: s.backup),
       ],
       child: BlocProvider.value(
         value: _profileCubit,
