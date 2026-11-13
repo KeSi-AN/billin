@@ -207,7 +207,10 @@ void main() {
       );
     }
     await h.pump(tester);
-    expect(find.text('₹350.00'), findsOneWidget); // Home "Today"
+    expect(
+      tester.widget<Text>(find.byKey(const Key('todayTotal'))).data,
+      '₹350.00',
+    ); // Home "Today"
 
     await tester.tap(find.byKey(const Key('salesTile')));
     await tester.pumpAndSettle();

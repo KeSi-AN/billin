@@ -157,6 +157,9 @@ abstract interface class PartyRepository {
     DateTime to,
   );
 
+  /// Every party's entries in a period, oldest first (for the day book).
+  Future<List<PartyEntry>> allEntriesBetween(DateTime from, DateTime to);
+
   /// Money received against dues (a full or partial settlement).
   Future<void> receivePayment(
     int partyId,

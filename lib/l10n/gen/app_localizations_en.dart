@@ -1609,4 +1609,339 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportsNotes => 'Check before filing';
+
+  @override
+  String get periodToday => 'Today';
+
+  @override
+  String get periodYesterday => 'Yesterday';
+
+  @override
+  String get periodThisWeek => 'This week';
+
+  @override
+  String get periodThisMonth => 'This month';
+
+  @override
+  String get periodLastMonth => 'Last month';
+
+  @override
+  String get periodThisYear => 'This financial year';
+
+  @override
+  String get periodCustom => 'Pick dates';
+
+  @override
+  String get rpSales => 'Sales';
+
+  @override
+  String get rpSalesHelp => 'Bills, payment modes and returns, day by day';
+
+  @override
+  String get rpPurchases => 'Purchases';
+
+  @override
+  String get rpPurchasesHelp => 'Supplier bills and what you still owe';
+
+  @override
+  String get rpProfitLoss => 'Profit & loss';
+
+  @override
+  String get rpProfitLossHelp => 'Sales minus cost of goods and expenses';
+
+  @override
+  String get rpStockValue => 'Stock value';
+
+  @override
+  String get rpStockValueHelp =>
+      'What your stock is worth at cost and at sale price';
+
+  @override
+  String get rpItemWise => 'Item-wise sales';
+
+  @override
+  String get rpItemWiseHelp =>
+      'What sold, how much, and the profit on each item';
+
+  @override
+  String get rpCustomerWise => 'Customer-wise sales';
+
+  @override
+  String get rpCustomerWiseHelp => 'Sales, payments and dues per customer';
+
+  @override
+  String get rpDayBook => 'Day book';
+
+  @override
+  String get rpDayBookHelp =>
+      'Every sale, payment, purchase and expense in order, with cash in and out';
+
+  @override
+  String get rpGstReturns => 'GST returns';
+
+  @override
+  String get rpGstHelp => 'Monthly GSTR-1 style Excel for your CA';
+
+  @override
+  String get rpBills => 'Bills';
+
+  @override
+  String get rpSalesAmount => 'Sales';
+
+  @override
+  String get rpDiscounts => 'Discounts given';
+
+  @override
+  String get rpGstCollected => 'GST collected';
+
+  @override
+  String get rpReturns => 'Returns';
+
+  @override
+  String get rpNetSales => 'Net sales';
+
+  @override
+  String get rpAverageBill => 'Average bill';
+
+  @override
+  String get rpByDay => 'By day';
+
+  @override
+  String get rpByMode => 'By payment mode';
+
+  @override
+  String get rpDate => 'Date';
+
+  @override
+  String get rpTotal => 'Total';
+
+  @override
+  String get rpMode => 'Payment';
+
+  @override
+  String get rpAmount => 'Amount';
+
+  @override
+  String rpCancelledNote(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cancelled bills are not counted',
+      one: '1 cancelled bill is not counted',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rpPurchaseCount => 'Purchases';
+
+  @override
+  String get rpTaxable => 'Before GST';
+
+  @override
+  String get rpGst => 'GST';
+
+  @override
+  String get rpOwed => 'Still owed';
+
+  @override
+  String get rpSupplier => 'Supplier';
+
+  @override
+  String get rpInvoiceNo => 'Invoice no.';
+
+  @override
+  String get rpItems => 'Items';
+
+  @override
+  String get rpDue => 'Due';
+
+  @override
+  String get rpPurchaseList => 'Purchase bills';
+
+  @override
+  String get rpBySupplier => 'By supplier';
+
+  @override
+  String get rpNoSupplier => 'No supplier';
+
+  @override
+  String get rpSalesExGst => 'Sales (without GST)';
+
+  @override
+  String get rpCogs => 'Cost of goods sold';
+
+  @override
+  String get rpGrossProfit => 'Gross profit';
+
+  @override
+  String get rpExpenses => 'Expenses';
+
+  @override
+  String get rpNetProfit => 'Net profit';
+
+  @override
+  String get rpExpensesByCategory => 'Expenses by category';
+
+  @override
+  String get rpCategory => 'Category';
+
+  @override
+  String get rpCount => 'Entries';
+
+  @override
+  String rpNoCostNote(String amount) {
+    return '$amount of sales are items without a cost price, so their profit isn\'t counted. Add cost prices (or enter purchases) to include them.';
+  }
+
+  @override
+  String get rpItem => 'Item';
+
+  @override
+  String get rpStock => 'Stock';
+
+  @override
+  String get rpUnit => 'Unit';
+
+  @override
+  String get rpCostPrice => 'Cost price';
+
+  @override
+  String get rpValueAtCost => 'Value at cost';
+
+  @override
+  String get rpSalePrice => 'Sale price';
+
+  @override
+  String get rpValueAtSale => 'Value at sale price';
+
+  @override
+  String get rpItemsInStock => 'Items in stock';
+
+  @override
+  String rpMissingCost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items in stock have no cost price',
+      one: '1 item in stock has no cost price',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rpStockAsOf =>
+      'Stock as of now. Only items with stock tracking are included.';
+
+  @override
+  String get rpQtySold => 'Quantity sold';
+
+  @override
+  String get rpProfit => 'Profit';
+
+  @override
+  String get rpItemsSold => 'Items sold';
+
+  @override
+  String get rpCustomer => 'Customer';
+
+  @override
+  String get rpCustomers => 'Customers';
+
+  @override
+  String get rpReceived => 'Received';
+
+  @override
+  String get rpBalance => 'Due now';
+
+  @override
+  String get rpWalkIn => 'Walk-in customers';
+
+  @override
+  String get rpTime => 'Time';
+
+  @override
+  String get rpEntry => 'Entry';
+
+  @override
+  String get rpRef => 'Ref.';
+
+  @override
+  String get rpParty => 'Party / note';
+
+  @override
+  String get rpIn => 'Money in';
+
+  @override
+  String get rpOut => 'Money out';
+
+  @override
+  String get rpNet => 'Net';
+
+  @override
+  String get rpCashNet => 'Cash (net)';
+
+  @override
+  String get rpUpiNet => 'UPI (net)';
+
+  @override
+  String get rpCardNet => 'Card (net)';
+
+  @override
+  String get rpEntrySale => 'Sale';
+
+  @override
+  String get rpEntryCreditSale => 'Sale on credit';
+
+  @override
+  String get rpEntryReceipt => 'Payment received';
+
+  @override
+  String get rpEntryReturn => 'Return';
+
+  @override
+  String get rpEntryPurchase => 'Purchase';
+
+  @override
+  String get rpEntrySupplierPayment => 'Paid supplier';
+
+  @override
+  String get rpEntryExpense => 'Expense';
+
+  @override
+  String get rpSummary => 'Summary';
+
+  @override
+  String get rpValue => 'Value';
+
+  @override
+  String get rpAmountsIn => 'Amounts in rupees';
+
+  @override
+  String get rpGenerated => 'Generated';
+
+  @override
+  String get rpExportPdf => 'Share as PDF';
+
+  @override
+  String get rpExportExcel => 'Share as Excel';
+
+  @override
+  String get rpEmpty => 'Nothing in this period';
+
+  @override
+  String get rpLoadFailed => 'Couldn\'t load the report. Please try again.';
+
+  @override
+  String rpMoreRows(int shown, int total) {
+    return 'Showing $shown of $total rows. Export to see all.';
+  }
+
+  @override
+  String rpShareText(String report, String period, String shop) {
+    return '$report · $period · $shop';
+  }
+
+  @override
+  String get homeTopItems => 'Top items · last 7 days';
 }

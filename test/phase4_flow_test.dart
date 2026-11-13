@@ -13,7 +13,7 @@ import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/expenses/domain/expense.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/purchases/domain/purchase.dart';
-import 'package:shop_app/features/reports/presentation/reports_page.dart';
+import 'package:shop_app/features/reports/presentation/gst_report_page.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile_repository.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
@@ -316,7 +316,7 @@ void main() {
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: ReportsPage(
+          home: GstReportPage(
             tempDir: () async => tmp!,
             shareFile: (path, text) async => shared.add((path, text)),
           ),

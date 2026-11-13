@@ -9,7 +9,9 @@ import 'package:shop_app/core/money/quantity.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/credit_note.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
+import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/expenses/domain/expense.dart';
+import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/items/import_export/spreadsheet.dart';
 import 'package:shop_app/features/purchases/domain/purchase.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile.dart';
@@ -45,6 +47,9 @@ class ReportInput {
     required this.creditNoteBills,
     required this.purchases,
     required this.expenses,
+    this.items = const [],
+    this.parties = const [],
+    this.entries = const [],
   });
 
   final ShopProfile shop;
@@ -59,6 +64,15 @@ class ReportInput {
   final Map<int, Bill> creditNoteBills;
   final List<Purchase> purchases;
   final List<Expense> expenses;
+
+  /// Current items (for stock value and item names); not period-bound.
+  final List<Item> items;
+
+  /// Customers and suppliers, current balances.
+  final List<Party> parties;
+
+  /// Ledger entries of every party in the period, oldest first.
+  final List<PartyEntry> entries;
 }
 
 class MonthSummary {

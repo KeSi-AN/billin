@@ -21,7 +21,10 @@ import 'package:shop_app/features/printing/presentation/printer_settings_page.da
 import 'package:shop_app/features/purchases/presentation/purchase_form_page.dart';
 import 'package:shop_app/features/purchases/presentation/purchase_page.dart';
 import 'package:shop_app/features/purchases/presentation/purchases_page.dart';
-import 'package:shop_app/features/reports/presentation/reports_page.dart';
+import 'package:shop_app/features/reports/domain/business_reports.dart';
+import 'package:shop_app/features/reports/presentation/gst_report_page.dart';
+import 'package:shop_app/features/reports/presentation/report_page.dart';
+import 'package:shop_app/features/reports/presentation/reports_hub_page.dart';
 import 'package:shop_app/features/scanner/scan_page.dart';
 import 'package:shop_app/features/settings/presentation/billing_settings_page.dart';
 import 'package:shop_app/features/settings/presentation/settings_page.dart';
@@ -63,6 +66,8 @@ abstract final class AppRoutes {
   static String purchase(int id) => '/purchases/$id';
   static const expenses = '/expenses';
   static const reports = '/reports';
+  static const gstReport = '/reports/gst';
+  static String report(ReportKind k) => '/reports/${k.name}';
   static const scan = '/scan';
   static const settings = '/settings';
   static const editShop = '/settings/shop';
@@ -206,7 +211,17 @@ GoRouter buildRouter(ShopProfileCubit profile) => GoRouter(
     ),
     GoRoute(
       path: AppRoutes.reports,
-      builder: (context, state) => const ReportsPage(),
+      builder: (context, state) => const ReportsHubPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.gstReport,
+      builder: (context, state) => const GstReportPage(),
+    ),
+    GoRoute(
+      path: '/reports/:kind',
+      builder: (context, state) => ReportPage(
+        kind: ReportKind.values.byName(state.pathParameters['kind']!),
+      ),
     ),
     GoRoute(
       path: AppRoutes.labels,

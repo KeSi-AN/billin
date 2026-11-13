@@ -1150,5 +1150,152 @@
   },
   "reportsPreviousMonth": "Previous month",
   "reportsNextMonth": "Next month",
-  "reportsNotes": "Check before filing"
+  "reportsNotes": "Check before filing",
+  "periodToday": "Today",
+  "periodYesterday": "Yesterday",
+  "periodThisWeek": "This week",
+  "periodThisMonth": "This month",
+  "periodLastMonth": "Last month",
+  "periodThisYear": "This financial year",
+  "periodCustom": "Pick dates",
+  "rpSales": "Sales",
+  "rpSalesHelp": "Bills, payment modes and returns, day by day",
+  "rpPurchases": "Purchases",
+  "rpPurchasesHelp": "Supplier bills and what you still owe",
+  "rpProfitLoss": "Profit & loss",
+  "rpProfitLossHelp": "Sales minus cost of goods and expenses",
+  "rpStockValue": "Stock value",
+  "rpStockValueHelp": "What your stock is worth at cost and at sale price",
+  "rpItemWise": "Item-wise sales",
+  "rpItemWiseHelp": "What sold, how much, and the profit on each item",
+  "rpCustomerWise": "Customer-wise sales",
+  "rpCustomerWiseHelp": "Sales, payments and dues per customer",
+  "rpDayBook": "Day book",
+  "rpDayBookHelp": "Every sale, payment, purchase and expense in order, with cash in and out",
+  "rpGstReturns": "GST returns",
+  "rpGstHelp": "Monthly GSTR-1 style Excel for your CA",
+  "rpBills": "Bills",
+  "rpSalesAmount": "Sales",
+  "rpDiscounts": "Discounts given",
+  "rpGstCollected": "GST collected",
+  "rpReturns": "Returns",
+  "rpNetSales": "Net sales",
+  "rpAverageBill": "Average bill",
+  "rpByDay": "By day",
+  "rpByMode": "By payment mode",
+  "rpDate": "Date",
+  "rpTotal": "Total",
+  "rpMode": "Payment",
+  "rpAmount": "Amount",
+  "rpCancelledNote": "{count, plural, =1{1 cancelled bill is not counted} other{{count} cancelled bills are not counted}}",
+  "@rpCancelledNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rpPurchaseCount": "Purchases",
+  "rpTaxable": "Before GST",
+  "rpGst": "GST",
+  "rpOwed": "Still owed",
+  "rpSupplier": "Supplier",
+  "rpInvoiceNo": "Invoice no.",
+  "rpItems": "Items",
+  "rpDue": "Due",
+  "rpPurchaseList": "Purchase bills",
+  "rpBySupplier": "By supplier",
+  "rpNoSupplier": "No supplier",
+  "rpSalesExGst": "Sales (without GST)",
+  "rpCogs": "Cost of goods sold",
+  "rpGrossProfit": "Gross profit",
+  "rpExpenses": "Expenses",
+  "rpNetProfit": "Net profit",
+  "rpExpensesByCategory": "Expenses by category",
+  "rpCategory": "Category",
+  "rpCount": "Entries",
+  "rpNoCostNote": "{amount} of sales are items without a cost price, so their profit isn't counted. Add cost prices (or enter purchases) to include them.",
+  "@rpNoCostNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "rpItem": "Item",
+  "rpStock": "Stock",
+  "rpUnit": "Unit",
+  "rpCostPrice": "Cost price",
+  "rpValueAtCost": "Value at cost",
+  "rpSalePrice": "Sale price",
+  "rpValueAtSale": "Value at sale price",
+  "rpItemsInStock": "Items in stock",
+  "rpMissingCost": "{count, plural, =1{1 item in stock has no cost price} other{{count} items in stock have no cost price}}",
+  "@rpMissingCost": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rpStockAsOf": "Stock as of now. Only items with stock tracking are included.",
+  "rpQtySold": "Quantity sold",
+  "rpProfit": "Profit",
+  "rpItemsSold": "Items sold",
+  "rpCustomer": "Customer",
+  "rpCustomers": "Customers",
+  "rpReceived": "Received",
+  "rpBalance": "Due now",
+  "rpWalkIn": "Walk-in customers",
+  "rpTime": "Time",
+  "rpEntry": "Entry",
+  "rpRef": "Ref.",
+  "rpParty": "Party / note",
+  "rpIn": "Money in",
+  "rpOut": "Money out",
+  "rpNet": "Net",
+  "rpCashNet": "Cash (net)",
+  "rpUpiNet": "UPI (net)",
+  "rpCardNet": "Card (net)",
+  "rpEntrySale": "Sale",
+  "rpEntryCreditSale": "Sale on credit",
+  "rpEntryReceipt": "Payment received",
+  "rpEntryReturn": "Return",
+  "rpEntryPurchase": "Purchase",
+  "rpEntrySupplierPayment": "Paid supplier",
+  "rpEntryExpense": "Expense",
+  "rpSummary": "Summary",
+  "rpValue": "Value",
+  "rpAmountsIn": "Amounts in rupees",
+  "rpGenerated": "Generated",
+  "rpExportPdf": "Share as PDF",
+  "rpExportExcel": "Share as Excel",
+  "rpEmpty": "Nothing in this period",
+  "rpLoadFailed": "Couldn't load the report. Please try again.",
+  "rpMoreRows": "Showing {shown} of {total} rows. Export to see all.",
+  "@rpMoreRows": {
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "rpShareText": "{report} · {period} · {shop}",
+  "@rpShareText": {
+    "placeholders": {
+      "report": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      },
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTopItems": "Top items · last 7 days"
 }

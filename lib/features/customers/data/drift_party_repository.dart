@@ -135,13 +135,15 @@ class DriftPartyRepository implements PartyRepository {
     );
   });
 
-  JoinedSelectStatement<HasResultSet, dynamic> _entries(int partyId) =>
-      _db.select(_db.partyEntries).join([
-        leftOuterJoin(
-          _db.bills,
-          _db.bills.id.equalsExp(_db.partyEntries.billId),
-        ),
-      ])..where(_db.partyEntries.partyId.equals(partyId));
+  JoinedSelectStatement<HasResultSet, dynamic> _entries(int? partyId) {
+    final query = _db.select(_db.partyEntries).join([
+      leftOuterJoin(_db.bills, _db.bills.id.equalsExp(_db.partyEntries.billId)),
+    ]);
+    if (partyId != null) {
+      query.where(_db.partyEntries.partyId.equals(partyId));
+    }
+    return query;
+  }
 
   @override
   Stream<List<PartyEntry>> watchEntries(int partyId) {
@@ -159,6 +161,15 @@ class DriftPartyRepository implements PartyRepository {
   ) async {
     final e = _db.partyEntries;
     final query = _entries(partyId)
+      ..where(e.at.isBiggerOrEqualValue(from) & e.at.isSmallerThanValue(to))
+      ..orderBy([OrderingTerm.asc(e.at), OrderingTerm.asc(e.id)]);
+    return (await query.get()).map(_toEntry).toList();
+  }
+
+  @override
+  Future<List<PartyEntry>> allEntriesBetween(DateTime from, DateTime to) async {
+    final e = _db.partyEntries;
+    final query = _entries(null)
       ..where(e.at.isBiggerOrEqualValue(from) & e.at.isSmallerThanValue(to))
       ..orderBy([OrderingTerm.asc(e.at), OrderingTerm.asc(e.id)]);
     return (await query.get()).map(_toEntry).toList();

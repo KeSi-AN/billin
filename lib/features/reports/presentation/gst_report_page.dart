@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
 import 'package:shop_app/core/widgets/month_switcher.dart';
@@ -16,30 +15,14 @@ import 'package:shop_app/features/items/import_export/spreadsheet.dart';
 import 'package:shop_app/features/purchases/domain/purchase.dart';
 import 'package:shop_app/features/reports/data/report_loader.dart';
 import 'package:shop_app/features/reports/domain/gst_report.dart';
+import 'package:shop_app/features/reports/presentation/report_export.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile_repository.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
-/// Hands a file to the share sheet (WhatsApp to the CA, Drive, email…).
-typedef ShareReport = Future<void> Function(String path, String text);
-
-Future<void> _shareWithSystem(String path, String text) async {
-  await SharePlus.instance.share(
-    ShareParams(
-      files: [
-        XFile(
-          path,
-          mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ),
-      ],
-      text: text,
-    ),
-  );
-}
-
 /// Month summary (sales, profit, GST) and the GST export for the CA.
-class ReportsPage extends StatefulWidget {
-  const ReportsPage({
-    this.shareFile = _shareWithSystem,
+class GstReportPage extends StatefulWidget {
+  const GstReportPage({
+    this.shareFile = shareReportWithSystem,
     this.tempDir = getTemporaryDirectory,
     super.key,
   });
@@ -48,10 +31,10 @@ class ReportsPage extends StatefulWidget {
   final Future<Directory> Function() tempDir;
 
   @override
-  State<ReportsPage> createState() => _ReportsPageState();
+  State<GstReportPage> createState() => _ReportsPageState();
 }
 
-class _ReportsPageState extends State<ReportsPage> {
+class _ReportsPageState extends State<GstReportPage> {
   DateTime _month = monthStart(DateTime.now());
   late Future<GstReport> _report = _load();
   bool _exporting = false;

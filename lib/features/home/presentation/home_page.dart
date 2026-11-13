@@ -4,8 +4,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/india/indian_states.dart';
 import 'package:shop_app/core/money/money.dart';
-import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/customers/domain/party.dart';
+import 'package:shop_app/features/home/presentation/dashboard_cards.dart';
 import 'package:shop_app/features/inventory/domain/inventory.dart';
 import 'package:shop_app/features/inventory/presentation/stock_overview_page.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile.dart';
@@ -41,7 +41,7 @@ class HomePage extends StatelessWidget {
         children: [
           _ShopCard(profile: state.profile),
           const SizedBox(height: 12),
-          const _TodayCard(),
+          const TodayCard(),
           const SizedBox(height: 12),
           FilledButton.icon(
             key: const Key('newBillButton'),
@@ -131,58 +131,10 @@ class HomePage extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          const TopItemsCard(),
         ],
       ),
-    );
-  }
-}
-
-class _TodayCard extends StatelessWidget {
-  const _TodayCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final text = Theme.of(context).textTheme;
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    return StreamBuilder<List<BillSummary>>(
-      stream: context.read<BillRepository>().watchBetween(
-        today,
-        today.add(const Duration(days: 1)),
-      ),
-      builder: (context, snapshot) {
-        final bills = (snapshot.data ?? const []).where((b) => !b.isCancelled);
-        final total = bills.fold(Money.zero, (sum, b) => sum + b.grandTotal);
-        return Card.outlined(
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () => context.push(AppRoutes.sales),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(l10n.homeToday, style: text.labelLarge),
-                        Text(
-                          total.format(),
-                          key: const Key('todayTotal'),
-                          style: text.headlineSmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(l10n.homeTodaySummary(bills.length)),
-                  const Icon(Icons.chevron_right),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }

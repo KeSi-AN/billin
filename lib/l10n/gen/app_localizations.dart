@@ -2775,6 +2775,624 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Check before filing'**
   String get reportsNotes;
+
+  /// No description provided for @periodToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get periodToday;
+
+  /// No description provided for @periodYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get periodYesterday;
+
+  /// No description provided for @periodThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get periodThisWeek;
+
+  /// No description provided for @periodThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get periodThisMonth;
+
+  /// No description provided for @periodLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get periodLastMonth;
+
+  /// No description provided for @periodThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This financial year'**
+  String get periodThisYear;
+
+  /// No description provided for @periodCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick dates'**
+  String get periodCustom;
+
+  /// No description provided for @rpSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get rpSales;
+
+  /// No description provided for @rpSalesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills, payment modes and returns, day by day'**
+  String get rpSalesHelp;
+
+  /// No description provided for @rpPurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases'**
+  String get rpPurchases;
+
+  /// No description provided for @rpPurchasesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier bills and what you still owe'**
+  String get rpPurchasesHelp;
+
+  /// No description provided for @rpProfitLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit & loss'**
+  String get rpProfitLoss;
+
+  /// No description provided for @rpProfitLossHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales minus cost of goods and expenses'**
+  String get rpProfitLossHelp;
+
+  /// No description provided for @rpStockValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock value'**
+  String get rpStockValue;
+
+  /// No description provided for @rpStockValueHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'What your stock is worth at cost and at sale price'**
+  String get rpStockValueHelp;
+
+  /// No description provided for @rpItemWise.
+  ///
+  /// In en, this message translates to:
+  /// **'Item-wise sales'**
+  String get rpItemWise;
+
+  /// No description provided for @rpItemWiseHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'What sold, how much, and the profit on each item'**
+  String get rpItemWiseHelp;
+
+  /// No description provided for @rpCustomerWise.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer-wise sales'**
+  String get rpCustomerWise;
+
+  /// No description provided for @rpCustomerWiseHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales, payments and dues per customer'**
+  String get rpCustomerWiseHelp;
+
+  /// No description provided for @rpDayBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Day book'**
+  String get rpDayBook;
+
+  /// No description provided for @rpDayBookHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Every sale, payment, purchase and expense in order, with cash in and out'**
+  String get rpDayBookHelp;
+
+  /// No description provided for @rpGstReturns.
+  ///
+  /// In en, this message translates to:
+  /// **'GST returns'**
+  String get rpGstReturns;
+
+  /// No description provided for @rpGstHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly GSTR-1 style Excel for your CA'**
+  String get rpGstHelp;
+
+  /// No description provided for @rpBills.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills'**
+  String get rpBills;
+
+  /// No description provided for @rpSalesAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get rpSalesAmount;
+
+  /// No description provided for @rpDiscounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Discounts given'**
+  String get rpDiscounts;
+
+  /// No description provided for @rpGstCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'GST collected'**
+  String get rpGstCollected;
+
+  /// No description provided for @rpReturns.
+  ///
+  /// In en, this message translates to:
+  /// **'Returns'**
+  String get rpReturns;
+
+  /// No description provided for @rpNetSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Net sales'**
+  String get rpNetSales;
+
+  /// No description provided for @rpAverageBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Average bill'**
+  String get rpAverageBill;
+
+  /// No description provided for @rpByDay.
+  ///
+  /// In en, this message translates to:
+  /// **'By day'**
+  String get rpByDay;
+
+  /// No description provided for @rpByMode.
+  ///
+  /// In en, this message translates to:
+  /// **'By payment mode'**
+  String get rpByMode;
+
+  /// No description provided for @rpDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get rpDate;
+
+  /// No description provided for @rpTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get rpTotal;
+
+  /// No description provided for @rpMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get rpMode;
+
+  /// No description provided for @rpAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get rpAmount;
+
+  /// No description provided for @rpCancelledNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 cancelled bill is not counted} other{{count} cancelled bills are not counted}}'**
+  String rpCancelledNote(int count);
+
+  /// No description provided for @rpPurchaseCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases'**
+  String get rpPurchaseCount;
+
+  /// No description provided for @rpTaxable.
+  ///
+  /// In en, this message translates to:
+  /// **'Before GST'**
+  String get rpTaxable;
+
+  /// No description provided for @rpGst.
+  ///
+  /// In en, this message translates to:
+  /// **'GST'**
+  String get rpGst;
+
+  /// No description provided for @rpOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Still owed'**
+  String get rpOwed;
+
+  /// No description provided for @rpSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier'**
+  String get rpSupplier;
+
+  /// No description provided for @rpInvoiceNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice no.'**
+  String get rpInvoiceNo;
+
+  /// No description provided for @rpItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get rpItems;
+
+  /// No description provided for @rpDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get rpDue;
+
+  /// No description provided for @rpPurchaseList.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase bills'**
+  String get rpPurchaseList;
+
+  /// No description provided for @rpBySupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'By supplier'**
+  String get rpBySupplier;
+
+  /// No description provided for @rpNoSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'No supplier'**
+  String get rpNoSupplier;
+
+  /// No description provided for @rpSalesExGst.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales (without GST)'**
+  String get rpSalesExGst;
+
+  /// No description provided for @rpCogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost of goods sold'**
+  String get rpCogs;
+
+  /// No description provided for @rpGrossProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Gross profit'**
+  String get rpGrossProfit;
+
+  /// No description provided for @rpExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get rpExpenses;
+
+  /// No description provided for @rpNetProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Net profit'**
+  String get rpNetProfit;
+
+  /// No description provided for @rpExpensesByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses by category'**
+  String get rpExpensesByCategory;
+
+  /// No description provided for @rpCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get rpCategory;
+
+  /// No description provided for @rpCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Entries'**
+  String get rpCount;
+
+  /// No description provided for @rpNoCostNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} of sales are items without a cost price, so their profit isn\'t counted. Add cost prices (or enter purchases) to include them.'**
+  String rpNoCostNote(String amount);
+
+  /// No description provided for @rpItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get rpItem;
+
+  /// No description provided for @rpStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock'**
+  String get rpStock;
+
+  /// No description provided for @rpUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get rpUnit;
+
+  /// No description provided for @rpCostPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost price'**
+  String get rpCostPrice;
+
+  /// No description provided for @rpValueAtCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Value at cost'**
+  String get rpValueAtCost;
+
+  /// No description provided for @rpSalePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale price'**
+  String get rpSalePrice;
+
+  /// No description provided for @rpValueAtSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Value at sale price'**
+  String get rpValueAtSale;
+
+  /// No description provided for @rpItemsInStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Items in stock'**
+  String get rpItemsInStock;
+
+  /// No description provided for @rpMissingCost.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item in stock has no cost price} other{{count} items in stock have no cost price}}'**
+  String rpMissingCost(int count);
+
+  /// No description provided for @rpStockAsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock as of now. Only items with stock tracking are included.'**
+  String get rpStockAsOf;
+
+  /// No description provided for @rpQtySold.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity sold'**
+  String get rpQtySold;
+
+  /// No description provided for @rpProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit'**
+  String get rpProfit;
+
+  /// No description provided for @rpItemsSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Items sold'**
+  String get rpItemsSold;
+
+  /// No description provided for @rpCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get rpCustomer;
+
+  /// No description provided for @rpCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get rpCustomers;
+
+  /// No description provided for @rpReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get rpReceived;
+
+  /// No description provided for @rpBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Due now'**
+  String get rpBalance;
+
+  /// No description provided for @rpWalkIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Walk-in customers'**
+  String get rpWalkIn;
+
+  /// No description provided for @rpTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get rpTime;
+
+  /// No description provided for @rpEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry'**
+  String get rpEntry;
+
+  /// No description provided for @rpRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Ref.'**
+  String get rpRef;
+
+  /// No description provided for @rpParty.
+  ///
+  /// In en, this message translates to:
+  /// **'Party / note'**
+  String get rpParty;
+
+  /// No description provided for @rpIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Money in'**
+  String get rpIn;
+
+  /// No description provided for @rpOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Money out'**
+  String get rpOut;
+
+  /// No description provided for @rpNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get rpNet;
+
+  /// No description provided for @rpCashNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash (net)'**
+  String get rpCashNet;
+
+  /// No description provided for @rpUpiNet.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI (net)'**
+  String get rpUpiNet;
+
+  /// No description provided for @rpCardNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Card (net)'**
+  String get rpCardNet;
+
+  /// No description provided for @rpEntrySale.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale'**
+  String get rpEntrySale;
+
+  /// No description provided for @rpEntryCreditSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale on credit'**
+  String get rpEntryCreditSale;
+
+  /// No description provided for @rpEntryReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received'**
+  String get rpEntryReceipt;
+
+  /// No description provided for @rpEntryReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Return'**
+  String get rpEntryReturn;
+
+  /// No description provided for @rpEntryPurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase'**
+  String get rpEntryPurchase;
+
+  /// No description provided for @rpEntrySupplierPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid supplier'**
+  String get rpEntrySupplierPayment;
+
+  /// No description provided for @rpEntryExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get rpEntryExpense;
+
+  /// No description provided for @rpSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get rpSummary;
+
+  /// No description provided for @rpValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get rpValue;
+
+  /// No description provided for @rpAmountsIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Amounts in rupees'**
+  String get rpAmountsIn;
+
+  /// No description provided for @rpGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated'**
+  String get rpGenerated;
+
+  /// No description provided for @rpExportPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as PDF'**
+  String get rpExportPdf;
+
+  /// No description provided for @rpExportExcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as Excel'**
+  String get rpExportExcel;
+
+  /// No description provided for @rpEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this period'**
+  String get rpEmpty;
+
+  /// No description provided for @rpLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the report. Please try again.'**
+  String get rpLoadFailed;
+
+  /// No description provided for @rpMoreRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing {shown} of {total} rows. Export to see all.'**
+  String rpMoreRows(int shown, int total);
+
+  /// No description provided for @rpShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'{report} · {period} · {shop}'**
+  String rpShareText(String report, String period, String shop);
+
+  /// No description provided for @homeTopItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Top items · last 7 days'**
+  String get homeTopItems;
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,8 @@
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/credit_note.dart';
+import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/expenses/domain/expense.dart';
+import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/purchases/domain/purchase.dart';
 import 'package:shop_app/features/reports/domain/gst_report.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile_repository.dart';
@@ -13,6 +15,8 @@ class ReportLoader {
     required this.returns,
     required this.purchases,
     required this.expenses,
+    this.items,
+    this.parties,
   });
 
   final ShopProfileRepository shopProfiles;
@@ -20,6 +24,10 @@ class ReportLoader {
   final ReturnsRepository returns;
   final PurchaseRepository purchases;
   final ExpenseRepository expenses;
+
+  /// Optional: the GST export doesn't need them; business reports do.
+  final ItemRepository? items;
+  final PartyRepository? parties;
 
   Future<ReportInput> load(DateTime from, DateTime to) async {
     final shop = (await shopProfiles.load())!;
@@ -43,6 +51,14 @@ class ReportLoader {
       purchases: (await purchases.watchBetween(from, to).first).reversed
           .toList(),
       expenses: await expenses.watchBetween(from, to).first,
+      items: await items?.watchAll().first ?? const [],
+      parties: parties == null
+          ? const []
+          : [
+              for (final t in PartyType.values)
+                ...await parties!.watchAll(filter: PartyFilter(type: t)).first,
+            ],
+      entries: await parties?.allEntriesBetween(from, to) ?? const [],
     );
   }
 }

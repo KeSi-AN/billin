@@ -214,6 +214,16 @@ class FakeBills implements BillRepository {
     if (draft.paymentMode == PaymentMode.credit && draft.partyId == null) {
       throw ArgumentError('A credit sale needs a customer');
     }
+    // Like the real repository: cost of each line from the item's cost price.
+    final costs = <Money?>[
+      for (final l in draft.lines)
+        switch (l.itemId == null ? null : await items?.byId(l.itemId!)) {
+          Item(:final costPrice?) => Money.paise(
+            divRound(costPrice.paise * l.baseQuantity.milli, 1000),
+          ),
+          _ => null,
+        },
+    ];
     final now = clock();
     final paidNow = draft.paidNow > totals.grandTotal
         ? totals.grandTotal
@@ -259,6 +269,7 @@ class FakeBills implements BillRepository {
             tax: totals.lines[i].tax,
             total: totals.lines[i].total,
             unitFactor: draft.lines[i].unitFactor,
+            cost: costs[i],
           ),
       ],
     );
@@ -521,6 +532,7 @@ class FakeStockAlerts implements StockAlerts {
 class FakeParties implements PartyRepository {
   final _parties = <Party>[];
   final entries = <PartyEntry>[];
+  DateTime Function() clock = () => DateTime(2026, 11, 12, 10);
   final _changes = StreamController<void>.broadcast();
 
   List<Party> get all => List.unmodifiable(_parties);
@@ -551,7 +563,7 @@ class FakeParties implements PartyRepository {
         type: type,
         amount: amount,
         balanceAfter: balance,
-        at: DateTime(2026, 11, 12, 10),
+        at: clock(),
         billId: billId,
         invoiceNo: invoiceNo,
         paymentMode: mode,
@@ -643,6 +655,15 @@ class FakeParties implements PartyRepository {
     DateTime to,
   ) async =>
       entries.where((e) => e.partyId == partyId).toList().reversed.toList();
+
+  @override
+  Future<List<PartyEntry>> allEntriesBetween(
+    DateTime from,
+    DateTime to,
+  ) async => [
+    for (final e in entries.reversed)
+      if (!e.at.isBefore(from) && e.at.isBefore(to)) e,
+  ];
 
   @override
   Future<void> receivePayment(
@@ -822,6 +843,7 @@ class FakeReturns implements ReturnsRepository {
           taxable: part(l.taxable, r.quantity, l.quantity),
           tax: part(l.tax, r.quantity, l.quantity),
           total: part(l.total, r.quantity, l.quantity),
+          cost: l.cost == null ? null : part(l.cost!, r.quantity, l.quantity),
         ),
       );
     }
