@@ -1,9 +1,9 @@
 # Shop App (working name)
 
 Offline-first billing and inventory for small Indian shops. It runs entirely on an Android phone, with an optional Bluetooth barcode scanner and thermal printer.
-The phased plan is in [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md). **This is build 0.4 (Phase 4: purchases, expenses, profit & full GST).**
+The phased plan is in [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md). **This is build 0.5 (Phase 5: reports, dashboard, backup & restore).**
 
-## What build 0.4 does
+## What build 0.5 does
 
 - **Shop setup** on first launch: name, logo, mobile, address, state, and GSTIN with checksum validation (a valid GSTIN fills in the state).
 - **Items**: add, edit, delete and search, with barcode (typed, Bluetooth scanner or camera), price, MRP, unit, GST rate, tax-inclusive/exclusive pricing and HSN.
@@ -41,6 +41,11 @@ The phased plan is in [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md). **This is buil
   - **Full GST**: HSN on lines, IGST instead of CGST+SGST when the customer's state (from their GSTIN) differs from the shop's, B2B invoices with the buyer's GSTIN and place of supply.
   - **Returns**: return some or all of a bill's items to issue a credit note (`CN/26-27/0001`). Stock goes back, and the refund is cash/UPI/card or comes off the customer's dues.
   - **Reports**: a month summary (sales, returns, purchases, expenses, profit, GST payable or credit carried forward) with warnings such as missing HSN. **Export GST report** creates an Excel workbook for the CA, shared via the share sheet. Sheets: Summary, B2B, B2CL, B2CS, CDNR, HSN (B2B/B2C), Docs and Purchases (for ITC).
+
+- **Reports, dashboard, backup** (build 0.5):
+  - **Home dashboard**: today's sales split into cash, UPI, card and credit (money paid at the counter on a credit bill counts as cash), dues and low stock on the tiles, and the top 5 items of the last 7 days.
+  - **Reports** with a period filter (today, yesterday, this week, this or last month, financial year, or custom dates): sales (by day and by payment mode), purchases (by bill and by supplier), profit & loss, stock value (at cost and at sale price), item-wise, customer-wise, and a **day book** of every sale, receipt, return, purchase, supplier payment and expense with money in and out. Every report can be shared as **PDF** or **Excel**.
+  - **Backup & restore** (Settings): one file holds everything, including photos. Share it to Google Drive or WhatsApp. Restoring on a new or reset phone replaces all data after a confirmation, upgrades older backups and relinks photos. Home reminds you when there are bills and no backup in the last 7 days.
 
 **Not yet verified on real hardware:** Bluetooth printing of receipts and labels (no printer tested yet). Shop logos aren't printed on thermal receipts yet; they do appear on the PDF.
 

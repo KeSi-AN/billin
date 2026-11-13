@@ -3,7 +3,7 @@ description: "Offline-first billing and inventory for small shops"
 publish_to: 'none'
 
 # Build 0.3 = Phase 3 (customers & dues). See docs/BUILD_PLAN.md.
-version: 0.4.0+5
+version: 0.5.0+6
 
 environment:
   sdk: ^3.14.0
