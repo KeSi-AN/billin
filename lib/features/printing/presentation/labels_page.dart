@@ -7,6 +7,7 @@ import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/printing/data/printer_service.dart';
 import 'package:shop_app/features/printing/domain/ean.dart';
 import 'package:shop_app/features/printing/domain/label_formatter.dart';
+import 'package:shop_app/features/printing/presentation/print_error_text.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile_repository.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
@@ -80,11 +81,7 @@ class _LabelsPageState extends State<LabelsPage> {
           ..showSnackBar(
             SnackBar(
               persist: false,
-              content: Text(
-                e.error == PrintError.notConfigured
-                    ? l10n.printErrNotConfigured
-                    : l10n.printErrFailed,
-              ),
+              content: Text(printErrorText(l10n, e)),
               action: SnackBarAction(
                 label: l10n.setUpPrinter,
                 onPressed: () => router.push(AppRoutes.printerSettings),

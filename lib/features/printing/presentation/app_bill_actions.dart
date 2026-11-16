@@ -10,6 +10,7 @@ import 'package:shop_app/features/billing/presentation/bill_actions.dart';
 import 'package:shop_app/features/printing/data/printer_service.dart';
 import 'package:shop_app/features/printing/domain/invoice_pdf.dart';
 import 'package:shop_app/features/printing/domain/receipt_formatter.dart';
+import 'package:shop_app/features/printing/presentation/print_error_text.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile_repository.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
@@ -64,13 +65,7 @@ class AppBillActions implements BillActions {
       say(l10n.printed);
     } on PrintException catch (e) {
       say(
-        switch (e.error) {
-          PrintError.notConfigured => l10n.printErrNotConfigured,
-          PrintError.permissionDenied => l10n.printErrPermission,
-          PrintError.bluetoothOff => l10n.printErrBluetoothOff,
-          PrintError.unsupported => l10n.printErrUnsupported,
-          PrintError.failed => l10n.printErrFailed,
-        },
+        printErrorText(l10n, e),
         action: e.error == PrintError.unsupported
             ? null
             : SnackBarAction(

@@ -11,6 +11,7 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.util.Log
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -85,7 +86,14 @@ class BluetoothPrinterChannel(
         val bt = adapter ?: throw IOException("Bluetooth not available")
         if (!bt.isEnabled) throw IOException("Bluetooth is off")
         val device = bt.getRemoteDevice(address)
-        bt.cancelDiscovery()
+        // An ongoing scan slows RFCOMM down, but stopping it needs the SCAN
+        // permission on Android 12+, which this app doesn't ask for. Never let
+        // that block printing.
+        try {
+            bt.cancelDiscovery()
+        } catch (e: SecurityException) {
+            Log.i(TAG, "cancelDiscovery not allowed: ${e.message}")
+        }
         socket = openSocket(device)
         connectedAddress = address
         return null
@@ -93,27 +101,32 @@ class BluetoothPrinterChannel(
 
     /** Standard SPP first, then the fallbacks some cheap printers need. */
     private fun openSocket(device: BluetoothDevice): BluetoothSocket {
-        val attempts = listOf<() -> BluetoothSocket>(
-            { device.createRfcommSocketToServiceRecord(SPP_UUID) },
-            { device.createInsecureRfcommSocketToServiceRecord(SPP_UUID) },
-            {
+        val attempts = listOf<Pair<String, () -> BluetoothSocket>>(
+            "secure SPP" to { device.createRfcommSocketToServiceRecord(SPP_UUID) },
+            "insecure SPP" to { device.createInsecureRfcommSocketToServiceRecord(SPP_UUID) },
+            "channel 1" to {
                 device.javaClass
                     .getMethod("createRfcommSocket", Int::class.javaPrimitiveType)
                     .invoke(device, 1) as BluetoothSocket
             },
         )
-        var last: Exception? = null
-        for (attempt in attempts) {
-            val s = try { attempt() } catch (e: Exception) { last = e; continue }
+        val failures = mutableListOf<String>()
+        for ((name, attempt) in attempts) {
+            var s: BluetoothSocket? = null
             try {
+                s = attempt()
                 s.connect()
+                Log.i(TAG, "Connected to ${device.address} via $name")
                 return s
-            } catch (e: IOException) {
-                last = e
-                try { s.close() } catch (_: IOException) {}
+            } catch (e: Exception) {
+                // SecurityException, IOException, reflection errors: try the next.
+                val cause = (e.cause ?: e).let { "${it.javaClass.simpleName}: ${it.message}" }
+                Log.w(TAG, "Connect via $name failed: $cause")
+                failures += "$name: $cause"
+                try { s?.close() } catch (_: IOException) {}
             }
         }
-        throw IOException("Couldn't connect to printer: ${last?.message}", last)
+        throw IOException(failures.joinToString("; "))
     }
 
     private fun write(bytes: ByteArray): Any? {
@@ -144,6 +157,7 @@ class BluetoothPrinterChannel(
                 val value = work()
                 main.post { result.success(value) }
             } catch (e: Exception) {
+                Log.w(TAG, "Printer call failed", e)
                 main.post { result.error("PRINTER", e.message ?: e.toString(), null) }
             }
         }
@@ -158,5 +172,6 @@ class BluetoothPrinterChannel(
     companion object {
         private val SPP_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         private const val CHUNK = 512
+        private const val TAG = "ShopPrinter"
     }
 }

@@ -1348,5 +1348,13 @@
         "type": "int"
       }
     }
+  },
+  "printErrFailedDetail": "Couldn't reach the printer. Check it's on, nearby, and not connected to another phone or app. ({detail})",
+  "@printErrFailedDetail": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -3519,6 +3519,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{days, plural, other{Last backup was {days} days ago. Tap to back up.}}'**
   String backupReminderOld(int days);
+
+  /// No description provided for @printErrFailedDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach the printer. Check it\'s on, nearby, and not connected to another phone or app. ({detail})'**
+  String printErrFailedDetail(String detail);
 }
 
 class _AppLocalizationsDelegate

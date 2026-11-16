@@ -2024,4 +2024,9 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String printErrFailedDetail(String detail) {
+    return 'Couldn\'t reach the printer. Check it\'s on, nearby, and not connected to another phone or app. ($detail)';
+  }
 }

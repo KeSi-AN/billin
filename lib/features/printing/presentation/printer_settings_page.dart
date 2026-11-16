@@ -6,6 +6,7 @@ import 'package:shop_app/core/widgets/form_fields.dart';
 import 'package:shop_app/features/printing/data/printer_service.dart';
 import 'package:shop_app/features/printing/data/printer_transport.dart';
 import 'package:shop_app/features/printing/domain/receipt_formatter.dart';
+import 'package:shop_app/features/printing/presentation/print_error_text.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
@@ -85,12 +86,7 @@ class _PrinterSettingsPageState extends State<PrinterSettingsPage> {
       if (mounted) showSnack(context, l10n.printed);
     } on PrintException catch (e) {
       if (mounted) {
-        showSnack(
-          context,
-          e.error == PrintError.bluetoothOff
-              ? l10n.printErrBluetoothOff
-              : l10n.printErrFailed,
-        );
+        showSnack(context, printErrorText(l10n, e));
       }
     } finally {
       if (mounted) setState(() => _testing = false);
