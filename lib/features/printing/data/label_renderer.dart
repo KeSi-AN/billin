@@ -35,7 +35,8 @@ class LabelRenderer {
         Paint()..color = const Color(0xFFFFFFFF),
       );
     final margin = (w * 0.03).clamp(6, 16).toDouble();
-    final inner = w - margin * 2;
+    final left = margin + setup.leftMm * LabelSetup.dotsPerMm;
+    final inner = w - margin - left;
     var y = margin * 0.6;
 
     TextPainter text(
@@ -63,7 +64,7 @@ class LabelRenderer {
     )..layout(maxWidth: inner);
 
     void draw(TextPainter p) {
-      p.paint(canvas, Offset(margin + (inner - p.width) / 2, y));
+      p.paint(canvas, Offset(left + (inner - p.width) / 2, y));
       y += p.height;
     }
 
@@ -96,11 +97,11 @@ class LabelRenderer {
         );
         final gap = inner * 0.06;
         final total = price.width + gap + m.width;
-        final left = margin + (inner - total) / 2;
-        price.paint(canvas, Offset(left, y));
+        final start = left + (inner - total) / 2;
+        price.paint(canvas, Offset(start, y));
         m.paint(
           canvas,
-          Offset(left + price.width + gap, y + (price.height - m.height) / 2),
+          Offset(start + price.width + gap, y + (price.height - m.height) / 2),
         );
         y += price.height;
       } else {
@@ -110,11 +111,11 @@ class LabelRenderer {
 
     if (hasBarcode) {
       final top = (h - bottom).toDouble();
-      _bars(canvas, barcode, margin, inner, top, barsHeight);
+      _bars(canvas, barcode, left, inner, top, barsHeight);
       final digits = text(barcode, digitsSize);
       digits.paint(
         canvas,
-        Offset(margin + (inner - digits.width) / 2, top + barsHeight),
+        Offset(left + (inner - digits.width) / 2, top + barsHeight),
       );
     }
 

@@ -23,6 +23,7 @@ class LabelSetup {
     this.widthMm = 50,
     this.heightMm = 25,
     this.gapMm = 2,
+    this.leftMm = 2,
     this.showShop = true,
     this.showPrice = true,
     this.showMrp = true,
@@ -44,6 +45,7 @@ class LabelSetup {
         widthMm: n('widthMm', d.widthMm).clamp(15, 110),
         heightMm: n('heightMm', d.heightMm).clamp(10, 150),
         gapMm: n('gapMm', d.gapMm).clamp(0, 10),
+        leftMm: n('leftMm', d.leftMm).clamp(0, 10),
         showShop: b('showShop', d.showShop),
         showPrice: b('showPrice', d.showPrice),
         showMrp: b('showMrp', d.showMrp),
@@ -62,6 +64,10 @@ class LabelSetup {
 
   /// Space between labels on the roll.
   final double gapMm;
+
+  /// Blank space added on the left: many printers start printing a little
+  /// before the label's left edge.
+  final double leftMm;
   final bool showShop;
   final bool showPrice;
 
@@ -81,6 +87,7 @@ class LabelSetup {
     'widthMm': widthMm,
     'heightMm': heightMm,
     'gapMm': gapMm,
+    'leftMm': leftMm,
     'showShop': showShop,
     'showPrice': showPrice,
     'showMrp': showMrp,
@@ -93,6 +100,7 @@ class LabelSetup {
     double? widthMm,
     double? heightMm,
     double? gapMm,
+    double? leftMm,
     bool? showShop,
     bool? showPrice,
     bool? showMrp,
@@ -103,6 +111,7 @@ class LabelSetup {
     widthMm: widthMm ?? this.widthMm,
     heightMm: heightMm ?? this.heightMm,
     gapMm: gapMm ?? this.gapMm,
+    leftMm: leftMm ?? this.leftMm,
     showShop: showShop ?? this.showShop,
     showPrice: showPrice ?? this.showPrice,
     showMrp: showMrp ?? this.showMrp,

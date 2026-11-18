@@ -32,19 +32,25 @@ Uint8List labelCheckBytes(LabelSetup setup) {
     cmd('PRINT 1,1');
     return out.toBytes();
   }
-  const widthBytes = 24; // 192 dots
+  // Shift right by the left margin: padding inside the picture, and the
+  // printer's own left margin (GS L) for the text lines.
+  final pad = (setup.leftMm * LabelSetup.dotsPerMm / 8).round();
+  final dots = pad * 8;
+  final widthBytes = pad + 24; // bar 192 dots wide
   const height = 24;
+  final bar = Uint8List(widthBytes * height);
+  for (var y = 0; y < height; y++) {
+    bar.fillRange(y * widthBytes + pad, (y + 1) * widthBytes, 0xFF);
+  }
   return (EscPosBuilder()
         ..init()
+        ..rawBytes([0x1D, 0x4C, dots & 0xFF, dots >> 8])
         ..line('ESC/POS check')
-        ..raster(
-          Uint8List(widthBytes * height)
-            ..fillRange(0, widthBytes * height, 0xFF),
-          widthBytes: widthBytes,
-          height: height,
-        )
+        ..rawBytes([0x1D, 0x4C, 0, 0])
+        ..raster(bar, widthBytes: widthBytes, height: height)
+        ..rawBytes([0x1D, 0x4C, dots & 0xFF, dots >> 8])
         ..line('Picture above = OK')
-        ..rawBytes([0x1D, 0x0C]))
+        ..rawBytes([0x1D, 0x4C, 0, 0, 0x1D, 0x0C]))
       .build();
 }
 

@@ -44,6 +44,7 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
   final _width = TextEditingController();
   final _height = TextEditingController();
   final _gap = TextEditingController();
+  final _left = TextEditingController();
 
   @override
   void initState() {
@@ -66,6 +67,7 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
     _width.text = _num(l.widthMm);
     _height.text = _num(l.heightMm);
     _gap.text = _num(l.gapMm);
+    _left.text = _num(l.leftMm);
     setState(() {
       _settings = s;
       _devices = devices;
@@ -79,6 +81,7 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
     _width.dispose();
     _height.dispose();
     _gap.dispose();
+    _left.dispose();
     super.dispose();
   }
 
@@ -105,9 +108,11 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
     final w = v(_width);
     final h = v(_height);
     final g = v(_gap);
-    if (w == null || h == null || g == null) return;
+    final left = v(_left);
+    if (w == null || h == null || g == null || left == null) return;
     if (w < 15 || w > 110 || h < 10 || h > 150 || g < 0 || g > 10) return;
-    _set(_setup.copyWith(widthMm: w, heightMm: h, gapMm: g));
+    if (left < 0 || left > 10) return;
+    _set(_setup.copyWith(widthMm: w, heightMm: h, gapMm: g, leftMm: left));
   }
 
   Future<void> _check() async {
@@ -239,6 +244,7 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
                   widthMm: l.widthMm,
                   heightMm: l.heightMm,
                   gapMm: l.gapMm,
+                  leftMm: l.leftMm,
                   showShop: l.showShop,
                   showPrice: l.showPrice,
                   showMrp: l.showMrp,
@@ -293,6 +299,19 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
                 mm('lpHeight', _height, l10n.lpHeight),
                 const SizedBox(width: 12),
                 mm('lpGap', _gap, l10n.lpGap),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Row(
+              children: [
+                mm('lpLeft', _left, l10n.lpLeft),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: Text(l10n.lpLeftHelp, style: text.bodySmall),
+                ),
               ],
             ),
           ),

@@ -2183,4 +2183,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get lpCheckSent =>
       'Sent. A text line with a black bar under it means this language works.';
+
+  @override
+  String get lpLeft => 'Left margin';
+
+  @override
+  String get lpLeftHelp => 'Raise it if the left edge of the label is cut off.';
 }

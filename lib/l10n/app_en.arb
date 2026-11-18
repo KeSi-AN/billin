@@ -1406,5 +1406,7 @@
   "keyboardHint": "The barcode scanner is hiding the typing keyboard. Turn on \"Use on-screen keyboard\".",
   "keyboardHintFix": "Turn on",
   "lpCheck": "Quick check (1 label)",
-  "lpCheckSent": "Sent. A text line with a black bar under it means this language works."
+  "lpCheckSent": "Sent. A text line with a black bar under it means this language works.",
+  "lpLeft": "Left margin",
+  "lpLeftHelp": "Raise it if the left edge of the label is cut off."
 }

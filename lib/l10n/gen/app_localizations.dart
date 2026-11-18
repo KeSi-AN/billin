@@ -3825,6 +3825,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sent. A text line with a black bar under it means this language works.'**
   String get lpCheckSent;
+
+  /// No description provided for @lpLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left margin'**
+  String get lpLeft;
+
+  /// No description provided for @lpLeftHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Raise it if the left edge of the label is cut off.'**
+  String get lpLeftHelp;
 }
 
 class _AppLocalizationsDelegate
