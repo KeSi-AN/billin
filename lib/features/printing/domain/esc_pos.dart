@@ -92,6 +92,32 @@ class EscPosBuilder {
         ._cmd([0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x30]); // print
   }
 
+  /// A 1-bit image with the raster command (GS v 0), sent in bands so
+  /// printers with small buffers keep up. [bits] holds [height] rows of
+  /// [widthBytes] bytes, most significant bit first, 1 = black.
+  EscPosBuilder raster(
+    Uint8List bits, {
+    required int widthBytes,
+    required int height,
+  }) {
+    const band = 96;
+    for (var y = 0; y < height; y += band) {
+      final h = height - y < band ? height - y : band;
+      _cmd([
+        0x1D,
+        0x76,
+        0x30,
+        0x00,
+        widthBytes & 0xFF,
+        widthBytes >> 8,
+        h & 0xFF,
+        h >> 8,
+      ]);
+      _bytes.add(bits.sublist(y * widthBytes, (y + h) * widthBytes));
+    }
+    return this;
+  }
+
   /// Feed paper and cut (printers without a cutter ignore it).
   EscPosBuilder cut() => _cmd([0x1D, 0x56, 0x42, 0x00]);
 

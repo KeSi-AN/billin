@@ -306,6 +306,9 @@ class _ShopSetupViewState extends State<_ShopSetupView> {
                 key: ValueKey('state-$_stateCode'),
                 initialValue: _stateCode,
                 isExpanded: true,
+                // Otherwise the keyboard pops back up for the last field
+                // when the list closes and covers the Save button.
+                onTap: () => FocusScope.of(context).unfocus(),
                 decoration: InputDecoration(
                   labelText: l10n.fieldState,
                   helperText: _stateFromGstin ? l10n.gstinStateSet : null,

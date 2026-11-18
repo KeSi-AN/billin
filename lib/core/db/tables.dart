@@ -289,6 +289,9 @@ class AppSettings extends Table {
   TextColumn get printerName => text().nullable()();
   IntColumn get paperWidthMm => integer().withDefault(const Constant(58))();
 
+  /// The printed bill's layout (`ReceiptTemplate` as JSON). Build 0.5.1.
+  TextColumn get receiptTemplate => text().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 

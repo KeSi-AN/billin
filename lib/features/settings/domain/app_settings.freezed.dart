@@ -16,7 +16,8 @@ T _$identity<T>(T value) => value;
 mixin _$AppSettingsData {
 
  String get invoicePrefix; bool get roundToRupee;/// Shop's UPI ID (e.g. `shop@okaxis`). Enables a pay-by-UPI QR on bills.
- String? get upiId; String? get receiptFooter; String? get printerAddress; String? get printerName; PaperWidth get paperWidth;
+ String? get upiId; String? get receiptFooter; String? get printerAddress; String? get printerName; PaperWidth get paperWidth;/// Layout of the printed bill.
+ ReceiptTemplate get receiptTemplate;
 /// Create a copy of AppSettingsData
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,20 +29,20 @@ $AppSettingsDataCopyWith<AppSettingsData> get copyWith => _$AppSettingsDataCopyW
 @override
 bool operator ==(Object other) {
   final _this = this as AppSettingsData;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettingsData&&(identical(other.invoicePrefix, _this.invoicePrefix) || other.invoicePrefix == _this.invoicePrefix)&&(identical(other.roundToRupee, _this.roundToRupee) || other.roundToRupee == _this.roundToRupee)&&(identical(other.upiId, _this.upiId) || other.upiId == _this.upiId)&&(identical(other.receiptFooter, _this.receiptFooter) || other.receiptFooter == _this.receiptFooter)&&(identical(other.printerAddress, _this.printerAddress) || other.printerAddress == _this.printerAddress)&&(identical(other.printerName, _this.printerName) || other.printerName == _this.printerName)&&(identical(other.paperWidth, _this.paperWidth) || other.paperWidth == _this.paperWidth));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettingsData&&(identical(other.invoicePrefix, _this.invoicePrefix) || other.invoicePrefix == _this.invoicePrefix)&&(identical(other.roundToRupee, _this.roundToRupee) || other.roundToRupee == _this.roundToRupee)&&(identical(other.upiId, _this.upiId) || other.upiId == _this.upiId)&&(identical(other.receiptFooter, _this.receiptFooter) || other.receiptFooter == _this.receiptFooter)&&(identical(other.printerAddress, _this.printerAddress) || other.printerAddress == _this.printerAddress)&&(identical(other.printerName, _this.printerName) || other.printerName == _this.printerName)&&(identical(other.paperWidth, _this.paperWidth) || other.paperWidth == _this.paperWidth)&&(identical(other.receiptTemplate, _this.receiptTemplate) || other.receiptTemplate == _this.receiptTemplate));
 }
 
 
 @override
 int get hashCode {
   final _this = this as AppSettingsData;
-  return Object.hash(runtimeType,_this.invoicePrefix,_this.roundToRupee,_this.upiId,_this.receiptFooter,_this.printerAddress,_this.printerName,_this.paperWidth);
+  return Object.hash(runtimeType,_this.invoicePrefix,_this.roundToRupee,_this.upiId,_this.receiptFooter,_this.printerAddress,_this.printerName,_this.paperWidth,_this.receiptTemplate);
 }
 
 @override
 String toString() {
   final _this = this as AppSettingsData;
-  return 'AppSettingsData(invoicePrefix: ${_this.invoicePrefix}, roundToRupee: ${_this.roundToRupee}, upiId: ${_this.upiId}, receiptFooter: ${_this.receiptFooter}, printerAddress: ${_this.printerAddress}, printerName: ${_this.printerName}, paperWidth: ${_this.paperWidth})';
+  return 'AppSettingsData(invoicePrefix: ${_this.invoicePrefix}, roundToRupee: ${_this.roundToRupee}, upiId: ${_this.upiId}, receiptFooter: ${_this.receiptFooter}, printerAddress: ${_this.printerAddress}, printerName: ${_this.printerName}, paperWidth: ${_this.paperWidth}, receiptTemplate: ${_this.receiptTemplate})';
 }
 
 
@@ -52,7 +53,7 @@ abstract mixin class $AppSettingsDataCopyWith<$Res>  {
   factory $AppSettingsDataCopyWith(AppSettingsData value, $Res Function(AppSettingsData) _then) = _$AppSettingsDataCopyWithImpl;
 @useResult
 $Res call({
- String invoicePrefix, bool roundToRupee, String? upiId, String? receiptFooter, String? printerAddress, String? printerName, PaperWidth paperWidth
+ String invoicePrefix, bool roundToRupee, String? upiId, String? receiptFooter, String? printerAddress, String? printerName, PaperWidth paperWidth, ReceiptTemplate receiptTemplate
 });
 
 
@@ -69,7 +70,7 @@ class _$AppSettingsDataCopyWithImpl<$Res>
 
 /// Create a copy of AppSettingsData
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? invoicePrefix = null,Object? roundToRupee = null,Object? upiId = freezed,Object? receiptFooter = freezed,Object? printerAddress = freezed,Object? printerName = freezed,Object? paperWidth = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? invoicePrefix = null,Object? roundToRupee = null,Object? upiId = freezed,Object? receiptFooter = freezed,Object? printerAddress = freezed,Object? printerName = freezed,Object? paperWidth = null,Object? receiptTemplate = null,}) {
   return _then(AppSettingsData(
 invoicePrefix: null == invoicePrefix ? _self.invoicePrefix : invoicePrefix // ignore: cast_nullable_to_non_nullable
 as String,roundToRupee: null == roundToRupee ? _self.roundToRupee : roundToRupee // ignore: cast_nullable_to_non_nullable
@@ -78,7 +79,8 @@ as String?,receiptFooter: freezed == receiptFooter ? _self.receiptFooter : recei
 as String?,printerAddress: freezed == printerAddress ? _self.printerAddress : printerAddress // ignore: cast_nullable_to_non_nullable
 as String?,printerName: freezed == printerName ? _self.printerName : printerName // ignore: cast_nullable_to_non_nullable
 as String?,paperWidth: null == paperWidth ? _self.paperWidth : paperWidth // ignore: cast_nullable_to_non_nullable
-as PaperWidth,
+as PaperWidth,receiptTemplate: null == receiptTemplate ? _self.receiptTemplate : receiptTemplate // ignore: cast_nullable_to_non_nullable
+as ReceiptTemplate,
   ));
 }
 
@@ -163,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String invoicePrefix,  bool roundToRupee,  String? upiId,  String? receiptFooter,  String? printerAddress,  String? printerName,  PaperWidth paperWidth)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String invoicePrefix,  bool roundToRupee,  String? upiId,  String? receiptFooter,  String? printerAddress,  String? printerName,  PaperWidth paperWidth,  ReceiptTemplate receiptTemplate)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppSettingsData() when $default != null:
-return $default(_that.invoicePrefix,_that.roundToRupee,_that.upiId,_that.receiptFooter,_that.printerAddress,_that.printerName,_that.paperWidth);case _:
+return $default(_that.invoicePrefix,_that.roundToRupee,_that.upiId,_that.receiptFooter,_that.printerAddress,_that.printerName,_that.paperWidth,_that.receiptTemplate);case _:
   return orElse();
 
 }
@@ -184,10 +186,10 @@ return $default(_that.invoicePrefix,_that.roundToRupee,_that.upiId,_that.receipt
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String invoicePrefix,  bool roundToRupee,  String? upiId,  String? receiptFooter,  String? printerAddress,  String? printerName,  PaperWidth paperWidth)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String invoicePrefix,  bool roundToRupee,  String? upiId,  String? receiptFooter,  String? printerAddress,  String? printerName,  PaperWidth paperWidth,  ReceiptTemplate receiptTemplate)  $default,) {final _that = this;
 switch (_that) {
 case _AppSettingsData():
-return $default(_that.invoicePrefix,_that.roundToRupee,_that.upiId,_that.receiptFooter,_that.printerAddress,_that.printerName,_that.paperWidth);case _:
+return $default(_that.invoicePrefix,_that.roundToRupee,_that.upiId,_that.receiptFooter,_that.printerAddress,_that.printerName,_that.paperWidth,_that.receiptTemplate);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -204,10 +206,10 @@ return $default(_that.invoicePrefix,_that.roundToRupee,_that.upiId,_that.receipt
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String invoicePrefix,  bool roundToRupee,  String? upiId,  String? receiptFooter,  String? printerAddress,  String? printerName,  PaperWidth paperWidth)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String invoicePrefix,  bool roundToRupee,  String? upiId,  String? receiptFooter,  String? printerAddress,  String? printerName,  PaperWidth paperWidth,  ReceiptTemplate receiptTemplate)?  $default,) {final _that = this;
 switch (_that) {
 case _AppSettingsData() when $default != null:
-return $default(_that.invoicePrefix,_that.roundToRupee,_that.upiId,_that.receiptFooter,_that.printerAddress,_that.printerName,_that.paperWidth);case _:
+return $default(_that.invoicePrefix,_that.roundToRupee,_that.upiId,_that.receiptFooter,_that.printerAddress,_that.printerName,_that.paperWidth,_that.receiptTemplate);case _:
   return null;
 
 }
@@ -219,7 +221,7 @@ return $default(_that.invoicePrefix,_that.roundToRupee,_that.upiId,_that.receipt
 
 
 class _AppSettingsData implements AppSettingsData {
-  const _AppSettingsData({this.invoicePrefix = InvoiceNumber.defaultPrefix, this.roundToRupee = true, this.upiId, this.receiptFooter, this.printerAddress, this.printerName, this.paperWidth = PaperWidth.mm58});
+  const _AppSettingsData({this.invoicePrefix = InvoiceNumber.defaultPrefix, this.roundToRupee = true, this.upiId, this.receiptFooter, this.printerAddress, this.printerName, this.paperWidth = PaperWidth.mm58, this.receiptTemplate = const ReceiptTemplate()});
   
 
 @override@JsonKey() final  String invoicePrefix;
@@ -230,6 +232,8 @@ class _AppSettingsData implements AppSettingsData {
 @override final  String? printerAddress;
 @override final  String? printerName;
 @override@JsonKey() final  PaperWidth paperWidth;
+/// Layout of the printed bill.
+@override@JsonKey() final  ReceiptTemplate receiptTemplate;
 
 /// Create a copy of AppSettingsData
 /// with the given fields replaced by the non-null parameter values.
@@ -241,18 +245,18 @@ _$AppSettingsDataCopyWith<_AppSettingsData> get copyWith => __$AppSettingsDataCo
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettingsData&&(identical(other.invoicePrefix, invoicePrefix) || other.invoicePrefix == invoicePrefix)&&(identical(other.roundToRupee, roundToRupee) || other.roundToRupee == roundToRupee)&&(identical(other.upiId, upiId) || other.upiId == upiId)&&(identical(other.receiptFooter, receiptFooter) || other.receiptFooter == receiptFooter)&&(identical(other.printerAddress, printerAddress) || other.printerAddress == printerAddress)&&(identical(other.printerName, printerName) || other.printerName == printerName)&&(identical(other.paperWidth, paperWidth) || other.paperWidth == paperWidth));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettingsData&&(identical(other.invoicePrefix, invoicePrefix) || other.invoicePrefix == invoicePrefix)&&(identical(other.roundToRupee, roundToRupee) || other.roundToRupee == roundToRupee)&&(identical(other.upiId, upiId) || other.upiId == upiId)&&(identical(other.receiptFooter, receiptFooter) || other.receiptFooter == receiptFooter)&&(identical(other.printerAddress, printerAddress) || other.printerAddress == printerAddress)&&(identical(other.printerName, printerName) || other.printerName == printerName)&&(identical(other.paperWidth, paperWidth) || other.paperWidth == paperWidth)&&(identical(other.receiptTemplate, receiptTemplate) || other.receiptTemplate == receiptTemplate));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,invoicePrefix,roundToRupee,upiId,receiptFooter,printerAddress,printerName,paperWidth);
+    return Object.hash(runtimeType,invoicePrefix,roundToRupee,upiId,receiptFooter,printerAddress,printerName,paperWidth,receiptTemplate);
 }
 
 @override
 String toString() {
-    return 'AppSettingsData(invoicePrefix: $invoicePrefix, roundToRupee: $roundToRupee, upiId: $upiId, receiptFooter: $receiptFooter, printerAddress: $printerAddress, printerName: $printerName, paperWidth: $paperWidth)';
+    return 'AppSettingsData(invoicePrefix: $invoicePrefix, roundToRupee: $roundToRupee, upiId: $upiId, receiptFooter: $receiptFooter, printerAddress: $printerAddress, printerName: $printerName, paperWidth: $paperWidth, receiptTemplate: $receiptTemplate)';
 }
 
 
@@ -263,7 +267,7 @@ abstract mixin class _$AppSettingsDataCopyWith<$Res> implements $AppSettingsData
   factory _$AppSettingsDataCopyWith(_AppSettingsData value, $Res Function(_AppSettingsData) _then) = __$AppSettingsDataCopyWithImpl;
 @override @useResult
 $Res call({
- String invoicePrefix, bool roundToRupee, String? upiId, String? receiptFooter, String? printerAddress, String? printerName, PaperWidth paperWidth
+ String invoicePrefix, bool roundToRupee, String? upiId, String? receiptFooter, String? printerAddress, String? printerName, PaperWidth paperWidth, ReceiptTemplate receiptTemplate
 });
 
 
@@ -280,7 +284,7 @@ class __$AppSettingsDataCopyWithImpl<$Res>
 
 /// Create a copy of AppSettingsData
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? invoicePrefix = null,Object? roundToRupee = null,Object? upiId = freezed,Object? receiptFooter = freezed,Object? printerAddress = freezed,Object? printerName = freezed,Object? paperWidth = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? invoicePrefix = null,Object? roundToRupee = null,Object? upiId = freezed,Object? receiptFooter = freezed,Object? printerAddress = freezed,Object? printerName = freezed,Object? paperWidth = null,Object? receiptTemplate = null,}) {
   return _then(_AppSettingsData(
 invoicePrefix: null == invoicePrefix ? _self.invoicePrefix : invoicePrefix // ignore: cast_nullable_to_non_nullable
 as String,roundToRupee: null == roundToRupee ? _self.roundToRupee : roundToRupee // ignore: cast_nullable_to_non_nullable
@@ -289,7 +293,8 @@ as String?,receiptFooter: freezed == receiptFooter ? _self.receiptFooter : recei
 as String?,printerAddress: freezed == printerAddress ? _self.printerAddress : printerAddress // ignore: cast_nullable_to_non_nullable
 as String?,printerName: freezed == printerName ? _self.printerName : printerName // ignore: cast_nullable_to_non_nullable
 as String?,paperWidth: null == paperWidth ? _self.paperWidth : paperWidth // ignore: cast_nullable_to_non_nullable
-as PaperWidth,
+as PaperWidth,receiptTemplate: null == receiptTemplate ? _self.receiptTemplate : receiptTemplate // ignore: cast_nullable_to_non_nullable
+as ReceiptTemplate,
   ));
 }
 

@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shop_app/features/billing/domain/invoice_number.dart';
+import 'package:shop_app/features/printing/domain/receipt_template.dart';
 
 part 'app_settings.freezed.dart';
 
@@ -29,6 +30,9 @@ abstract class AppSettingsData with _$AppSettingsData {
     String? printerAddress,
     String? printerName,
     @Default(PaperWidth.mm58) PaperWidth paperWidth,
+
+    /// Layout of the printed bill.
+    @Default(ReceiptTemplate()) ReceiptTemplate receiptTemplate,
   }) = _AppSettingsData;
 }
 

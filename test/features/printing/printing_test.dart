@@ -96,13 +96,12 @@ void main() {
         final text = lines.map((l) => l.text).join('\n');
         expect(text, contains('TAX INVOICE'));
         expect(text, contains('GSTIN: 27AAPFU0939F1ZV'));
-        expect(text, contains('No: ${bill.invoiceNo}'));
-        expect(
-          text,
-          contains('Rs.${bill.grandTotal.format(withSymbol: false)}'),
-        );
-        expect(text, contains('GST summary'));
-        expect(text, contains('Paid by UPI'));
+        expect(text, contains('Bill No: ${bill.invoiceNo}'));
+        expect(text, contains('Payment: UPI'));
+        expect(text, contains('Taxable @5%:'));
+        expect(text, contains('Customer: Ravi'));
+        expect(text, contains('Basmati'));
+        expect(text, contains('Disc : -5'));
         expect(lines.where((l) => l.qrData != null), hasLength(1));
       });
     }

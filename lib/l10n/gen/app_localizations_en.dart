@@ -2029,4 +2029,104 @@ class AppLocalizationsEn extends AppLocalizations {
   String printErrFailedDetail(String detail) {
     return 'Couldn\'t reach the printer. Check it\'s on, nearby, and not connected to another phone or app. ($detail)';
   }
+
+  @override
+  String get tplTitle => 'Bill template';
+
+  @override
+  String get tplSubtitle => 'Logo, GSTIN, payment QR and what is printed';
+
+  @override
+  String get tplPreview => 'Preview';
+
+  @override
+  String get tplPrintSample => 'Print a sample';
+
+  @override
+  String get tplHeader => 'Top of the bill';
+
+  @override
+  String get tplLogo => 'Shop logo';
+
+  @override
+  String get tplLogoNone => 'No logo yet. Add one in the shop profile.';
+
+  @override
+  String get tplEditShop => 'Add logo in shop profile';
+
+  @override
+  String get tplLogoSize => 'Logo size';
+
+  @override
+  String get tplShopName => 'Shop name';
+
+  @override
+  String get tplPhone => 'Mobile number';
+
+  @override
+  String get tplAddress => 'Address';
+
+  @override
+  String get tplAddressLabel => 'Text before the address';
+
+  @override
+  String get tplGstin => 'GSTIN';
+
+  @override
+  String get tplGstinNone => 'No GSTIN yet. Add it in the shop profile.';
+
+  @override
+  String get tplHeaderNote => 'Extra line under the address';
+
+  @override
+  String get tplHeaderNoteHint => 'e.g. No exchange without bill';
+
+  @override
+  String get tplDetails => 'Bill details and items';
+
+  @override
+  String get tplBillNo => 'Bill number';
+
+  @override
+  String get tplCustomer => 'Customer name and mobile';
+
+  @override
+  String get tplRate => 'Rate column';
+
+  @override
+  String get tplTotalQty => 'Total quantity';
+
+  @override
+  String get tplBigTotal => 'Large TOTAL';
+
+  @override
+  String get tplGstSummary => 'GST breakup (on GST bills)';
+
+  @override
+  String get tplQr => 'Payment QR';
+
+  @override
+  String get tplQrHelp =>
+      'The QR carries this bill\'s amount (or what is still due on credit), so the customer pays exactly that with any UPI app.';
+
+  @override
+  String get tplQrOff => 'Off';
+
+  @override
+  String get tplQrUpi => 'UPI & credit';
+
+  @override
+  String get tplQrAll => 'All bills';
+
+  @override
+  String get tplQrNeedsUpi => 'Add your UPI ID to print the QR';
+
+  @override
+  String get tplQrCaption => 'Text under the QR';
+
+  @override
+  String get tplFooter => 'Bottom of the bill';
+
+  @override
+  String get tplFooterHint => 'Thank-you note, return policy…';
 }

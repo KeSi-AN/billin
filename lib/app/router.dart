@@ -17,6 +17,7 @@ import 'package:shop_app/features/inventory/presentation/stock_overview_page.dar
 import 'package:shop_app/features/items/import_export/import_export_page.dart';
 import 'package:shop_app/features/items/presentation/item_form_page.dart';
 import 'package:shop_app/features/items/presentation/items_page.dart';
+import 'package:shop_app/features/printing/presentation/bill_template_page.dart';
 import 'package:shop_app/features/printing/presentation/labels_page.dart';
 import 'package:shop_app/features/printing/presentation/printer_settings_page.dart';
 import 'package:shop_app/features/purchases/presentation/purchase_form_page.dart';
@@ -75,6 +76,7 @@ abstract final class AppRoutes {
   static const billingSettings = '/settings/billing';
   static const printerSettings = '/settings/printer';
   static const backup = '/settings/backup';
+  static const billTemplate = '/settings/template';
 }
 
 /// Routes, plus the first-launch rule: no shop profile → setup screen.
@@ -236,6 +238,10 @@ GoRouter buildRouter(ShopProfileCubit profile) => GoRouter(
     GoRoute(
       path: AppRoutes.settings,
       builder: (context, state) => const SettingsPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.billTemplate,
+      builder: (context, state) => const BillTemplatePage(),
     ),
     GoRoute(
       path: AppRoutes.backup,

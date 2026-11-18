@@ -40,7 +40,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -111,6 +111,13 @@ class AppDatabase extends _$AppDatabase {
         await m.createIndex(schema.creditNotesDate);
         await m.createTable(schema.creditNoteLines);
         await m.createTable(schema.creditNoteCounters);
+      },
+      // Build 0.5.1: editable printed-bill template.
+      from5To6: (m, schema) async {
+        await m.addColumn(
+          schema.appSettings,
+          schema.appSettings.receiptTemplate,
+        );
       },
     ),
     beforeOpen: (details) async {

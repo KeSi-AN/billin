@@ -96,6 +96,6 @@ void main() {
         .join('\n');
     expect(text, contains('Paid'));
     expect(text, contains('Balance due'));
-    expect(text, contains('70.00'));
+    expect(text, contains('Rs 70'));
   });
 }

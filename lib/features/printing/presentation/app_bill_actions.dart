@@ -58,7 +58,7 @@ class AppBillActions implements BillActions {
     final s = await settings.load();
     final shop = (await shopProfiles.load())!;
     final bytes = ReceiptFormatter(width: s.paperWidth.charsPerLine)
-        .bytes(bill, shop, s);
+        .bytes(bill, shop, s, logo: await printer.logos.logoFor(shop, s));
     say(l10n.printing);
     try {
       await printer.printBytes(bytes);

@@ -402,7 +402,9 @@ class InvoicePdf {
           pw.SizedBox(height: 16),
           pw.Center(
             child: pw.Text(
-              settings.receiptFooter ?? 'Thank you for your business!',
+              settings.receiptTemplate.footer.trim().isEmpty
+                  ? 'Thank you for your business!'
+                  : settings.receiptTemplate.footer.trim(),
               style: small.copyWith(color: grey),
             ),
           ),

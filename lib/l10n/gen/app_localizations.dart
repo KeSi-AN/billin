@@ -3525,6 +3525,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t reach the printer. Check it\'s on, nearby, and not connected to another phone or app. ({detail})'**
   String printErrFailedDetail(String detail);
+
+  /// No description provided for @tplTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill template'**
+  String get tplTitle;
+
+  /// No description provided for @tplSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo, GSTIN, payment QR and what is printed'**
+  String get tplSubtitle;
+
+  /// No description provided for @tplPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get tplPreview;
+
+  /// No description provided for @tplPrintSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Print a sample'**
+  String get tplPrintSample;
+
+  /// No description provided for @tplHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Top of the bill'**
+  String get tplHeader;
+
+  /// No description provided for @tplLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop logo'**
+  String get tplLogo;
+
+  /// No description provided for @tplLogoNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No logo yet. Add one in the shop profile.'**
+  String get tplLogoNone;
+
+  /// No description provided for @tplEditShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Add logo in shop profile'**
+  String get tplEditShop;
+
+  /// No description provided for @tplLogoSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo size'**
+  String get tplLogoSize;
+
+  /// No description provided for @tplShopName.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop name'**
+  String get tplShopName;
+
+  /// No description provided for @tplPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number'**
+  String get tplPhone;
+
+  /// No description provided for @tplAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get tplAddress;
+
+  /// No description provided for @tplAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Text before the address'**
+  String get tplAddressLabel;
+
+  /// No description provided for @tplGstin.
+  ///
+  /// In en, this message translates to:
+  /// **'GSTIN'**
+  String get tplGstin;
+
+  /// No description provided for @tplGstinNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No GSTIN yet. Add it in the shop profile.'**
+  String get tplGstinNone;
+
+  /// No description provided for @tplHeaderNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra line under the address'**
+  String get tplHeaderNote;
+
+  /// No description provided for @tplHeaderNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. No exchange without bill'**
+  String get tplHeaderNoteHint;
+
+  /// No description provided for @tplDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill details and items'**
+  String get tplDetails;
+
+  /// No description provided for @tplBillNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill number'**
+  String get tplBillNo;
+
+  /// No description provided for @tplCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer name and mobile'**
+  String get tplCustomer;
+
+  /// No description provided for @tplRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate column'**
+  String get tplRate;
+
+  /// No description provided for @tplTotalQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Total quantity'**
+  String get tplTotalQty;
+
+  /// No description provided for @tplBigTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Large TOTAL'**
+  String get tplBigTotal;
+
+  /// No description provided for @tplGstSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'GST breakup (on GST bills)'**
+  String get tplGstSummary;
+
+  /// No description provided for @tplQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment QR'**
+  String get tplQr;
+
+  /// No description provided for @tplQrHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The QR carries this bill\'s amount (or what is still due on credit), so the customer pays exactly that with any UPI app.'**
+  String get tplQrHelp;
+
+  /// No description provided for @tplQrOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get tplQrOff;
+
+  /// No description provided for @tplQrUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI & credit'**
+  String get tplQrUpi;
+
+  /// No description provided for @tplQrAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All bills'**
+  String get tplQrAll;
+
+  /// No description provided for @tplQrNeedsUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your UPI ID to print the QR'**
+  String get tplQrNeedsUpi;
+
+  /// No description provided for @tplQrCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Text under the QR'**
+  String get tplQrCaption;
+
+  /// No description provided for @tplFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom of the bill'**
+  String get tplFooter;
+
+  /// No description provided for @tplFooterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank-you note, return policy…'**
+  String get tplFooterHint;
 }
 
 class _AppLocalizationsDelegate

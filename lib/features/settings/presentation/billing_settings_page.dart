@@ -19,7 +19,6 @@ class _BillingSettingsPageState extends State<BillingSettingsPage> {
   final _formKey = GlobalKey<FormState>();
   final _prefix = TextEditingController();
   final _upi = TextEditingController();
-  final _footer = TextEditingController();
   AppSettingsData? _settings;
 
   @override
@@ -30,7 +29,6 @@ class _BillingSettingsPageState extends State<BillingSettingsPage> {
         if (!mounted) return;
         _prefix.text = s.invoicePrefix;
         _upi.text = s.upiId ?? '';
-        _footer.text = s.receiptFooter ?? '';
         setState(() => _settings = s);
       }),
     );
@@ -40,7 +38,6 @@ class _BillingSettingsPageState extends State<BillingSettingsPage> {
   void dispose() {
     _prefix.dispose();
     _upi.dispose();
-    _footer.dispose();
     super.dispose();
   }
 
@@ -51,7 +48,6 @@ class _BillingSettingsPageState extends State<BillingSettingsPage> {
       _settings!.copyWith(
         invoicePrefix: _prefix.text.trim().toUpperCase(),
         upiId: _upi.text.trim(),
-        receiptFooter: _footer.text.trim(),
       ),
     );
     if (!mounted) return;
@@ -121,15 +117,6 @@ class _BillingSettingsPageState extends State<BillingSettingsPage> {
                         (v ?? '').trim().isEmpty || isValidUpiId(v!)
                         ? null
                         : l10n.errUpiId,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _footer,
-                    maxLength: 64,
-                    decoration: InputDecoration(
-                      labelText: l10n.fieldReceiptFooter,
-                      hintText: l10n.receiptFooterHint,
-                    ),
                   ),
                   const SizedBox(height: 16),
                   FilledButton(

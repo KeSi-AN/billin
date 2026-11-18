@@ -41,6 +41,13 @@ class SettingsPage extends StatelessWidget {
                 onTap: () => context.push(AppRoutes.printerSettings),
               ),
               ListTile(
+                key: const Key('billTemplateTile'),
+                leading: const Icon(Icons.receipt_outlined),
+                title: Text(l10n.tplTitle),
+                subtitle: Text(l10n.tplSubtitle),
+                onTap: () => context.push(AppRoutes.billTemplate),
+              ),
+              ListTile(
                 key: const Key('backupTile'),
                 leading: const Icon(Icons.cloud_upload_outlined),
                 title: Text(l10n.backupTitle),

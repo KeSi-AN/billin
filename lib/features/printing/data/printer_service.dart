@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:shop_app/features/printing/data/logo_cache.dart';
 import 'package:shop_app/features/printing/data/printer_transport.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
 
@@ -31,6 +32,9 @@ class PrinterService {
   final SettingsRepository _settings;
 
   PrinterTransport get transport => _transport;
+
+  /// The shop logo, converted once per logo/paper/size.
+  final logos = LogoCache();
 
   Future<void> printBytes(Uint8List bytes, {String? address}) async {
     final target = address ?? (await _settings.load()).printerAddress;
