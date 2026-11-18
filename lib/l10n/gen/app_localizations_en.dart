@@ -2147,7 +2147,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lpLanguageHelp =>
-      'Most label printers use TSPL. If the test label comes out blank or as random characters, try ESC/POS.';
+      'Start with ESC/POS. Use \"Quick check\" first: it uses one label. If the check prints commands or random characters, the printer needs the other language.';
 
   @override
   String get lpSize => 'Label size';
@@ -2168,7 +2168,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lpShowMrp => 'MRP (when higher than the price)';
 
   @override
-  String get lpTest => 'Print a test label';
+  String get lpTest => 'Test label';
 
   @override
   String get keyboardHint =>
@@ -2176,4 +2176,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get keyboardHintFix => 'Turn on';
+
+  @override
+  String get lpCheck => 'Quick check (1 label)';
+
+  @override
+  String get lpCheckSent =>
+      'Sent. A text line with a black bar under it means this language works.';
 }

@@ -31,7 +31,12 @@ int indexOf(Uint8List bytes, List<int> pattern, [int from = 0]) {
 
 void main() {
   group('TSPL', () {
-    const setup = LabelSetup(widthMm: 50, heightMm: 25, gapMm: 2);
+    const setup = LabelSetup(
+      language: LabelLanguage.tspl,
+      widthMm: 50,
+      heightMm: 25,
+      gapMm: 2,
+    );
 
     test('sets size and gap, sends each picture inverted, prints copies', () {
       final bytes = encodeLabels([
@@ -50,7 +55,14 @@ void main() {
 
     test('fractional sizes keep one decimal', () {
       final text = latin1.decode(
-        encodeLabels(const [], const LabelSetup(widthMm: 29.5, gapMm: 1.5)),
+        encodeLabels(
+          const [],
+          const LabelSetup(
+            language: LabelLanguage.tspl,
+            widthMm: 29.5,
+            gapMm: 1.5,
+          ),
+        ),
       );
       expect(text, startsWith('SIZE 29.5 mm,25 mm\r\nGAP 1.5 mm,0 mm'));
     });
@@ -59,7 +71,7 @@ void main() {
   test('ESC/POS: raster per copy, then feed to the next label', () {
     final bytes = encodeLabels([
       (image: solid(2, 3, 0xFF), copies: 2),
-    ], const LabelSetup(language: LabelLanguage.escPos));
+    ], const LabelSetup());
     expect(bytes.take(2), [0x1B, 0x40]);
     final first = indexOf(bytes, [0x1D, 0x76, 0x30, 0x00, 2, 0, 3, 0]);
     final second = indexOf(bytes, [
@@ -81,7 +93,7 @@ void main() {
     const s = LabelSetup(
       address: 'C8:47:44:11:2A:BF',
       name: 'PSF-20',
-      language: LabelLanguage.escPos,
+      language: LabelLanguage.tspl,
       widthMm: 40,
       heightMm: 30,
       gapMm: 3,
@@ -128,5 +140,12 @@ void main() {
       if (image.isBlack(x, row) != image.isBlack(x - 1, row)) changes++;
     }
     expect(changes, greaterThan(30));
+  });
+
+  test('quick check fits one label and ends with feed-to-next', () {
+    final bytes = labelCheckBytes(const LabelSetup());
+    expect(bytes.length, lessThan(700));
+    expect(bytes.take(2), [0x1B, 0x40]);
+    expect(bytes.skip(bytes.length - 2), [0x1D, 0x0C]);
   });
 }

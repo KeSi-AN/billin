@@ -16,6 +16,38 @@ Uint8List encodeLabels(List<LabelImage> labels, LabelSetup setup) =>
       LabelLanguage.escPos => _escPos(labels),
     };
 
+/// One label's worth of check: a text line, a small black bar sent as a
+/// picture, then "feed to the next label". Cheap to get wrong: if the printer
+/// can't do pictures, it prints a few odd characters on one label, not a
+/// stream of garbage across the roll.
+Uint8List labelCheckBytes(LabelSetup setup) {
+  if (setup.language == LabelLanguage.tspl) {
+    final out = BytesBuilder(copy: false);
+    void cmd(String c) => out.add(ascii.encode('$c\r\n'));
+    cmd('SIZE ${_mm(setup.widthMm)} mm,${_mm(setup.heightMm)} mm');
+    cmd('GAP ${_mm(setup.gapMm)} mm,0 mm');
+    cmd('CLS');
+    cmd('TEXT 10,10,"2",0,1,1,"TSPL OK"');
+    cmd('BAR 10,60,200,24');
+    cmd('PRINT 1,1');
+    return out.toBytes();
+  }
+  const widthBytes = 24; // 192 dots
+  const height = 24;
+  return (EscPosBuilder()
+        ..init()
+        ..line('ESC/POS check')
+        ..raster(
+          Uint8List(widthBytes * height)
+            ..fillRange(0, widthBytes * height, 0xFF),
+          widthBytes: widthBytes,
+          height: height,
+        )
+        ..line('Picture above = OK')
+        ..rawBytes([0x1D, 0x0C]))
+      .build();
+}
+
 String _mm(double v) =>
     v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toStringAsFixed(1);
 

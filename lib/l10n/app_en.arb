@@ -1395,14 +1395,16 @@
   "lpUseBillPrinter": "Same as the bill printer",
   "lpUseBillPrinterHelp": "Plain text labels on the receipt roll",
   "lpLanguage": "Printer language",
-  "lpLanguageHelp": "Most label printers use TSPL. If the test label comes out blank or as random characters, try ESC/POS.",
+  "lpLanguageHelp": "Start with ESC/POS. Use \"Quick check\" first: it uses one label. If the check prints commands or random characters, the printer needs the other language.",
   "lpSize": "Label size",
   "lpWidth": "Width",
   "lpHeight": "Height",
   "lpGap": "Gap",
   "lpContent": "On the label",
   "lpShowMrp": "MRP (when higher than the price)",
-  "lpTest": "Print a test label",
+  "lpTest": "Test label",
   "keyboardHint": "The barcode scanner is hiding the typing keyboard. Turn on \"Use on-screen keyboard\".",
-  "keyboardHintFix": "Turn on"
+  "keyboardHintFix": "Turn on",
+  "lpCheck": "Quick check (1 label)",
+  "lpCheckSent": "Sent. A text line with a black bar under it means this language works."
 }

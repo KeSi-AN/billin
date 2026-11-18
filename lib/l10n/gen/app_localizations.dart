@@ -3757,7 +3757,7 @@ abstract class AppLocalizations {
   /// No description provided for @lpLanguageHelp.
   ///
   /// In en, this message translates to:
-  /// **'Most label printers use TSPL. If the test label comes out blank or as random characters, try ESC/POS.'**
+  /// **'Start with ESC/POS. Use \"Quick check\" first: it uses one label. If the check prints commands or random characters, the printer needs the other language.'**
   String get lpLanguageHelp;
 
   /// No description provided for @lpSize.
@@ -3799,7 +3799,7 @@ abstract class AppLocalizations {
   /// No description provided for @lpTest.
   ///
   /// In en, this message translates to:
-  /// **'Print a test label'**
+  /// **'Test label'**
   String get lpTest;
 
   /// No description provided for @keyboardHint.
@@ -3813,6 +3813,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turn on'**
   String get keyboardHintFix;
+
+  /// No description provided for @lpCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick check (1 label)'**
+  String get lpCheck;
+
+  /// No description provided for @lpCheckSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. A text line with a black bar under it means this language works.'**
+  String get lpCheckSent;
 }
 
 class _AppLocalizationsDelegate

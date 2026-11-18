@@ -19,7 +19,7 @@ class LabelSetup {
   const LabelSetup({
     this.address,
     this.name,
-    this.language = LabelLanguage.tspl,
+    this.language = LabelLanguage.escPos,
     this.widthMm = 50,
     this.heightMm = 25,
     this.gapMm = 2,

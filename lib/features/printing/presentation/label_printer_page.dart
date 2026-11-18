@@ -110,6 +110,23 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
     _set(_setup.copyWith(widthMm: w, heightMm: h, gapMm: g));
   }
 
+  Future<void> _check() async {
+    final l10n = AppLocalizations.of(context);
+    final printer = context.read<PrinterService>();
+    setState(() => _printing = true);
+    try {
+      await printer.printBytes(
+        labelCheckBytes(_setup),
+        address: _setup.address,
+      );
+      if (mounted) showSnack(context, l10n.lpCheckSent);
+    } on PrintException catch (e) {
+      if (mounted) showSnack(context, printErrorText(l10n, e));
+    } finally {
+      if (mounted) setState(() => _printing = false);
+    }
+  }
+
   Future<void> _test() async {
     final l10n = AppLocalizations.of(context);
     final printer = context.read<PrinterService>();
@@ -158,11 +175,25 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: FilledButton.icon(
-            key: const Key('lpTestButton'),
-            onPressed: _printing || l.address == null ? null : _test,
-            icon: const Icon(Icons.print_outlined),
-            label: Text(_printing ? l10n.printing : l10n.lpTest),
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  key: const Key('lpCheckButton'),
+                  onPressed: _printing || l.address == null ? null : _check,
+                  child: Text(l10n.lpCheck),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton.icon(
+                  key: const Key('lpTestButton'),
+                  onPressed: _printing || l.address == null ? null : _test,
+                  icon: const Icon(Icons.print_outlined),
+                  label: Text(_printing ? l10n.printing : l10n.lpTest),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -242,11 +273,11 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
               key: const Key('lpLanguage'),
               showSelectedIcon: false,
               segments: const [
-                ButtonSegment(value: LabelLanguage.tspl, label: Text('TSPL')),
                 ButtonSegment(
                   value: LabelLanguage.escPos,
                   label: Text('ESC/POS'),
                 ),
+                ButtonSegment(value: LabelLanguage.tspl, label: Text('TSPL')),
               ],
               selected: {l.language},
               onSelectionChanged: (v) => _set(l.copyWith(language: v.first)),
