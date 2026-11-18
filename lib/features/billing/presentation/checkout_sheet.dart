@@ -2,6 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/core/keyboard/keyboard_hint.dart';
 import 'package:shop_app/core/money/money.dart';
+import 'package:shop_app/core/money/percent.dart';
+import 'package:shop_app/core/money/rounding.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
@@ -38,6 +40,9 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
   final _discount = TextEditingController();
   final _cashReceived = TextEditingController();
   final _paidNow = TextEditingController();
+  final _walkInName = TextEditingController();
+  final _walkInPhone = TextEditingController();
+  bool _discountPercent = false;
   PaymentMode _mode = PaymentMode.cash;
   Party? _customer;
   bool _customerMissing = false;
@@ -45,7 +50,13 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
 
   @override
   void dispose() {
-    for (final c in [_discount, _cashReceived, _paidNow]) {
+    for (final c in [
+      _discount,
+      _cashReceived,
+      _paidNow,
+      _walkInName,
+      _walkInPhone,
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -82,7 +93,22 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
     }
   }
 
-  Money get _billDiscount => Money.tryParse(_discount.text) ?? Money.zero;
+  /// Items total after line discounts: what a bill discount applies to.
+  Money get _itemsTotal =>
+      context.read<BillingCubit>().preview(Money.zero).itemsTotal;
+
+  Money get _billDiscount {
+    if (!_discountPercent) return Money.tryParse(_discount.text) ?? Money.zero;
+    final bp = parsePercentBp(_discount.text) ?? 0;
+    return Money.paise(divRound(_itemsTotal.paise * bp, 10000));
+  }
+
+  /// A walk-in customer's mobile, as 10 digits (for the WhatsApp bill).
+  String? get _walkInMobile {
+    final digits = _walkInPhone.text.replaceAll(RegExp(r'\D'), '');
+    if (digits.isEmpty) return null;
+    return digits.length > 10 ? digits.substring(digits.length - 10) : digits;
+  }
 
   Future<void> _save() async {
     final valid = _formKey.currentState?.validate() ?? false;
@@ -96,6 +122,8 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
         paymentMode: _mode,
         billDiscount: _billDiscount,
         customer: _customer,
+        customerName: _customer == null ? _walkInName.text : null,
+        customerPhone: _customer == null ? _walkInMobile : null,
         paidNow: _mode == PaymentMode.credit
             ? (Money.tryParse(_paidNow.text) ?? Money.zero)
             : Money.zero,
@@ -128,14 +156,20 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
             const SizedBox(height: 12),
             TotalsTable(totals: totals, interState: _interState),
             const Divider(height: 24),
-            MoneyField(
+            DiscountField(
               key: const Key('billDiscountField'),
               controller: _discount,
+              percent: _discountPercent,
+              onPercentChanged: (v) => setState(() {
+                _discountPercent = v;
+                _discount.clear();
+              }),
               label: l10n.checkoutBillDiscount,
-              helperText: l10n.optional,
+              max: _itemsTotal,
+              helperText: _discountPercent && _billDiscount.isPositive
+                  ? l10n.checkoutDiscountIs(_billDiscount.format())
+                  : l10n.optional,
               onChanged: (_) => setState(() {}),
-              extraValidator: (d) =>
-                  d > totals.itemsTotal ? l10n.errAmountInvalid : null,
             ),
             const SizedBox(height: 16),
             Text(l10n.checkoutPayment, style: text.titleSmall),
@@ -212,6 +246,42 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
                     ),
               onTap: _pickCustomer,
             ),
+            if (_customer == null && _mode != PaymentMode.credit) ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      key: const Key('walkInNameField'),
+                      controller: _walkInName,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        labelText: l10n.fieldCustomerName,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextFormField(
+                      key: const Key('walkInPhoneField'),
+                      controller: _walkInPhone,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        labelText: l10n.fieldCustomerPhone,
+                        prefixText: '+91 ',
+                        helperText: l10n.checkoutPhoneForWhatsApp,
+                      ),
+                      validator: (_) {
+                        final m = _walkInMobile;
+                        return m == null || RegExp(r'^[6-9]\d{9}$').hasMatch(m)
+                            ? null
+                            : l10n.errPhoneInvalid;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 16),
             FilledButton(
               key: const Key('saveBillButton'),

@@ -20,6 +20,7 @@ class DraftLine {
     this.taxRate = TaxRate.zero,
     this.priceIncludesTax = true,
     this.discount = Money.zero,
+    this.discountBp,
     this.unitFactor = Quantity.one,
   });
 
@@ -32,6 +33,12 @@ class DraftLine {
   final TaxRate taxRate;
   final bool priceIncludesTax;
   final Money discount;
+
+  /// Discount as a percentage (basis points, 1000 = 10%), or null for a
+  /// money [discount].
+  final int? discountBp;
+
+  bool get hasDiscount => discountBp != null || !discount.isZero;
 
   /// Base units in one [unit]: 1 normally, 12 when selling a box of 12.
   final Quantity unitFactor;
@@ -46,12 +53,16 @@ class DraftLine {
     taxRate: taxRate,
     priceIncludesTax: priceIncludesTax,
     discount: discount,
+    discountBp: discountBp,
   );
 
+  /// [discount] or [discountBp] replaces the line's discount (one or the
+  /// other); leave both out to keep it.
   DraftLine copyWith({
     Quantity? quantity,
     Money? unitPrice,
     Money? discount,
+    int? discountBp,
     String? name,
     String? unit,
     Quantity? unitFactor,
@@ -64,7 +75,8 @@ class DraftLine {
     unitPrice: unitPrice ?? this.unitPrice,
     taxRate: taxRate,
     priceIncludesTax: priceIncludesTax,
-    discount: discount ?? this.discount,
+    discount: discountBp != null ? Money.zero : (discount ?? this.discount),
+    discountBp: discountBp ?? (discount != null ? null : this.discountBp),
     unitFactor: unitFactor ?? this.unitFactor,
   );
 }

@@ -2189,4 +2189,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lpLeftHelp => 'Raise it if the left edge of the label is cut off.';
+
+  @override
+  String get errPercentInvalid => 'Enter a percentage from 0 to 100';
+
+  @override
+  String get errDiscountTooBig => 'More than the amount it applies to';
+
+  @override
+  String checkoutDiscountIs(String amount) {
+    return '= $amount off';
+  }
+
+  @override
+  String get checkoutPhoneForWhatsApp => 'For the WhatsApp bill';
+
+  @override
+  String get billWhatsApp => 'WhatsApp';
+
+  @override
+  String get whatsappMissing => 'WhatsApp isn\'t installed. Use Share instead.';
 }

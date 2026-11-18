@@ -3837,6 +3837,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Raise it if the left edge of the label is cut off.'**
   String get lpLeftHelp;
+
+  /// No description provided for @errPercentInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a percentage from 0 to 100'**
+  String get errPercentInvalid;
+
+  /// No description provided for @errDiscountTooBig.
+  ///
+  /// In en, this message translates to:
+  /// **'More than the amount it applies to'**
+  String get errDiscountTooBig;
+
+  /// No description provided for @checkoutDiscountIs.
+  ///
+  /// In en, this message translates to:
+  /// **'= {amount} off'**
+  String checkoutDiscountIs(String amount);
+
+  /// No description provided for @checkoutPhoneForWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'For the WhatsApp bill'**
+  String get checkoutPhoneForWhatsApp;
+
+  /// No description provided for @billWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get billWhatsApp;
+
+  /// No description provided for @whatsappMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp isn\'t installed. Use Share instead.'**
+  String get whatsappMissing;
 }
 
 class _AppLocalizationsDelegate

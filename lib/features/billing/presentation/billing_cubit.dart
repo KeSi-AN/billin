@@ -157,7 +157,7 @@ class BillingCubit extends Cubit<BillingState> {
           l.itemId != null &&
           l.itemId == item.id &&
           l.unitPrice == item.salePrice &&
-          l.discount.isZero,
+          !l.hasDiscount,
     );
     if (existing >= 0) {
       lines[existing] = lines[existing].copyWith(
@@ -268,6 +268,9 @@ class BillingCubit extends Cubit<BillingState> {
   void clear() =>
       emit(state.copyWith(lines: [], suggestions: [], lastChanged: () => null));
 
+  static String? _blank(String? s) =>
+      s == null || s.trim().isEmpty ? null : s.trim();
+
   /// Totals including a bill discount, for the checkout preview.
   BillTotals preview(Money billDiscount) => BillCalculator.calculate(
     [for (final l in state.lines) l.input],
@@ -279,6 +282,8 @@ class BillingCubit extends Cubit<BillingState> {
     required PaymentMode paymentMode,
     Money billDiscount = Money.zero,
     Party? customer,
+    String? customerName,
+    String? customerPhone,
     Money paidNow = Money.zero,
   }) async {
     // Stock before the sale, to spot items that cross their low level.
@@ -300,8 +305,8 @@ class BillingCubit extends Cubit<BillingState> {
         lines: state.lines,
         billDiscount: billDiscount,
         paymentMode: paymentMode,
-        customerName: customer?.name,
-        customerPhone: customer?.phone,
+        customerName: customer?.name ?? _blank(customerName),
+        customerPhone: customer?.phone ?? _blank(customerPhone),
         partyId: customer?.id,
         paidNow: paidNow,
       ),

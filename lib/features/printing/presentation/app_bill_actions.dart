@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
@@ -35,6 +36,7 @@ class AppBillActions implements BillActions {
     required this.shopProfiles,
     required this.tempDir,
     this.shareFile = shareFileWithSystem,
+    this.sendWhatsApp = sendWhatsAppWithChannel,
   });
 
   final PrinterService printer;
@@ -42,6 +44,7 @@ class AppBillActions implements BillActions {
   final ShopProfileRepository shopProfiles;
   final Future<Directory> Function() tempDir;
   final ShareFile shareFile;
+  final SendWhatsApp sendWhatsApp;
   Future<InvoiceFonts>? _fonts;
 
   @override
@@ -76,6 +79,24 @@ class AppBillActions implements BillActions {
     }
   }
 
+  /// Writes the bill's PDF under the cache's `invoices/` folder.
+  Future<File> _pdfFile(Bill bill) async {
+    final shop = (await shopProfiles.load())!;
+    final s = await settings.load();
+    final pdf = await InvoicePdf(await (_fonts ??= InvoiceFonts.load()))
+        .build(bill, shop, s);
+    final dir = Directory(p.join((await tempDir()).path, 'invoices'));
+    await dir.create(recursive: true);
+    final file = File(p.join(dir.path, InvoicePdf.fileName(bill)));
+    await file.writeAsBytes(pdf, flush: true);
+    return file;
+  }
+
+  Future<String> _text(AppLocalizations l10n, Bill bill) async {
+    final shop = (await shopProfiles.load())!;
+    return l10n.shareText(bill.invoiceNo, shop.name, bill.grandTotal.format());
+  }
+
   @override
   Future<void> share(BuildContext context, Bill bill) async {
     final l10n = AppLocalizations.of(context);
@@ -83,23 +104,65 @@ class AppBillActions implements BillActions {
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(l10n.sharePreparing)));
     try {
-      final shop = (await shopProfiles.load())!;
-      final s = await settings.load();
-      final pdf = await InvoicePdf(await (_fonts ??= InvoiceFonts.load()))
-          .build(bill, shop, s);
-      final dir = Directory(p.join((await tempDir()).path, 'invoices'));
-      await dir.create(recursive: true);
-      final file = File(p.join(dir.path, InvoicePdf.fileName(bill)));
-      await file.writeAsBytes(pdf, flush: true);
+      final file = await _pdfFile(bill);
+      final text = await _text(l10n, bill);
       messenger.hideCurrentSnackBar();
-      await shareFile(
-        file.path,
-        l10n.shareText(bill.invoiceNo, shop.name, bill.grandTotal.format()),
-      );
+      await shareFile(file.path, text);
     } on Object {
       messenger
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(content: Text(l10n.shareFailed)));
     }
+  }
+
+  @override
+  Future<void> whatsapp(BuildContext context, Bill bill) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(l10n.sharePreparing)));
+    try {
+      final file = await _pdfFile(bill);
+      final text = await _text(l10n, bill);
+      messenger.hideCurrentSnackBar();
+      await sendWhatsApp(file.path, bill.customerPhone, text);
+    } on WhatsAppMissing {
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l10n.whatsappMissing)));
+    } on Object {
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l10n.shareFailed)));
+    }
+  }
+}
+
+/// WhatsApp isn't installed on this phone.
+class WhatsAppMissing implements Exception {
+  const WhatsAppMissing();
+}
+
+typedef SendWhatsApp = Future<void> Function(
+  String path,
+  String? phone,
+  String text,
+);
+
+/// Opens WhatsApp (Business preferred) with the PDF; see
+/// `WhatsAppChannel.kt`.
+Future<void> sendWhatsAppWithChannel(
+  String path,
+  String? phone,
+  String text,
+) async {
+  try {
+    await const MethodChannel('shop_app/whatsapp').invokeMethod<void>(
+      'sendFile',
+      {'path': path, 'phone': phone, 'text': text},
+    );
+  } on PlatformException catch (e) {
+    if (e.code == 'NO_WHATSAPP') throw const WhatsAppMissing();
+    rethrow;
   }
 }

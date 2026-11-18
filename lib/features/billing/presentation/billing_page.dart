@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/money/money.dart';
+import 'package:shop_app/core/money/percent.dart';
 import 'package:shop_app/core/money/quantity.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
@@ -373,9 +374,13 @@ class _CartLine extends StatelessWidget {
                       ),
                       style: text.bodySmall,
                     ),
-                    if (!line.discount.isZero)
+                    if (line.hasDiscount)
                       Text(
-                        l10n.lineDiscountTag(line.discount.format()),
+                        l10n.lineDiscountTag(
+                          line.discountBp != null
+                              ? formatPercentBp(line.discountBp!)
+                              : line.discount.format(),
+                        ),
                         style: text.bodySmall?.copyWith(color: scheme.tertiary),
                       ),
                     if (shortage != null)

@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/core/money/money.dart';
+import 'package:shop_app/core/money/percent.dart';
 import 'package:shop_app/core/money/quantity.dart';
 import 'package:shop_app/core/money/rounding.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
@@ -40,9 +41,20 @@ class _EditLineSheetState extends State<_EditLineSheet> {
   late final _price = TextEditingController(
     text: widget.line.unitPrice.toInput(),
   );
+  late bool _percent = widget.line.discountBp != null;
   late final _discount = TextEditingController(
-    text: widget.line.discount.isZero ? '' : widget.line.discount.toInput(),
+    text: widget.line.discountBp != null
+        ? percentInput(widget.line.discountBp!)
+        : (widget.line.discount.isZero ? '' : widget.line.discount.toInput()),
   );
+
+  /// Price × quantity as typed (caps a ₹ discount).
+  Money? get _gross {
+    final q = Quantity.tryParse(_qty.text);
+    final p = Money.tryParse(_price.text);
+    if (q == null || p == null) return null;
+    return Money.paise(divRound(p.paise * q.milli, 1000));
+  }
 
   /// Selling in the item's second unit (e.g. box instead of pcs).
   late bool _alt = widget.line.unitFactor != Quantity.one;
@@ -85,7 +97,15 @@ class _EditLineSheetState extends State<_EditLineSheet> {
       line: widget.line.copyWith(
         quantity: Quantity.tryParse(_qty.text),
         unitPrice: Money.tryParse(_price.text),
-        discount: Money.tryParse(_discount.text) ?? Money.zero,
+        // An empty or 0% field clears the discount.
+        discount: _percent && (parsePercentBp(_discount.text) ?? 0) > 0
+            ? null
+            : (_percent
+                  ? Money.zero
+                  : (Money.tryParse(_discount.text) ?? Money.zero)),
+        discountBp: _percent && (parsePercentBp(_discount.text) ?? 0) > 0
+            ? parsePercentBp(_discount.text)
+            : null,
         unit: _unit,
         unitFactor: _unitItem == null
             ? null
@@ -150,10 +170,16 @@ class _EditLineSheetState extends State<_EditLineSheet> {
               ],
             ),
             const SizedBox(height: 16),
-            MoneyField(
+            DiscountField(
               key: const Key('lineDiscountField'),
               controller: _discount,
+              percent: _percent,
+              onPercentChanged: (v) => setState(() {
+                _percent = v;
+                _discount.clear();
+              }),
               label: l10n.fieldDiscount,
+              max: _gross,
               helperText: l10n.optional,
             ),
             const SizedBox(height: 24),

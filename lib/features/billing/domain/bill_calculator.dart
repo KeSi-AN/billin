@@ -11,6 +11,7 @@ class BillLineInput {
     this.taxRate = TaxRate.zero,
     this.priceIncludesTax = true,
     this.discount = Money.zero,
+    this.discountBp,
   });
 
   final Money unitPrice;
@@ -21,8 +22,12 @@ class BillLineInput {
   /// retail). `false`: GST is added on top.
   final bool priceIncludesTax;
 
-  /// Discount on this line, in money.
+  /// Discount on this line, in money (used when [discountBp] is null).
   final Money discount;
+
+  /// Discount as a percentage of price × quantity, in basis points
+  /// (1000 = 10%). Kept as a percentage so it follows quantity changes.
+  final int? discountBp;
 }
 
 /// A calculated line. Every amount is exact paise.
@@ -125,7 +130,15 @@ abstract final class BillCalculator {
     ];
     final lineDiscount = [
       for (var i = 0; i < inputs.length; i++)
-        _clamp(inputs[i].discount, Money.zero, gross[i]),
+        _clamp(
+          inputs[i].discountBp == null
+              ? inputs[i].discount
+              : Money.paise(
+                  divRound(gross[i].paise * inputs[i].discountBp!, 10000),
+                ),
+          Money.zero,
+          gross[i],
+        ),
     ];
     final afterLineDiscount = [
       for (var i = 0; i < inputs.length; i++) gross[i] - lineDiscount[i],

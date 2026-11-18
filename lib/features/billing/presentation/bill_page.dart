@@ -99,6 +99,14 @@ class _BillPageState extends State<BillPage> {
           appBar: AppBar(
             title: Text(bill?.invoiceNo ?? ''),
             actions: [
+              if (bill != null)
+                IconButton(
+                  key: const Key('shareBillButton'),
+                  tooltip: l10n.billShare,
+                  icon: const Icon(Icons.share_outlined),
+                  onPressed: () =>
+                      context.read<BillActions>().share(context, bill),
+                ),
               if (bill != null && !bill.isCancelled)
                 PopupMenuButton<String>(
                   key: const Key('billMenu'),
@@ -371,13 +379,13 @@ class _BillActionBar extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: OutlinedButton.icon(
-                  key: const Key('shareBillButton'),
+                  key: const Key('whatsappBillButton'),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(0, 52),
                   ),
-                  onPressed: () => actions.share(context, bill),
-                  icon: const Icon(Icons.share_outlined),
-                  label: Text(l10n.billShare),
+                  onPressed: () => actions.whatsapp(context, bill),
+                  icon: const Icon(Icons.chat_outlined),
+                  label: Text(l10n.billWhatsApp),
                 ),
               ),
               if (justSaved) ...[

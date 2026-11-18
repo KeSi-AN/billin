@@ -7,4 +7,8 @@ abstract interface class BillActions {
   Future<void> print(BuildContext context, Bill bill);
 
   Future<void> share(BuildContext context, Bill bill);
+
+  /// The bill PDF on WhatsApp: the customer's chat when the bill has their
+  /// mobile, otherwise WhatsApp's chat picker.
+  Future<void> whatsapp(BuildContext context, Bill bill);
 }

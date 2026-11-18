@@ -1408,5 +1408,18 @@
   "lpCheck": "Quick check (1 label)",
   "lpCheckSent": "Sent. A text line with a black bar under it means this language works.",
   "lpLeft": "Left margin",
-  "lpLeftHelp": "Raise it if the left edge of the label is cut off."
+  "lpLeftHelp": "Raise it if the left edge of the label is cut off.",
+  "errPercentInvalid": "Enter a percentage from 0 to 100",
+  "errDiscountTooBig": "More than the amount it applies to",
+  "checkoutDiscountIs": "= {amount} off",
+  "@checkoutDiscountIs": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutPhoneForWhatsApp": "For the WhatsApp bill",
+  "billWhatsApp": "WhatsApp",
+  "whatsappMissing": "WhatsApp isn't installed. Use Share instead."
 }

@@ -372,6 +372,12 @@ class FakeBillActions implements BillActions {
 
   @override
   Future<void> share(BuildContext context, Bill bill) async => shared.add(bill);
+
+  final whatsapped = <Bill>[];
+
+  @override
+  Future<void> whatsapp(BuildContext context, Bill bill) async =>
+      whatsapped.add(bill);
 }
 
 class FakePrinterTransport implements PrinterTransport {
