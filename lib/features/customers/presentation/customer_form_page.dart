@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/core/india/gstin.dart';
 import 'package:shop_app/core/india/indian_states.dart';
 import 'package:shop_app/core/india/phone.dart';
+import 'package:shop_app/core/keyboard/keyboard_hint.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
 import 'package:shop_app/features/customers/domain/contact_picker.dart';
@@ -183,6 +184,7 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  const KeyboardHint(),
                   OutlinedButton.icon(
                     key: const Key('pickContactButton'),
                     onPressed: _fromContacts,

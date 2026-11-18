@@ -7,12 +7,14 @@ import io.flutter.embedding.engine.FlutterEngine
 class MainActivity : FlutterActivity() {
     private var printer: BluetoothPrinterChannel? = null
     private var contacts: ContactPickerChannel? = null
+    private var keyboard: KeyboardChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
         printer = BluetoothPrinterChannel(applicationContext, messenger)
         contacts = ContactPickerChannel(this, messenger)
+        keyboard = KeyboardChannel(applicationContext, messenger)
     }
 
     @Deprecated("Needed for the system contact picker result")
@@ -25,6 +27,8 @@ class MainActivity : FlutterActivity() {
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
         printer?.dispose()
         contacts?.dispose()
+        keyboard?.dispose()
+        keyboard = null
         printer = null
         contacts = null
         super.cleanUpFlutterEngine(flutterEngine)

@@ -1402,5 +1402,7 @@
   "lpGap": "Gap",
   "lpContent": "On the label",
   "lpShowMrp": "MRP (when higher than the price)",
-  "lpTest": "Print a test label"
+  "lpTest": "Print a test label",
+  "keyboardHint": "The barcode scanner is hiding the typing keyboard. Turn on \"Use on-screen keyboard\".",
+  "keyboardHintFix": "Turn on"
 }

@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/app/router.dart';
+import 'package:shop_app/core/keyboard/keyboard_hint.dart';
 import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/customers/presentation/customers_page.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
@@ -49,6 +50,10 @@ class _CustomerPickerState extends State<_CustomerPicker> {
         height: MediaQuery.sizeOf(context).height * 0.7,
         child: Column(
           children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: KeyboardHint(),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: TextField(

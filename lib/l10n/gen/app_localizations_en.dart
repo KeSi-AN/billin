@@ -2169,4 +2169,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lpTest => 'Print a test label';
+
+  @override
+  String get keyboardHint =>
+      'The barcode scanner is hiding the typing keyboard. Turn on \"Use on-screen keyboard\".';
+
+  @override
+  String get keyboardHintFix => 'Turn on';
 }

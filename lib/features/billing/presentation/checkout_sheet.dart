@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:shop_app/core/keyboard/keyboard_hint.dart';
 import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
@@ -182,6 +183,7 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
               ),
             ],
             const SizedBox(height: 16),
+            const KeyboardHint(),
             Text(
               _mode == PaymentMode.credit
                   ? l10n.customerPickerTitle

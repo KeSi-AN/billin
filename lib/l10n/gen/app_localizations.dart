@@ -3801,6 +3801,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Print a test label'**
   String get lpTest;
+
+  /// No description provided for @keyboardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The barcode scanner is hiding the typing keyboard. Turn on \"Use on-screen keyboard\".'**
+  String get keyboardHint;
+
+  /// No description provided for @keyboardHintFix.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get keyboardHintFix;
 }
 
 class _AppLocalizationsDelegate
