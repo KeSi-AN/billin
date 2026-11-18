@@ -1389,5 +1389,18 @@
   "tplQrNeedsUpi": "Add your UPI ID to print the QR",
   "tplQrCaption": "Text under the QR",
   "tplFooter": "Bottom of the bill",
-  "tplFooterHint": "Thank-you note, return policy…"
+  "tplFooterHint": "Thank-you note, return policy…",
+  "lpTitle": "Label printer",
+  "lpPrinter": "Printer",
+  "lpUseBillPrinter": "Same as the bill printer",
+  "lpUseBillPrinterHelp": "Plain text labels on the receipt roll",
+  "lpLanguage": "Printer language",
+  "lpLanguageHelp": "Most label printers use TSPL. If the test label comes out blank or as random characters, try ESC/POS.",
+  "lpSize": "Label size",
+  "lpWidth": "Width",
+  "lpHeight": "Height",
+  "lpGap": "Gap",
+  "lpContent": "On the label",
+  "lpShowMrp": "MRP (when higher than the price)",
+  "lpTest": "Print a test label"
 }

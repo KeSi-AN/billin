@@ -118,6 +118,9 @@ class EscPosBuilder {
     return this;
   }
 
+  /// Bytes the builder has no command for.
+  EscPosBuilder rawBytes(List<int> bytes) => _cmd(bytes);
+
   /// Feed paper and cut (printers without a cutter ignore it).
   EscPosBuilder cut() => _cmd([0x1D, 0x56, 0x42, 0x00]);
 

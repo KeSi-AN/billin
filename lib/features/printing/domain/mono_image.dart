@@ -18,6 +18,29 @@ class MonoImage {
     required this.bits,
   });
 
+  /// From raw RGBA pixels (e.g. a picture drawn on a canvas), black where
+  /// darker than [threshold]. No dithering: text and bars stay crisp.
+  factory MonoImage.fromRgba(
+    Uint8List rgba, {
+    required int width,
+    required int height,
+    int threshold = 160,
+  }) {
+    final widthBytes = (width + 7) ~/ 8;
+    final bits = Uint8List(widthBytes * height);
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        final i = (y * width + x) * 4;
+        final a = rgba[i + 3] / 255;
+        final l =
+            (0.299 * rgba[i] + 0.587 * rgba[i + 1] + 0.114 * rgba[i + 2]) * a +
+            255 * (1 - a);
+        if (l < threshold) bits[y * widthBytes + (x >> 3)] |= 0x80 >> (x & 7);
+      }
+    }
+    return MonoImage(widthBytes: widthBytes, height: height, bits: bits);
+  }
+
   /// Turns a logo (PNG/JPEG, any colours, transparency allowed) into a
   /// printable image [percent] of the paper wide, centred on the full
   /// [paperDots] width so it doesn't depend on the printer's alignment.

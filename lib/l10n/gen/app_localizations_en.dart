@@ -2129,4 +2129,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tplFooterHint => 'Thank-you note, return policy…';
+
+  @override
+  String get lpTitle => 'Label printer';
+
+  @override
+  String get lpPrinter => 'Printer';
+
+  @override
+  String get lpUseBillPrinter => 'Same as the bill printer';
+
+  @override
+  String get lpUseBillPrinterHelp => 'Plain text labels on the receipt roll';
+
+  @override
+  String get lpLanguage => 'Printer language';
+
+  @override
+  String get lpLanguageHelp =>
+      'Most label printers use TSPL. If the test label comes out blank or as random characters, try ESC/POS.';
+
+  @override
+  String get lpSize => 'Label size';
+
+  @override
+  String get lpWidth => 'Width';
+
+  @override
+  String get lpHeight => 'Height';
+
+  @override
+  String get lpGap => 'Gap';
+
+  @override
+  String get lpContent => 'On the label';
+
+  @override
+  String get lpShowMrp => 'MRP (when higher than the price)';
+
+  @override
+  String get lpTest => 'Print a test label';
 }

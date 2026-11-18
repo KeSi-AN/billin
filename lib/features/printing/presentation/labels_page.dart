@@ -1,11 +1,15 @@
+import 'dart:typed_data';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
 import 'package:shop_app/features/items/domain/item.dart';
+import 'package:shop_app/features/printing/data/label_renderer.dart';
 import 'package:shop_app/features/printing/data/printer_service.dart';
 import 'package:shop_app/features/printing/domain/ean.dart';
+import 'package:shop_app/features/printing/domain/label_encoder.dart';
 import 'package:shop_app/features/printing/domain/label_formatter.dart';
 import 'package:shop_app/features/printing/presentation/print_error_text.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
@@ -64,15 +68,37 @@ class _LabelsPageState extends State<LabelsPage> {
     final requests = [
       for (final e in _copies.entries) (item: _items[e.key]!, copies: e.value),
     ];
-    final bytes = LabelFormatter(width: settings.paperWidth.charsPerLine).bytes(
-      requests,
-      LabelOptions(
-        showPrice: _showPrice,
-        shopName: _showShop ? shop?.name : null,
-      ),
+    final setup = settings.labelSetup.copyWith(
+      showPrice: _showPrice,
+      showShop: _showShop,
     );
+    final Uint8List bytes;
+    final String? address;
+    if (setup.address != null) {
+      // A label printer: each label drawn as a picture of the label size.
+      const renderer = LabelRenderer();
+      bytes = encodeLabels([
+        for (final r in requests)
+          (
+            image: await renderer.render(r.item, setup, shopName: shop?.name),
+            copies: r.copies,
+          ),
+      ], setup);
+      address = setup.address;
+    } else {
+      // No label printer: text labels on the bill printer, as before.
+      bytes = LabelFormatter(width: settings.paperWidth.charsPerLine).bytes(
+        requests,
+        LabelOptions(
+          showPrice: _showPrice,
+          shopName: _showShop ? shop?.name : null,
+        ),
+      );
+      address = null;
+    }
+    if (!mounted) return;
     try {
-      await context.read<PrinterService>().printBytes(bytes);
+      await context.read<PrinterService>().printBytes(bytes, address: address);
       if (mounted) showSnack(context, l10n.printed);
     } on PrintException catch (e) {
       if (mounted) {
@@ -84,7 +110,7 @@ class _LabelsPageState extends State<LabelsPage> {
               content: Text(printErrorText(l10n, e)),
               action: SnackBarAction(
                 label: l10n.setUpPrinter,
-                onPressed: () => router.push(AppRoutes.printerSettings),
+                onPressed: () => router.push(AppRoutes.labelPrinter),
               ),
             ),
           );
@@ -98,7 +124,17 @@ class _LabelsPageState extends State<LabelsPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.labelsTitle)),
+      appBar: AppBar(
+        title: Text(l10n.labelsTitle),
+        actions: [
+          IconButton(
+            key: const Key('labelPrinterButton'),
+            tooltip: l10n.lpTitle,
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => context.push(AppRoutes.labelPrinter),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(

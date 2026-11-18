@@ -292,6 +292,9 @@ class AppSettings extends Table {
   /// The printed bill's layout (`ReceiptTemplate` as JSON). Build 0.5.1.
   TextColumn get receiptTemplate => text().nullable()();
 
+  /// The label printer and label size (`LabelSetup` as JSON). Build 0.5.2.
+  TextColumn get labelSetup => text().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 

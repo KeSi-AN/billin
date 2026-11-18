@@ -22,6 +22,13 @@ enum ItemColumn {
     'sp',
   ]),
   mrp('MRP', ['mrp']),
+  costPrice('Cost price', [
+    'cost price',
+    'cost',
+    'purchase price',
+    'buying price',
+    'pp',
+  ]),
   unit('Unit', ['unit', 'uom']),
   gst('GST %', ['gst %', 'gst', 'gst rate', 'tax %', 'tax', 'tax rate']),
   priceIncludesGst('Price includes GST', [
@@ -173,6 +180,12 @@ class ItemImporter {
         row.errors.add('MRP is lower than the selling price');
       }
 
+      final costText = get(ItemColumn.costPrice);
+      final cost = costText.isEmpty ? null : _money(costText);
+      if (costText.isNotEmpty && cost == null) {
+        row.errors.add('Cost price "$costText" is not a valid amount');
+      }
+
       final gstText = get(ItemColumn.gst);
       final gst = gstText.isEmpty ? TaxRate.zero : _gst(gstText);
       if (gst == null) {
@@ -242,6 +255,7 @@ class ItemImporter {
           name: name,
           salePrice: price!,
           mrp: mrp,
+          costPrice: cost ?? base.costPrice,
           barcode: barcode.isEmpty ? base.barcode : barcode,
           unit: unit!,
           taxRate: gst!,
@@ -378,6 +392,7 @@ Future<Rows> exportItems(
       i.barcode ?? '',
       i.salePrice.toInput(),
       i.mrp?.toInput() ?? '',
+      i.costPrice?.toInput() ?? '',
       i.unit,
       _gstNumber(i.taxRate),
       i.priceIncludesTax ? 'Yes' : 'No',
@@ -399,6 +414,7 @@ Rows itemTemplate() => [
     '8901719110054',
     '10',
     '10',
+    '8.50',
     'pcs',
     '5',
     'Yes',
@@ -413,6 +429,7 @@ Rows itemTemplate() => [
     '',
     '120',
     '',
+    '96',
     'kg',
     '0',
     'Yes',
@@ -425,6 +442,6 @@ Rows itemTemplate() => [
 ];
 
 /// Columns written as numbers in the exported .xlsx.
-const itemNumericColumns = {2, 3, 5, 10, 11};
+const itemNumericColumns = {2, 3, 4, 6, 11, 12};
 
 String _gstNumber(TaxRate r) => r.label.replaceAll('%', '');

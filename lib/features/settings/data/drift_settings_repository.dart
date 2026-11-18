@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:shop_app/core/db/app_database.dart';
+import 'package:shop_app/features/printing/domain/label_setup.dart';
 import 'package:shop_app/features/printing/domain/receipt_template.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
 
@@ -35,6 +36,7 @@ class DriftSettingsRepository implements SettingsRepository {
             printerName: Value(s.printerName),
             paperWidthMm: Value(s.paperWidth.mm),
             receiptTemplate: Value(s.receiptTemplate.toJson()),
+            labelSetup: Value(s.labelSetup.toJson()),
           ),
         );
   }
@@ -55,5 +57,6 @@ class DriftSettingsRepository implements SettingsRepository {
                     ? const ReceiptTemplate()
                     : ReceiptTemplate(footer: r.receiptFooter!))
               : ReceiptTemplate.fromJson(r.receiptTemplate),
+          labelSetup: LabelSetup.fromJson(r.labelSetup),
         );
 }

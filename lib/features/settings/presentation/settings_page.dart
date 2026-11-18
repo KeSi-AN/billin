@@ -41,6 +41,15 @@ class SettingsPage extends StatelessWidget {
                 onTap: () => context.push(AppRoutes.printerSettings),
               ),
               ListTile(
+                key: const Key('labelPrinterTile'),
+                leading: const Icon(Icons.label_outline),
+                title: Text(l10n.lpTitle),
+                subtitle: Text(
+                  settings.labelSetup.name ?? l10n.lpUseBillPrinter,
+                ),
+                onTap: () => context.push(AppRoutes.labelPrinter),
+              ),
+              ListTile(
                 key: const Key('billTemplateTile'),
                 leading: const Icon(Icons.receipt_outlined),
                 title: Text(l10n.tplTitle),

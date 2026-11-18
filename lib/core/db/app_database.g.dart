@@ -5530,6 +5530,17 @@ class $AppSettingsTable extends AppSettings
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _labelSetupMeta = const VerificationMeta(
+    'labelSetup',
+  );
+  @override
+  late final GeneratedColumn<String> labelSetup = GeneratedColumn<String>(
+    'label_setup',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -5541,6 +5552,7 @@ class $AppSettingsTable extends AppSettings
     printerName,
     paperWidthMm,
     receiptTemplate,
+    labelSetup,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5626,6 +5638,12 @@ class $AppSettingsTable extends AppSettings
         ),
       );
     }
+    if (data.containsKey('label_setup')) {
+      context.handle(
+        _labelSetupMeta,
+        labelSetup.isAcceptableOrUnknown(data['label_setup']!, _labelSetupMeta),
+      );
+    }
     return context;
   }
 
@@ -5671,6 +5689,10 @@ class $AppSettingsTable extends AppSettings
         DriftSqlType.string,
         data['${effectivePrefix}receipt_template'],
       ),
+      labelSetup: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label_setup'],
+      ),
     );
   }
 
@@ -5690,8 +5712,11 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
   final String? printerName;
   final int paperWidthMm;
 
-  /// The printed bill's layout ([ReceiptTemplate] as JSON). Build 0.5.1.
+  /// The printed bill's layout (`ReceiptTemplate` as JSON). Build 0.5.1.
   final String? receiptTemplate;
+
+  /// The label printer and label size (`LabelSetup` as JSON). Build 0.5.2.
+  final String? labelSetup;
   const SettingsRow({
     required this.id,
     required this.invoicePrefix,
@@ -5702,6 +5727,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     this.printerName,
     required this.paperWidthMm,
     this.receiptTemplate,
+    this.labelSetup,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5724,6 +5750,9 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     map['paper_width_mm'] = Variable<int>(paperWidthMm);
     if (!nullToAbsent || receiptTemplate != null) {
       map['receipt_template'] = Variable<String>(receiptTemplate);
+    }
+    if (!nullToAbsent || labelSetup != null) {
+      map['label_setup'] = Variable<String>(labelSetup);
     }
     return map;
   }
@@ -5749,6 +5778,9 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
       receiptTemplate: receiptTemplate == null && nullToAbsent
           ? const Value.absent()
           : Value(receiptTemplate),
+      labelSetup: labelSetup == null && nullToAbsent
+          ? const Value.absent()
+          : Value(labelSetup),
     );
   }
 
@@ -5767,6 +5799,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
       printerName: serializer.fromJson<String?>(json['printerName']),
       paperWidthMm: serializer.fromJson<int>(json['paperWidthMm']),
       receiptTemplate: serializer.fromJson<String?>(json['receiptTemplate']),
+      labelSetup: serializer.fromJson<String?>(json['labelSetup']),
     );
   }
   @override
@@ -5782,6 +5815,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
       'printerName': serializer.toJson<String?>(printerName),
       'paperWidthMm': serializer.toJson<int>(paperWidthMm),
       'receiptTemplate': serializer.toJson<String?>(receiptTemplate),
+      'labelSetup': serializer.toJson<String?>(labelSetup),
     };
   }
 
@@ -5795,6 +5829,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     Value<String?> printerName = const Value.absent(),
     int? paperWidthMm,
     Value<String?> receiptTemplate = const Value.absent(),
+    Value<String?> labelSetup = const Value.absent(),
   }) => SettingsRow(
     id: id ?? this.id,
     invoicePrefix: invoicePrefix ?? this.invoicePrefix,
@@ -5811,6 +5846,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     receiptTemplate: receiptTemplate.present
         ? receiptTemplate.value
         : this.receiptTemplate,
+    labelSetup: labelSetup.present ? labelSetup.value : this.labelSetup,
   );
   SettingsRow copyWithCompanion(AppSettingsCompanion data) {
     return SettingsRow(
@@ -5837,6 +5873,9 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
       receiptTemplate: data.receiptTemplate.present
           ? data.receiptTemplate.value
           : this.receiptTemplate,
+      labelSetup: data.labelSetup.present
+          ? data.labelSetup.value
+          : this.labelSetup,
     );
   }
 
@@ -5851,7 +5890,8 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
           ..write('printerAddress: $printerAddress, ')
           ..write('printerName: $printerName, ')
           ..write('paperWidthMm: $paperWidthMm, ')
-          ..write('receiptTemplate: $receiptTemplate')
+          ..write('receiptTemplate: $receiptTemplate, ')
+          ..write('labelSetup: $labelSetup')
           ..write(')'))
         .toString();
   }
@@ -5867,6 +5907,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     printerName,
     paperWidthMm,
     receiptTemplate,
+    labelSetup,
   );
   @override
   bool operator ==(Object other) =>
@@ -5880,7 +5921,8 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
           other.printerAddress == this.printerAddress &&
           other.printerName == this.printerName &&
           other.paperWidthMm == this.paperWidthMm &&
-          other.receiptTemplate == this.receiptTemplate);
+          other.receiptTemplate == this.receiptTemplate &&
+          other.labelSetup == this.labelSetup);
 }
 
 class AppSettingsCompanion extends UpdateCompanion<SettingsRow> {
@@ -5893,6 +5935,7 @@ class AppSettingsCompanion extends UpdateCompanion<SettingsRow> {
   final Value<String?> printerName;
   final Value<int> paperWidthMm;
   final Value<String?> receiptTemplate;
+  final Value<String?> labelSetup;
   const AppSettingsCompanion({
     this.id = const Value.absent(),
     this.invoicePrefix = const Value.absent(),
@@ -5903,6 +5946,7 @@ class AppSettingsCompanion extends UpdateCompanion<SettingsRow> {
     this.printerName = const Value.absent(),
     this.paperWidthMm = const Value.absent(),
     this.receiptTemplate = const Value.absent(),
+    this.labelSetup = const Value.absent(),
   });
   AppSettingsCompanion.insert({
     this.id = const Value.absent(),
@@ -5914,6 +5958,7 @@ class AppSettingsCompanion extends UpdateCompanion<SettingsRow> {
     this.printerName = const Value.absent(),
     this.paperWidthMm = const Value.absent(),
     this.receiptTemplate = const Value.absent(),
+    this.labelSetup = const Value.absent(),
   });
   static Insertable<SettingsRow> custom({
     Expression<int>? id,
@@ -5925,6 +5970,7 @@ class AppSettingsCompanion extends UpdateCompanion<SettingsRow> {
     Expression<String>? printerName,
     Expression<int>? paperWidthMm,
     Expression<String>? receiptTemplate,
+    Expression<String>? labelSetup,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -5936,6 +5982,7 @@ class AppSettingsCompanion extends UpdateCompanion<SettingsRow> {
       if (printerName != null) 'printer_name': printerName,
       if (paperWidthMm != null) 'paper_width_mm': paperWidthMm,
       if (receiptTemplate != null) 'receipt_template': receiptTemplate,
+      if (labelSetup != null) 'label_setup': labelSetup,
     });
   }
 
@@ -5949,6 +5996,7 @@ class AppSettingsCompanion extends UpdateCompanion<SettingsRow> {
     Value<String?>? printerName,
     Value<int>? paperWidthMm,
     Value<String?>? receiptTemplate,
+    Value<String?>? labelSetup,
   }) {
     return AppSettingsCompanion(
       id: id ?? this.id,
@@ -5960,6 +6008,7 @@ class AppSettingsCompanion extends UpdateCompanion<SettingsRow> {
       printerName: printerName ?? this.printerName,
       paperWidthMm: paperWidthMm ?? this.paperWidthMm,
       receiptTemplate: receiptTemplate ?? this.receiptTemplate,
+      labelSetup: labelSetup ?? this.labelSetup,
     );
   }
 
@@ -5993,6 +6042,9 @@ class AppSettingsCompanion extends UpdateCompanion<SettingsRow> {
     if (receiptTemplate.present) {
       map['receipt_template'] = Variable<String>(receiptTemplate.value);
     }
+    if (labelSetup.present) {
+      map['label_setup'] = Variable<String>(labelSetup.value);
+    }
     return map;
   }
 
@@ -6007,7 +6059,8 @@ class AppSettingsCompanion extends UpdateCompanion<SettingsRow> {
           ..write('printerAddress: $printerAddress, ')
           ..write('printerName: $printerName, ')
           ..write('paperWidthMm: $paperWidthMm, ')
-          ..write('receiptTemplate: $receiptTemplate')
+          ..write('receiptTemplate: $receiptTemplate, ')
+          ..write('labelSetup: $labelSetup')
           ..write(')'))
         .toString();
   }
@@ -15620,6 +15673,7 @@ typedef $$AppSettingsTableCreateCompanionBuilder =
       Value<String?> printerName,
       Value<int> paperWidthMm,
       Value<String?> receiptTemplate,
+      Value<String?> labelSetup,
     });
 typedef $$AppSettingsTableUpdateCompanionBuilder =
     AppSettingsCompanion Function({
@@ -15632,6 +15686,7 @@ typedef $$AppSettingsTableUpdateCompanionBuilder =
       Value<String?> printerName,
       Value<int> paperWidthMm,
       Value<String?> receiptTemplate,
+      Value<String?> labelSetup,
     });
 
 class $$AppSettingsTableFilterComposer
@@ -15685,6 +15740,11 @@ class $$AppSettingsTableFilterComposer
 
   ColumnFilters<String> get receiptTemplate => $composableBuilder(
     column: $table.receiptTemplate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get labelSetup => $composableBuilder(
+    column: $table.labelSetup,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -15742,6 +15802,11 @@ class $$AppSettingsTableOrderingComposer
     column: $table.receiptTemplate,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get labelSetup => $composableBuilder(
+    column: $table.labelSetup,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AppSettingsTableAnnotationComposer
@@ -15793,6 +15858,11 @@ class $$AppSettingsTableAnnotationComposer
     column: $table.receiptTemplate,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get labelSetup => $composableBuilder(
+    column: $table.labelSetup,
+    builder: (column) => column,
+  );
 }
 
 class $$AppSettingsTableTableManager
@@ -15835,6 +15905,7 @@ class $$AppSettingsTableTableManager
                 Value<String?> printerName = const Value.absent(),
                 Value<int> paperWidthMm = const Value.absent(),
                 Value<String?> receiptTemplate = const Value.absent(),
+                Value<String?> labelSetup = const Value.absent(),
               }) => AppSettingsCompanion(
                 id: id,
                 invoicePrefix: invoicePrefix,
@@ -15845,6 +15916,7 @@ class $$AppSettingsTableTableManager
                 printerName: printerName,
                 paperWidthMm: paperWidthMm,
                 receiptTemplate: receiptTemplate,
+                labelSetup: labelSetup,
               ),
           createCompanionCallback:
               ({
@@ -15857,6 +15929,7 @@ class $$AppSettingsTableTableManager
                 Value<String?> printerName = const Value.absent(),
                 Value<int> paperWidthMm = const Value.absent(),
                 Value<String?> receiptTemplate = const Value.absent(),
+                Value<String?> labelSetup = const Value.absent(),
               }) => AppSettingsCompanion.insert(
                 id: id,
                 invoicePrefix: invoicePrefix,
@@ -15867,6 +15940,7 @@ class $$AppSettingsTableTableManager
                 printerName: printerName,
                 paperWidthMm: paperWidthMm,
                 receiptTemplate: receiptTemplate,
+                labelSetup: labelSetup,
               ),
           withReferenceMapper: (p0) => p0
               .map(

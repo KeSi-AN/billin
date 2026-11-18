@@ -3723,6 +3723,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Thank-you note, return policy…'**
   String get tplFooterHint;
+
+  /// No description provided for @lpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Label printer'**
+  String get lpTitle;
+
+  /// No description provided for @lpPrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer'**
+  String get lpPrinter;
+
+  /// No description provided for @lpUseBillPrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as the bill printer'**
+  String get lpUseBillPrinter;
+
+  /// No description provided for @lpUseBillPrinterHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain text labels on the receipt roll'**
+  String get lpUseBillPrinterHelp;
+
+  /// No description provided for @lpLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer language'**
+  String get lpLanguage;
+
+  /// No description provided for @lpLanguageHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Most label printers use TSPL. If the test label comes out blank or as random characters, try ESC/POS.'**
+  String get lpLanguageHelp;
+
+  /// No description provided for @lpSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Label size'**
+  String get lpSize;
+
+  /// No description provided for @lpWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Width'**
+  String get lpWidth;
+
+  /// No description provided for @lpHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get lpHeight;
+
+  /// No description provided for @lpGap.
+  ///
+  /// In en, this message translates to:
+  /// **'Gap'**
+  String get lpGap;
+
+  /// No description provided for @lpContent.
+  ///
+  /// In en, this message translates to:
+  /// **'On the label'**
+  String get lpContent;
+
+  /// No description provided for @lpShowMrp.
+  ///
+  /// In en, this message translates to:
+  /// **'MRP (when higher than the price)'**
+  String get lpShowMrp;
+
+  /// No description provided for @lpTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Print a test label'**
+  String get lpTest;
 }
 
 class _AppLocalizationsDelegate
