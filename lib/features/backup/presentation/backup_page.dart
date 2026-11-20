@@ -4,13 +4,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shop_app/app/app_restarter.dart';
 import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/format/dates.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
 import 'package:shop_app/features/backup/domain/backup.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
-import 'package:shop_app/features/reports/presentation/report_export.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
 /// Returns the picked file's bytes, or `null` if cancelled.
@@ -25,16 +25,30 @@ Future<Uint8List?> _pickWithSystem() async {
   return await files.single.xFile.readAsBytes();
 }
 
+/// Opens the share sheet; `true` only if the backup was actually sent
+/// somewhere (closing the sheet doesn't count).
+typedef ShareBackup = Future<bool> Function(String path, String text);
+
+Future<bool> _shareBackupWithSystem(String path, String text) async {
+  final result = await SharePlus.instance.share(
+    ShareParams(
+      files: [XFile(path, mimeType: 'application/zip')],
+      text: text,
+    ),
+  );
+  return result.status == ShareResultStatus.success;
+}
+
 /// Back up to a file (Google Drive, WhatsApp to self…) and restore from one.
 class BackupPage extends StatefulWidget {
   const BackupPage({
     this.pickFile = _pickWithSystem,
-    this.shareFile = shareReportWithSystem,
+    this.shareFile = _shareBackupWithSystem,
     super.key,
   });
 
   final PickBackup pickFile;
-  final ShareReport shareFile;
+  final ShareBackup shareFile;
 
   @override
   State<BackupPage> createState() => _BackupPageState();
@@ -52,7 +66,9 @@ class _BackupPageState extends State<BackupPage> {
     setState(() => _busy = true);
     try {
       final path = await backup.create();
-      await widget.shareFile(path, l10n.backupShareText);
+      if (await widget.shareFile(path, l10n.backupShareText)) {
+        await backup.markShared();
+      }
       if (mounted) showSnack(context, l10n.backupDone);
     } on Object {
       if (mounted) showSnack(context, l10n.backupFailed);
@@ -138,6 +154,12 @@ class _BackupPageState extends State<BackupPage> {
                     style: TextStyle(color: scheme.onSecondaryContainer),
                   ),
                   const SizedBox(height: 8),
+                  Text(
+                    l10n.backupAutoInfo,
+                    key: const Key('backupAutoInfo'),
+                    style: TextStyle(color: scheme.onSecondaryContainer),
+                  ),
+                  const SizedBox(height: 8),
                   FutureBuilder<DateTime?>(
                     future: _last,
                     builder: (context, snapshot) => Text(
@@ -200,7 +222,9 @@ class _BackupReminderState extends State<BackupReminder> {
   /// billing, or the backup is older than [BackupReminder.maxAge].
   Future<(DateTime?, bool)> _check() async {
     final bills = context.read<BillRepository>();
-    final last = await context.read<BackupService>().lastBackupAt();
+    // Backups on the phone happen by themselves; what matters here is a
+    // copy off the phone (Drive, WhatsApp), which survives losing it.
+    final last = await context.read<BackupService>().lastSharedAt();
     if (last != null) {
       return (last, DateTime.now().difference(last) >= BackupReminder.maxAge);
     }

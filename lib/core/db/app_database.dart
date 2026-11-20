@@ -126,6 +126,8 @@ class AppDatabase extends _$AppDatabase {
     ),
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
+      // The nightly backup may read while the app writes: wait, don't fail.
+      await customStatement('PRAGMA busy_timeout = 5000');
     },
   );
 

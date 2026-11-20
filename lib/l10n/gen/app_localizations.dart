@@ -3409,7 +3409,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupWhy.
   ///
   /// In en, this message translates to:
-  /// **'Your bills, items and khata live only on this phone. If the phone is lost or reset, a backup is the only way to get them back.'**
+  /// **'Your bills, items and khata live on this phone. The app backs them up by itself every night at 10:30 pm (or when you next open it, if the phone was off).'**
   String get backupWhy;
 
   /// No description provided for @backupNever.
@@ -3433,7 +3433,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupHowTo.
   ///
   /// In en, this message translates to:
-  /// **'This makes one file with everything (including item photos). In the share sheet, choose Drive to keep it in your Google account, or send it to yourself on WhatsApp.'**
+  /// **'Makes a backup now and opens the share sheet: choose Drive to keep it in your Google account, or send it to yourself on WhatsApp.'**
   String get backupHowTo;
 
   /// No description provided for @backupShareText.
@@ -3511,13 +3511,13 @@ abstract class AppLocalizations {
   /// No description provided for @backupReminderNever.
   ///
   /// In en, this message translates to:
-  /// **'You haven\'t backed up yet. Tap to save your data.'**
+  /// **'Your backups are only on this phone. Tap to save one to Google Drive.'**
   String get backupReminderNever;
 
   /// No description provided for @backupReminderOld.
   ///
   /// In en, this message translates to:
-  /// **'{days, plural, other{Last backup was {days} days ago. Tap to back up.}}'**
+  /// **'{days, plural, other{No backup sent to Drive for {days} days. Tap to send one.}}'**
   String backupReminderOld(int days);
 
   /// No description provided for @printErrFailedDetail.
@@ -3873,6 +3873,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'WhatsApp isn\'t installed. Use Share instead.'**
   String get whatsappMissing;
+
+  /// No description provided for @backupAutoInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this phone in Downloads › ShopBackups (the last 14 days). That copy is lost if the phone is lost, so use \"Back up now\" now and then to put one on Google Drive.'**
+  String get backupAutoInfo;
 }
 
 class _AppLocalizationsDelegate

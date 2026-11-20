@@ -1300,7 +1300,7 @@
   "homeTopItems": "Top items · last 7 days",
   "backupTitle": "Backup & restore",
   "settingsBackupSubtitle": "Save all your data to Google Drive or a file",
-  "backupWhy": "Your bills, items and khata live only on this phone. If the phone is lost or reset, a backup is the only way to get them back.",
+  "backupWhy": "Your bills, items and khata live on this phone. The app backs them up by itself every night at 10:30 pm (or when you next open it, if the phone was off).",
   "backupNever": "No backup yet",
   "backupLast": "Last backup: {when}",
   "@backupLast": {
@@ -1311,7 +1311,7 @@
     }
   },
   "backupNow": "Back up now",
-  "backupHowTo": "This makes one file with everything (including item photos). In the share sheet, choose Drive to keep it in your Google account, or send it to yourself on WhatsApp.",
+  "backupHowTo": "Makes a backup now and opens the share sheet: choose Drive to keep it in your Google account, or send it to yourself on WhatsApp.",
   "backupShareText": "Shop app backup",
   "backupDone": "Backup ready",
   "backupFailed": "Couldn't make the backup. Please try again.",
@@ -1340,8 +1340,8 @@
   "restoreTooNew": "This backup is from a newer version of the app. Update the app, then restore.",
   "restoreFailed": "Couldn't restore. Your data wasn't changed.",
   "restoreDone": "Restored. Close and reopen the app.",
-  "backupReminderNever": "You haven't backed up yet. Tap to save your data.",
-  "backupReminderOld": "{days, plural, other{Last backup was {days} days ago. Tap to back up.}}",
+  "backupReminderNever": "Your backups are only on this phone. Tap to save one to Google Drive.",
+  "backupReminderOld": "{days, plural, other{No backup sent to Drive for {days} days. Tap to send one.}}",
   "@backupReminderOld": {
     "placeholders": {
       "days": {
@@ -1421,5 +1421,6 @@
   },
   "checkoutPhoneForWhatsApp": "For the WhatsApp bill",
   "billWhatsApp": "WhatsApp",
-  "whatsappMissing": "WhatsApp isn't installed. Use Share instead."
+  "whatsappMissing": "WhatsApp isn't installed. Use Share instead.",
+  "backupAutoInfo": "Saved on this phone in Downloads › ShopBackups (the last 14 days). That copy is lost if the phone is lost, so use \"Back up now\" now and then to put one on Google Drive."
 }

@@ -144,4 +144,50 @@ void main() {
     expect(items.single.name, 'Kept');
     await phone.db.close();
   });
+
+  test('every backup is kept on the phone; only the newest 14 stay', () async {
+    final keep = Directory(p.join(root.path, 'external'))..createSync();
+    final copied = <String>[];
+    final phone = Phone(root, 'p')..open();
+    addTearDown(phone.db.close);
+    var now = DateTime(2026, 11, 1, 22, 30);
+    FileBackupService service({bool downloads = true}) => FileBackupService(
+      phone.db,
+      databaseFile: () async => phone.dbFile,
+      storageDir: () async => phone.storage,
+      tempDir: () async => phone.temp,
+      keepDir: () async => keep,
+      publicCopy: (path) async {
+        if (!downloads) return false;
+        copied.add(p.basename(path));
+        return true;
+      },
+      clock: () => now,
+    );
+
+    for (var day = 0; day < 16; day++) {
+      now = DateTime(2026, 11, 1 + day, 22, 30);
+      await service().create();
+    }
+    final kept = Directory(
+      p.join(keep.path, 'ShopBackups'),
+    ).listSync().map((f) => p.basename(f.path)).toList()..sort();
+    expect(kept, hasLength(14));
+    expect(kept.first, 'ShopBackup_2026-11-03_2230.zip');
+    expect(kept.last, 'ShopBackup_2026-11-16_2230.zip');
+    expect(copied, hasLength(16)); // each one also went to Downloads
+
+    // At night Downloads isn't reachable; the app catches up on opening.
+    now = DateTime(2026, 11, 17, 22, 30);
+    await service(downloads: false).create();
+    expect(copied.last, isNot('ShopBackup_2026-11-17_2230.zip'));
+    await service().syncPublicCopy();
+    expect(copied.last, 'ShopBackup_2026-11-17_2230.zip');
+    await service().syncPublicCopy(); // already copied: nothing more
+    expect(copied.where((n) => n.contains('11-17')), hasLength(1));
+
+    expect(await service().lastSharedAt(), isNull);
+    await service().markShared();
+    expect(await service().lastSharedAt(), now);
+  });
 }

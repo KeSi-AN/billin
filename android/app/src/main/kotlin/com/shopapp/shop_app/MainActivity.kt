@@ -9,6 +9,7 @@ class MainActivity : FlutterActivity() {
     private var contacts: ContactPickerChannel? = null
     private var keyboard: KeyboardChannel? = null
     private var whatsApp: WhatsAppChannel? = null
+    private var downloads: DownloadsChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -17,6 +18,7 @@ class MainActivity : FlutterActivity() {
         contacts = ContactPickerChannel(this, messenger)
         keyboard = KeyboardChannel(applicationContext, messenger)
         whatsApp = WhatsAppChannel(applicationContext, messenger)
+        downloads = DownloadsChannel(applicationContext, messenger)
     }
 
     @Deprecated("Needed for the system contact picker result")
@@ -33,6 +35,8 @@ class MainActivity : FlutterActivity() {
         keyboard = null
         whatsApp?.dispose()
         whatsApp = null
+        downloads?.dispose()
+        downloads = null
         printer = null
         contacts = null
         super.cleanUpFlutterEngine(flutterEngine)

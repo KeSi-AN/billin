@@ -18,6 +18,8 @@ class FileBackupService implements BackupService {
     required this._databaseFile,
     required this._storageDir,
     required this._tempDir,
+    this._keepDir,
+    this._publicCopy,
     this._clock = DateTime.now,
   });
 
@@ -29,12 +31,22 @@ class FileBackupService implements BackupService {
   /// App storage holding [mediaFolders] and the last-backup marker.
   final Future<Directory> Function() _storageDir;
   final Future<Directory> Function() _tempDir;
+
+  /// Where every backup is also kept on the phone (app storage; survives
+  /// cache clearing, not uninstalling). `null` in tests.
+  final Future<Directory?> Function()? _keepDir;
+
+  /// Copies a backup into the phone's Downloads/ShopBackups (survives
+  /// uninstalling). Returns `false` when it can't (e.g. in the background).
+  final Future<bool> Function(String path)? _publicCopy;
   final DateTime Function() _clock;
 
   static const formatVersion = 1;
   static const _manifest = 'manifest.json';
   static const _database = 'shop_app.sqlite';
   static const _marker = 'last_backup.txt';
+  static const _sharedMarker = 'last_shared.txt';
+  static const _publicMarker = 'public_copy.txt';
 
   /// Folders in app storage that belong in a backup.
   static const mediaFolders = ['item_images', 'logos'];
@@ -96,7 +108,77 @@ class FileBackupService implements BackupService {
     await file.writeAsBytes(bytes, flush: true);
     await File(p.join(storage.path, _marker))
         .writeAsString(now.toIso8601String());
+    await _keep(file);
     return file.path;
+  }
+
+  Future<Directory?> _keptFolder() async {
+    final base = await _keepDir?.call();
+    if (base == null) return null;
+    final dir = Directory(p.join(base.path, 'ShopBackups'));
+    await dir.create(recursive: true);
+    return dir;
+  }
+
+  /// Newest first.
+  Future<List<File>> _kept() async {
+    final dir = await _keptFolder();
+    if (dir == null) return const [];
+    return dir
+        .listSync()
+        .whereType<File>()
+        .where((f) => p.basename(f.path).startsWith('ShopBackup_'))
+        .toList()
+      ..sort((a, b) => p.basename(b.path).compareTo(p.basename(a.path)));
+  }
+
+  /// Keeps a copy on the phone, prunes old ones, and tries Downloads.
+  Future<void> _keep(File backup) async {
+    try {
+      final dir = await _keptFolder();
+      if (dir == null) return;
+      await backup.copy(p.join(dir.path, p.basename(backup.path)));
+      for (final old in (await _kept()).skip(keptBackups)) {
+        await old.delete();
+      }
+      await syncPublicCopy();
+    } on Object {
+      // A failed extra copy must not fail the backup itself.
+    }
+  }
+
+  @override
+  Future<void> syncPublicCopy() async {
+    final copy = _publicCopy;
+    if (copy == null) return;
+    final kept = await _kept();
+    if (kept.isEmpty) return;
+    final newest = kept.first;
+    final marker = File(p.join((await _storageDir()).path, _publicMarker));
+    final name = p.basename(newest.path);
+    if (marker.existsSync() && (await marker.readAsString()).trim() == name) {
+      return;
+    }
+    try {
+      if (await copy(newest.path)) await marker.writeAsString(name);
+    } on Object {
+      // Not available here (background); the app retries when opened.
+    }
+  }
+
+  @override
+  Future<void> markShared() async {
+    await File(p.join((await _storageDir()).path, _sharedMarker))
+        .writeAsString(_clock().toIso8601String());
+  }
+
+  @override
+  Future<DateTime?> lastSharedAt() => _readMarker(_sharedMarker);
+
+  Future<DateTime?> _readMarker(String name) async {
+    final f = File(p.join((await _storageDir()).path, name));
+    if (!f.existsSync()) return null;
+    return DateTime.tryParse((await f.readAsString()).trim());
   }
 
   Archive _decode(Uint8List bytes) {
@@ -211,9 +293,5 @@ class FileBackupService implements BackupService {
   }
 
   @override
-  Future<DateTime?> lastBackupAt() async {
-    final f = File(p.join((await _storageDir()).path, _marker));
-    if (!f.existsSync()) return null;
-    return DateTime.tryParse((await f.readAsString()).trim());
-  }
+  Future<DateTime?> lastBackupAt() => _readMarker(_marker);
 }

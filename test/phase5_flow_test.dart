@@ -69,6 +69,7 @@ String textOf(WidgetTester tester, Key key) =>
 
 void main() {
   backupTests();
+  closingShareSheetTest();
 
   testWidgets('Home: today by payment mode, and top items', (tester) async {
     final h = await todaysTrade();
@@ -213,7 +214,10 @@ Future<void> pumpBackupPage(
         supportedLocales: AppLocalizations.supportedLocales,
         home: BackupPage(
           pickFile: pick,
-          shareFile: (path, text) async => shared.add(path),
+          shareFile: (path, text) async {
+            shared.add(path);
+            return true;
+          },
         ),
       ),
     ),
@@ -278,9 +282,9 @@ void backupTests() {
     expect(h.backup.restored, isEmpty);
   });
 
-  testWidgets('Home nags once there are bills and no backup', (tester) async {
+  testWidgets('Home nags until a backup is sent off the phone', (tester) async {
     final h = await todaysTrade();
-    h.backup.last = null;
+    h.backup.shared = null;
     await h.pump(tester);
     expect(find.byKey(const Key('backupReminder')), findsOneWidget);
     await tester.tap(find.byKey(const Key('backupReminder')));
@@ -288,9 +292,36 @@ void backupTests() {
     expect(find.text('Backup & restore'), findsOneWidget);
 
     // A fresh backup makes the reminder go away on the way back.
-    h.backup.last = DateTime.now();
+    h.backup.shared = DateTime.now();
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('backupReminder')), findsNothing);
+  });
+}
+
+void closingShareSheetTest() {
+  testWidgets('closing the share sheet does not count as sent', (tester) async {
+    final h = TestHarness(shop: testShop)..backup.shared = null;
+    await tester.pumpWidget(
+      MultiRepositoryProvider(
+        providers: [
+          RepositoryProvider<BackupService>.value(value: h.backup),
+          RepositoryProvider<BillRepository>.value(value: h.bills),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: BackupPage(
+            pickFile: () async => null,
+            shareFile: (path, text) async => false,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('backupNowButton')));
+    await tester.pumpAndSettle();
+    expect(h.backup.created, hasLength(1));
+    expect(h.backup.shared, isNull);
   });
 }

@@ -1954,7 +1954,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupWhy =>
-      'Your bills, items and khata live only on this phone. If the phone is lost or reset, a backup is the only way to get them back.';
+      'Your bills, items and khata live on this phone. The app backs them up by itself every night at 10:30 pm (or when you next open it, if the phone was off).';
 
   @override
   String get backupNever => 'No backup yet';
@@ -1969,7 +1969,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupHowTo =>
-      'This makes one file with everything (including item photos). In the share sheet, choose Drive to keep it in your Google account, or send it to yourself on WhatsApp.';
+      'Makes a backup now and opens the share sheet: choose Drive to keep it in your Google account, or send it to yourself on WhatsApp.';
 
   @override
   String get backupShareText => 'Shop app backup';
@@ -2013,14 +2013,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupReminderNever =>
-      'You haven\'t backed up yet. Tap to save your data.';
+      'Your backups are only on this phone. Tap to save one to Google Drive.';
 
   @override
   String backupReminderOld(int days) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: 'Last backup was $days days ago. Tap to back up.',
+      other: 'No backup sent to Drive for $days days. Tap to send one.',
     );
     return '$_temp0';
   }
@@ -2209,4 +2209,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get whatsappMissing => 'WhatsApp isn\'t installed. Use Share instead.';
+
+  @override
+  String get backupAutoInfo =>
+      'Saved on this phone in Downloads › ShopBackups (the last 14 days). That copy is lost if the phone is lost, so use \"Back up now\" now and then to put one on Google Drive.';
 }

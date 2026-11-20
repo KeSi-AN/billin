@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shop_app/app/app.dart';
 import 'package:shop_app/app/app_restarter.dart';
 import 'package:shop_app/core/db/app_database.dart';
 import 'package:shop_app/core/format/dates.dart';
-import 'package:shop_app/features/backup/data/file_backup_service.dart';
+import 'package:shop_app/features/backup/data/auto_backup.dart';
 import 'package:shop_app/features/billing/data/drift_bill_repository.dart';
 import 'package:shop_app/features/billing/data/drift_returns_repository.dart';
 import 'package:shop_app/features/customers/data/channel_contact_picker.dart';
@@ -25,6 +27,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initDateFormatting();
   runApp(const AppRestarter(create: createServices));
+  unawaited(scheduleNightlyBackup());
 }
 
 /// Opens the database and wires every repository. Runs again after a
@@ -38,6 +41,9 @@ Future<AppServices> createServices() async {
   final settings = DriftSettingsRepository(db);
   final printer = PrinterService(MethodChannelPrinterTransport(), settings);
   final parties = DriftPartyRepository(db);
+  final backup = phoneBackupService(db);
+  // Catch up a missed nightly backup, once the app has settled.
+  Timer(const Duration(seconds: 20), () => backupIfDue(backup));
 
   return AppServices(
     shopProfiles: shopProfiles,
@@ -52,12 +58,7 @@ Future<AppServices> createServices() async {
     purchases: DriftPurchaseRepository(db),
     returns: DriftReturnsRepository(db),
     expenses: DriftExpenseRepository(db),
-    backup: FileBackupService(
-      db,
-      databaseFile: AppDatabase.file,
-      storageDir: getApplicationSupportDirectory,
-      tempDir: getTemporaryDirectory,
-    ),
+    backup: backup,
     customerActions: AppCustomerActions(
       parties: parties,
       shopProfiles: shopProfiles,

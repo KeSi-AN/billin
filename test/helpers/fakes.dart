@@ -946,6 +946,19 @@ class FakeBackup implements BackupService {
 
   @override
   Future<DateTime?> lastBackupAt() async => last;
+
+  /// Recent by default so Home shows no reminder in unrelated tests.
+  DateTime? shared = DateTime.now();
+  int publicSyncs = 0;
+
+  @override
+  Future<DateTime?> lastSharedAt() async => shared;
+
+  @override
+  Future<void> markShared() async => shared = DateTime.now();
+
+  @override
+  Future<void> syncPublicCopy() async => publicSyncs++;
 }
 
 /// Everything wired with fakes, plus handles to inspect them.

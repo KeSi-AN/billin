@@ -54,4 +54,18 @@ abstract interface class BackupService {
 
   /// When [create] last succeeded on this phone, if ever.
   Future<DateTime?> lastBackupAt();
+
+  /// When a backup was last sent off the phone (Drive, WhatsApp…): the
+  /// only copy that survives a lost phone.
+  Future<DateTime?> lastSharedAt();
+
+  /// Records that a backup was just handed to the share sheet.
+  Future<void> markShared();
+
+  /// Copies the newest kept backup to Downloads if that hasn't happened yet
+  /// (a night-time backup can't always reach Downloads on its own).
+  Future<void> syncPublicCopy();
 }
+
+/// How many backups are kept on the phone (older ones are deleted).
+const keptBackups = 14;
