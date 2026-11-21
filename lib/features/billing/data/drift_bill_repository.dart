@@ -7,16 +7,20 @@ import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
 import 'package:shop_app/features/billing/domain/invoice_number.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
+import 'package:shop_app/features/cloud/domain/cloud.dart';
 import 'package:shop_app/features/customers/data/party_ledger.dart';
 import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/inventory/data/stock_ledger.dart';
 
 class DriftBillRepository implements BillRepository {
-  DriftBillRepository(this._db, {this._clock = DateTime.now})
+  DriftBillRepository(this._db, {this._clock = DateTime.now, this._series})
     : _ledger = StockLedger(_db, _clock),
       _dues = PartyLedger(_db, _clock);
 
   final AppDatabase _db;
+
+  /// This phone's invoice series letter, once it has joined a cloud shop.
+  final SeriesOf? _series;
   final DateTime Function() _clock;
   final StockLedger _ledger;
   final PartyLedger _dues;
@@ -38,6 +42,7 @@ class DriftBillRepository implements BillRepository {
       );
     }
     final now = _clock();
+    final series = await _series?.call();
     final id = await _db.transaction(() async {
       final settings = await (_db.select(
         _db.appSettings,
@@ -102,6 +107,7 @@ class DriftBillRepository implements BillRepository {
                 prefix: settings?.invoicePrefix ?? InvoiceNumber.defaultPrefix,
                 year: fy,
                 sequence: sequence,
+                series: series,
               ),
               fyStart: fy.startYear,
               sequence: sequence,

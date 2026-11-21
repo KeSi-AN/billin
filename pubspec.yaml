@@ -48,6 +48,7 @@ dependencies:
   barcode: ^2.2.9
   meta: ^1.16.0
   workmanager: ^0.10.10
+  supabase_flutter: ^2.18.3
 
 dev_dependencies:
   flutter_test:

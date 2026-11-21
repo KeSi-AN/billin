@@ -1422,5 +1422,41 @@
   "checkoutPhoneForWhatsApp": "For the WhatsApp bill",
   "billWhatsApp": "WhatsApp",
   "whatsappMissing": "WhatsApp isn't installed. Use Share instead.",
-  "backupAutoInfo": "Saved on this phone in Downloads › ShopBackups (the last 14 days). That copy is lost if the phone is lost, so use \"Back up now\" now and then to put one on Google Drive."
+  "backupAutoInfo": "Saved on this phone in Downloads › ShopBackups (the last 14 days). That copy is lost if the phone is lost, so use \"Back up now\" now and then to put one on Google Drive.",
+  "cloudTitle": "Account & sync",
+  "cloudSubtitle": "Sign in to use the shop on more than one phone",
+  "cloudWhy": "Sign in with Google to use this shop on more phones. Each phone keeps working without internet and sends its bills when it is back online. You can keep using the app without signing in.",
+  "cloudSignInGoogle": "Sign in with Google",
+  "cloudNotInBuild": "Sign-in is not available in this version of the app.",
+  "cloudNoShopYet": "Put this shop in the cloud",
+  "cloudPickShop": "Your shops",
+  "cloudUseHere": "Use on this phone",
+  "cloudCreateShop": "Create \"{name}\" in the cloud",
+  "@cloudCreateShop": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudPhoneSeries": "This phone's bills are numbered INV-{series}/…",
+  "@cloudPhoneSeries": {
+    "placeholders": {
+      "series": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudSyncSoon": "Syncing bills, items and customers between phones comes in the next update. Until then each phone keeps its own data.",
+  "cloudSignOut": "Sign out",
+  "cloudSignOutTitle": "Sign out on this phone?",
+  "cloudSignOutBody": "Your bills and items stay on this phone. Sign in again to reconnect it to the shop.",
+  "cloudFailed": "Something went wrong: {error}",
+  "@cloudFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

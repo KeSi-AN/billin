@@ -46,10 +46,12 @@ android {
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
             resValue("string", "app_name", "Shop App Dev")
+            manifestPlaceholders["authScheme"] = "shopappdev"
         }
         create("prod") {
             dimension = "env"
             resValue("string", "app_name", "Shop App")
+            manifestPlaceholders["authScheme"] = "shopapp"
         }
     }
 

@@ -9,6 +9,8 @@ import 'package:shop_app/core/format/dates.dart';
 import 'package:shop_app/features/backup/data/auto_backup.dart';
 import 'package:shop_app/features/billing/data/drift_bill_repository.dart';
 import 'package:shop_app/features/billing/data/drift_returns_repository.dart';
+import 'package:shop_app/features/cloud/data/supabase_cloud_service.dart';
+import 'package:shop_app/features/cloud/domain/cloud.dart';
 import 'package:shop_app/features/customers/data/channel_contact_picker.dart';
 import 'package:shop_app/features/customers/data/drift_party_repository.dart';
 import 'package:shop_app/features/customers/presentation/app_customer_actions.dart';
@@ -26,6 +28,7 @@ import 'package:shop_app/features/shop_profile/data/drift_shop_profile_repositor
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initDateFormatting();
+  await initSupabase();
   runApp(const AppRestarter(create: createServices));
   unawaited(scheduleNightlyBackup());
 }
@@ -42,13 +45,17 @@ Future<AppServices> createServices() async {
   final printer = PrinterService(MethodChannelPrinterTransport(), settings);
   final parties = DriftPartyRepository(db);
   final backup = phoneBackupService(db);
+  final cloud = cloudConfigured
+      ? SupabaseCloudService(storageDir: getApplicationSupportDirectory)
+      : const NoCloudService();
+  Future<String?> series() async => (await cloud.link())?.series;
   // Catch up a missed nightly backup, once the app has settled.
   Timer(const Duration(seconds: 20), () => backupIfDue(backup));
 
   return AppServices(
     shopProfiles: shopProfiles,
     items: DriftItemRepository(db, storageDir: getApplicationSupportDirectory),
-    bills: DriftBillRepository(db),
+    bills: DriftBillRepository(db, series: series),
     settings: settings,
     printer: printer,
     inventory: DriftInventoryRepository(db),
@@ -56,9 +63,10 @@ Future<AppServices> createServices() async {
     parties: parties,
     contactPicker: ChannelContactPicker(),
     purchases: DriftPurchaseRepository(db),
-    returns: DriftReturnsRepository(db),
+    returns: DriftReturnsRepository(db, series: series),
     expenses: DriftExpenseRepository(db),
     backup: backup,
+    cloud: cloud,
     customerActions: AppCustomerActions(
       parties: parties,
       shopProfiles: shopProfiles,

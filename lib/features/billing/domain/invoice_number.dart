@@ -32,13 +32,20 @@ abstract final class InvoiceNumber {
 
   static bool isValidPrefix(String prefix) => _prefixPattern.hasMatch(prefix);
 
+  /// `INV/26-27/0001`, or with a phone's [series] letter
+  /// `INV-A/26-27/0001` (each phone of a shop numbers its own bills).
   static String format({
     required String prefix,
     required FinancialYear year,
     required int sequence,
+    String? series,
   }) {
     final seq = sequence.toString().padLeft(4, '0');
-    final head = prefix.isEmpty ? '' : '$prefix/';
+    final name = [
+      prefix,
+      if (series != null && series.isNotEmpty) series,
+    ].where((s) => s.isNotEmpty).join('-');
+    final head = name.isEmpty ? '' : '$name/';
     return '$head${year.short}/$seq';
   }
 }

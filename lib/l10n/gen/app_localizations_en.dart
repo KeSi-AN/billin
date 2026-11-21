@@ -2213,4 +2213,59 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get backupAutoInfo =>
       'Saved on this phone in Downloads › ShopBackups (the last 14 days). That copy is lost if the phone is lost, so use \"Back up now\" now and then to put one on Google Drive.';
+
+  @override
+  String get cloudTitle => 'Account & sync';
+
+  @override
+  String get cloudSubtitle => 'Sign in to use the shop on more than one phone';
+
+  @override
+  String get cloudWhy =>
+      'Sign in with Google to use this shop on more phones. Each phone keeps working without internet and sends its bills when it is back online. You can keep using the app without signing in.';
+
+  @override
+  String get cloudSignInGoogle => 'Sign in with Google';
+
+  @override
+  String get cloudNotInBuild =>
+      'Sign-in is not available in this version of the app.';
+
+  @override
+  String get cloudNoShopYet => 'Put this shop in the cloud';
+
+  @override
+  String get cloudPickShop => 'Your shops';
+
+  @override
+  String get cloudUseHere => 'Use on this phone';
+
+  @override
+  String cloudCreateShop(String name) {
+    return 'Create \"$name\" in the cloud';
+  }
+
+  @override
+  String cloudPhoneSeries(String series) {
+    return 'This phone\'s bills are numbered INV-$series/…';
+  }
+
+  @override
+  String get cloudSyncSoon =>
+      'Syncing bills, items and customers between phones comes in the next update. Until then each phone keeps its own data.';
+
+  @override
+  String get cloudSignOut => 'Sign out';
+
+  @override
+  String get cloudSignOutTitle => 'Sign out on this phone?';
+
+  @override
+  String get cloudSignOutBody =>
+      'Your bills and items stay on this phone. Sign in again to reconnect it to the shop.';
+
+  @override
+  String cloudFailed(String error) {
+    return 'Something went wrong: $error';
+  }
 }

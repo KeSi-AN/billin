@@ -7,17 +7,21 @@ import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/credit_note.dart';
 import 'package:shop_app/features/billing/domain/invoice_number.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
+import 'package:shop_app/features/cloud/domain/cloud.dart';
 import 'package:shop_app/features/customers/data/party_ledger.dart';
 import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/inventory/data/stock_ledger.dart';
 import 'package:shop_app/features/inventory/domain/inventory.dart';
 
 class DriftReturnsRepository implements ReturnsRepository {
-  DriftReturnsRepository(this._db, {this._clock = DateTime.now})
+  DriftReturnsRepository(this._db, {this._clock = DateTime.now, this._series})
     : _stock = StockLedger(_db, _clock),
       _dues = PartyLedger(_db, _clock);
 
   final AppDatabase _db;
+
+  /// This phone's invoice series letter, once it has joined a cloud shop.
+  final SeriesOf? _series;
   final DateTime Function() _clock;
   final StockLedger _stock;
   final PartyLedger _dues;
@@ -35,6 +39,7 @@ class DriftReturnsRepository implements ReturnsRepository {
     if (wanted.isEmpty) {
       throw ArgumentError.value(lines, 'lines', 'Nothing to return');
     }
+    final series = await _series?.call();
     final id = await _db.transaction(() async {
       final bill = await (_db.select(
         _db.bills,
@@ -98,6 +103,7 @@ class DriftReturnsRepository implements ReturnsRepository {
                 prefix: prefix,
                 year: fy,
                 sequence: sequence,
+                series: series,
               ),
               fyStart: fy.startYear,
               sequence: sequence,

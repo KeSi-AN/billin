@@ -57,6 +57,13 @@ class SettingsPage extends StatelessWidget {
                 onTap: () => context.push(AppRoutes.billTemplate),
               ),
               ListTile(
+                key: const Key('accountTile'),
+                leading: const Icon(Icons.cloud_sync_outlined),
+                title: Text(l10n.cloudTitle),
+                subtitle: Text(l10n.cloudSubtitle),
+                onTap: () => context.push(AppRoutes.account),
+              ),
+              ListTile(
                 key: const Key('backupTile'),
                 leading: const Icon(Icons.cloud_upload_outlined),
                 title: Text(l10n.backupTitle),

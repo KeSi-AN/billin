@@ -3879,6 +3879,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved on this phone in Downloads › ShopBackups (the last 14 days). That copy is lost if the phone is lost, so use \"Back up now\" now and then to put one on Google Drive.'**
   String get backupAutoInfo;
+
+  /// No description provided for @cloudTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account & sync'**
+  String get cloudTitle;
+
+  /// No description provided for @cloudSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to use the shop on more than one phone'**
+  String get cloudSubtitle;
+
+  /// No description provided for @cloudWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google to use this shop on more phones. Each phone keeps working without internet and sends its bills when it is back online. You can keep using the app without signing in.'**
+  String get cloudWhy;
+
+  /// No description provided for @cloudSignInGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get cloudSignInGoogle;
+
+  /// No description provided for @cloudNotInBuild.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in is not available in this version of the app.'**
+  String get cloudNotInBuild;
+
+  /// No description provided for @cloudNoShopYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Put this shop in the cloud'**
+  String get cloudNoShopYet;
+
+  /// No description provided for @cloudPickShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Your shops'**
+  String get cloudPickShop;
+
+  /// No description provided for @cloudUseHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Use on this phone'**
+  String get cloudUseHere;
+
+  /// No description provided for @cloudCreateShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Create \"{name}\" in the cloud'**
+  String cloudCreateShop(String name);
+
+  /// No description provided for @cloudPhoneSeries.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone\'s bills are numbered INV-{series}/…'**
+  String cloudPhoneSeries(String series);
+
+  /// No description provided for @cloudSyncSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing bills, items and customers between phones comes in the next update. Until then each phone keeps its own data.'**
+  String get cloudSyncSoon;
+
+  /// No description provided for @cloudSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get cloudSignOut;
+
+  /// No description provided for @cloudSignOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out on this phone?'**
+  String get cloudSignOutTitle;
+
+  /// No description provided for @cloudSignOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bills and items stay on this phone. Sign in again to reconnect it to the shop.'**
+  String get cloudSignOutBody;
+
+  /// No description provided for @cloudFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong: {error}'**
+  String cloudFailed(String error);
 }
 
 class _AppLocalizationsDelegate

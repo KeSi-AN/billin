@@ -80,8 +80,8 @@ dart run build_runner build      # after changing freezed models or Drift tables
 flutter gen-l10n                 # after changing lib/l10n/app_en.arb
 flutter analyze
 flutter test
-flutter run --flavor dev         # dev build: "Shop App Dev", installs next to prod
-flutter build apk --flavor dev --release
+flutter run --flavor dev --dart-define-from-file=config/supabase.json
+flutter build apk --flavor dev --release --dart-define-from-file=config/supabase.json
 ```
 
 ### Changing the database
@@ -101,3 +101,9 @@ flutter build apk --flavor dev --release
 
 - Choose the real app name and application ID (currently `com.shopapp.shop_app`) and update `android/app/build.gradle.kts`, the `app_name` values there, and `appTitle` in the ARB.
 - Create an upload keystore and a release signing config (release builds currently use the debug key).
+
+## Cloud (Supabase)
+
+Copy `config/supabase.example.json` to `config/supabase.json` (git-ignored) with the project URL and
+publishable key, and pass it to every build as shown above. Without it the app works offline only and
+hides sign-in. Database setup lives in `supabase/migrations/`: run each file once in Supabase → SQL Editor.

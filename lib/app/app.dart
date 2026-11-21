@@ -10,6 +10,8 @@ import 'package:shop_app/features/backup/domain/backup.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/credit_note.dart';
 import 'package:shop_app/features/billing/presentation/bill_actions.dart';
+import 'package:shop_app/features/cloud/data/supabase_cloud_service.dart';
+import 'package:shop_app/features/cloud/domain/cloud.dart';
 import 'package:shop_app/features/customers/domain/contact_picker.dart';
 import 'package:shop_app/features/customers/domain/customer_actions.dart';
 import 'package:shop_app/features/customers/domain/party.dart';
@@ -43,6 +45,7 @@ class AppServices {
     required this.returns,
     required this.expenses,
     required this.backup,
+    this.cloud = const NoCloudService(),
   });
 
   final ShopProfileRepository shopProfiles;
@@ -60,6 +63,7 @@ class AppServices {
   final ReturnsRepository returns;
   final ExpenseRepository expenses;
   final BackupService backup;
+  final CloudService cloud;
 }
 
 class ShopApp extends StatefulWidget {
@@ -106,6 +110,7 @@ class _ShopAppState extends State<ShopApp> {
         RepositoryProvider.value(value: s.returns),
         RepositoryProvider.value(value: s.expenses),
         RepositoryProvider.value(value: s.backup),
+        RepositoryProvider<CloudService>.value(value: s.cloud),
       ],
       child: BlocProvider.value(
         value: _profileCubit,
