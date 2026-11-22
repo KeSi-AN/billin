@@ -30,7 +30,7 @@ int indexOf(Uint8List bytes, List<int> pattern, [int from = 0]) {
 }
 
 void main() {
-  caysnTests();
+  posiflowTests();
   group('TSPL', () {
     const setup = LabelSetup(
       language: LabelLanguage.tspl,
@@ -154,62 +154,53 @@ void main() {
   });
 }
 
-void caysnTests() {
-  test('Posiflow: speed, darkness, then a label-sized page per label', () {
+void posiflowTests() {
+  // The exact bytes the Shreyans app sent the shop's PSF-20 for one good
+  // label (Bluetooth capture): set-up, then GS v 0 384 x 224, then 1B 69.
+  test('Posiflow: Shreyans set-up, pause, then picture + next label', () {
     final img = MonoImage(
       widthBytes: 48,
-      height: 2,
-      bits: Uint8List(96)..fillRange(0, 96, 0xA5),
+      height: 224,
+      bits: Uint8List(48 * 224)..fillRange(0, 48 * 224, 0xA5),
     );
-    final bytes = encodeLabels([
-      (image: img, copies: 3),
+    final parts = encodeLabelJob([
+      (image: img, copies: 2),
       (image: img, copies: 0),
     ], const LabelSetup(widthMm: 48, heightMm: 28));
-    expect(bytes.sublist(0, 10), [
-      0x1F, 0x28, 0x73, 0x02, 0x00, 100, 0, // speed 100 mm/s
-      0x12, 0x23, 6, // darkness 6
+    expect(parts, hasLength(2));
+    expect(parts[0], [
+      0x1C, 0x25, 0x02, //
+      0x1B, 0x29, 0xC8, 0x00, 0xF4, 0x01, 0xFA, 0x00, 0x1E,
     ]);
-    // Page 384 x 224 dots at 0,0, not rotated.
-    expect(bytes.sublist(10, 22), [
-      0x1A,
-      0x5B,
-      0x01,
-      0,
-      0,
-      0,
-      0,
-      0x80,
-      0x01,
-      0xE0,
-      0x00,
-      0,
-    ]);
-    // Picture 384 dots wide, 2 rows, style 0, then the dots unchanged.
-    expect(bytes.sublist(22, 35), [
-      0x1A,
-      0x21,
-      0x01,
-      0,
-      0,
-      0,
-      0,
-      0x80,
-      0x01,
-      2,
-      0,
-      0,
-      0,
-    ]);
-    expect(bytes.sublist(35, 35 + 96), everyElement(0xA5));
-    // Printed 3 times; the 0-copy label sends nothing.
-    expect(bytes.sublist(35 + 96), [0x1A, 0x4F, 0x01, 3]);
+    const one = 8 + 48 * 224 + 2;
+    expect(parts[1], hasLength(2 * one));
+    for (final at in [0, one]) {
+      expect(parts[1].sublist(at, at + 8), [
+        0x1D, 0x76, 0x30, 0x00, 48, 0, 0xE0, 0, //
+      ]);
+      expect(parts[1].sublist(at + 8, at + one - 2), everyElement(0xA5));
+      expect(parts[1].sublist(at + one - 2, at + one), [0x1B, 0x69]);
+    }
+    // No ESC @ reset and no GS FF anywhere outside the picture.
+    expect(parts[0].contains(0x40), isFalse);
   });
 
-  test('Posiflow is the default and old EPL settings fall back to it', () {
-    expect(const LabelSetup().language, LabelLanguage.caysn);
+  test('Posiflow is the default; old saved languages fall back to it', () {
+    expect(const LabelSetup().language, LabelLanguage.posiflow);
+    for (final old in ['epl', 'caysn']) {
+      expect(
+        LabelSetup.fromJson('{"language":"$old","widthMm":48}').language,
+        LabelLanguage.posiflow,
+      );
+    }
+  });
+
+  test('other languages are a single write', () {
     expect(
-      LabelSetup.fromJson('{"language":"epl","widthMm":48}').language,
-      LabelLanguage.caysn,
+      encodeLabelJob([
+        (image: solid(2, 3, 0xFF), copies: 1),
+      ], const LabelSetup(language: LabelLanguage.escPos)),
+      hasLength(1),
     );
   });
 }

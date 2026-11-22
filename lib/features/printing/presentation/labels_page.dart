@@ -72,12 +72,12 @@ class _LabelsPageState extends State<LabelsPage> {
       showPrice: _showPrice,
       showShop: _showShop,
     );
-    final Uint8List bytes;
+    final List<Uint8List> parts;
     final String? address;
     if (setup.address != null) {
       // A label printer: each label drawn as a picture of the label size.
       const renderer = LabelRenderer();
-      bytes = encodeLabels([
+      parts = encodeLabelJob([
         for (final r in requests)
           (
             image: await renderer.render(r.item, setup, shopName: shop?.name),
@@ -87,18 +87,20 @@ class _LabelsPageState extends State<LabelsPage> {
       address = setup.address;
     } else {
       // No label printer: text labels on the bill printer, as before.
-      bytes = LabelFormatter(width: settings.paperWidth.charsPerLine).bytes(
-        requests,
-        LabelOptions(
-          showPrice: _showPrice,
-          shopName: _showShop ? shop?.name : null,
+      parts = [
+        LabelFormatter(width: settings.paperWidth.charsPerLine).bytes(
+          requests,
+          LabelOptions(
+            showPrice: _showPrice,
+            shopName: _showShop ? shop?.name : null,
+          ),
         ),
-      );
+      ];
       address = null;
     }
     if (!mounted) return;
     try {
-      await context.read<PrinterService>().printBytes(bytes, address: address);
+      await context.read<PrinterService>().printParts(parts, address: address);
       if (mounted) showSnack(context, l10n.printed);
     } on PrintException catch (e) {
       if (mounted) {

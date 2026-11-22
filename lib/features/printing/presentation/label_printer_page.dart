@@ -123,10 +123,10 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
     setState(() => _printing = true);
     try {
       // One label: a ruler down the side and a box along its edges.
-      final bytes = encodeLabels([
+      final parts = encodeLabelJob([
         (image: await const LabelRenderer().renderRuler(_setup), copies: 1),
       ], _setup);
-      await printer.printBytes(bytes, address: _setup.address);
+      await printer.printParts(parts, address: _setup.address);
       if (mounted) showSnack(context, l10n.lpCheckSent);
     } on PrintException catch (e) {
       if (mounted) showSnack(context, printErrorText(l10n, e));
@@ -141,8 +141,8 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
     setState(() => _printing = true);
     try {
       final image = await _render(_setup);
-      final bytes = encodeLabels([(image: image, copies: 1)], _setup);
-      await printer.printBytes(bytes, address: _setup.address);
+      final parts = encodeLabelJob([(image: image, copies: 1)], _setup);
+      await printer.printParts(parts, address: _setup.address);
       if (mounted) showSnack(context, l10n.printed);
     } on PrintException catch (e) {
       if (mounted) showSnack(context, printErrorText(l10n, e));
@@ -284,7 +284,7 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
               showSelectedIcon: false,
               segments: const [
                 ButtonSegment(
-                  value: LabelLanguage.caysn,
+                  value: LabelLanguage.posiflow,
                   label: Text('Posiflow'),
                 ),
                 ButtonSegment(

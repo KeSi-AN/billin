@@ -14,47 +14,53 @@ Uint8List encodeLabels(List<LabelImage> labels, LabelSetup setup) =>
     switch (setup.language) {
       LabelLanguage.tspl => _tspl(labels, setup),
       LabelLanguage.escPos => _escPos(labels),
-      LabelLanguage.caysn => _caysn(labels, setup),
+      LabelLanguage.posiflow => Uint8List.fromList([
+        ...posiflowJobStart,
+        ..._posiflowLabels(labels),
+      ]),
     };
 
-/// Caysn label printers (Posiflow PSF-20 and others), spoken to exactly as
-/// the Shreyans app's Caysn library does it: print speed and darkness, then
-/// for each label a page the size of the label holding one picture, printed
-/// as many times as asked. In page mode the printer finds the start of the
-/// label itself (pulling the paper back from the tear-off position first), so
-/// a label never runs on to the next one.
-Uint8List _caysn(List<LabelImage> labels, LabelSetup s) {
-  List<int> u16(int v) => [v & 0xFF, (v >> 8) & 0xFF];
-  final out = BytesBuilder(copy: false)
-    // Print speed 100 mm/s (4 inches/s): 1F 28 73 02 00 nL nH.
-    ..add([0x1F, 0x28, 0x73, 0x02, 0x00, ...u16(100)])
-    // Darkness 6: 12 23 n.
-    ..add([0x12, 0x23, 6]);
+/// What the Shreyans app sends a Posiflow PSF-20 (SRS20) before a print job,
+/// read from a Bluetooth capture of one of its labels: paper type 2 (labels
+/// with gaps), then its paper spec (1B 29, 200 dots, 50.0 x 25.0 mm, 1E).
+/// The printer finds the label edges itself.
+const posiflowJobStart = [
+  0x1C, 0x25, 0x02, //
+  0x1B, 0x29, 0xC8, 0x00, 0xF4, 0x01, 0xFA, 0x00, 0x1E,
+];
+
+/// Posiflow PSF-20 / SRS20, byte for byte as the Shreyans app prints: per
+/// label a plain ESC/POS picture (GS v 0) then "go to the next label"
+/// (1B 69). No reset (ESC @) and no GS FF.
+Uint8List _posiflowLabels(List<LabelImage> labels) {
+  final out = BytesBuilder(copy: false);
   for (final l in labels) {
     final img = l.image;
-    var left = l.copies;
-    while (left > 0) {
-      final n = left > 255 ? 255 : left;
-      left -= n;
+    for (var i = 0; i < l.copies; i++) {
       out
-        // Page begin at 0,0, label-sized, not rotated: 1A 5B 01 x y w h r.
         ..add([
-          0x1A, 0x5B, 0x01, ...u16(0), ...u16(0), //
-          ...u16(s.widthDots), ...u16(s.heightDots), 0,
-        ])
-        // Picture at 0,0: 1A 21 01 x y widthDots height style, then rows of
-        // 1-bit dots (1 = black, leftmost dot in the top bit).
-        ..add([
-          0x1A, 0x21, 0x01, ...u16(0), ...u16(0), //
-          ...u16(img.widthBytes * 8), ...u16(img.height), ...u16(0),
+          0x1D, 0x76, 0x30, 0x00, //
+          img.widthBytes & 0xFF, img.widthBytes >> 8,
+          img.height & 0xFF, img.height >> 8,
         ])
         ..add(img.bits)
-        // Print the page n times: 1A 4F 01 n.
-        ..add([0x1A, 0x4F, 0x01, n]);
+        ..add([0x1B, 0x69]);
     }
   }
   return out.toBytes();
 }
+
+/// The labels as separate writes, with a pause between them where the
+/// printer needs one (Shreyans waits after the job start before the
+/// pictures). Every other language is a single write.
+List<Uint8List> encodeLabelJob(List<LabelImage> labels, LabelSetup setup) =>
+    switch (setup.language) {
+      LabelLanguage.posiflow => [
+        Uint8List.fromList(posiflowJobStart),
+        _posiflowLabels(labels),
+      ],
+      _ => [encodeLabels(labels, setup)],
+    };
 
 /// One label's worth of check: a text line, a small black bar sent as a
 /// picture, then "feed to the next label". Cheap to get wrong: if the printer

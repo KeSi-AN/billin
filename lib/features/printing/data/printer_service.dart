@@ -36,7 +36,16 @@ class PrinterService {
   /// The shop logo, converted once per logo/paper/size.
   final logos = LogoCache();
 
-  Future<void> printBytes(Uint8List bytes, {String? address}) async {
+  Future<void> printBytes(Uint8List bytes, {String? address}) =>
+      printParts([bytes], address: address);
+
+  /// Sends [parts] one after another over one connection, waiting [pause]
+  /// between them (some label printers need time after their set-up).
+  Future<void> printParts(
+    List<Uint8List> parts, {
+    String? address,
+    Duration pause = const Duration(milliseconds: 400),
+  }) async {
     final target = address ?? (await _settings.load()).printerAddress;
     if (target == null) throw const PrintException(PrintError.notConfigured);
     if (!await _transport.ensurePermission()) {
@@ -50,15 +59,22 @@ class PrinterService {
       case BluetoothState.on:
         break;
     }
+    Future<void> send() async {
+      for (var i = 0; i < parts.length; i++) {
+        if (i > 0) await Future<void>.delayed(pause);
+        await _transport.write(parts[i]);
+      }
+    }
+
     try {
       await _transport.connect(target);
-      await _transport.write(bytes);
+      await send();
     } on PlatformException {
       // Stale connection: drop it and try once more.
       try {
         await _transport.disconnect();
         await _transport.connect(target);
-        await _transport.write(bytes);
+        await send();
       } on PlatformException catch (e) {
         throw PrintException(PrintError.failed, e.message);
       }

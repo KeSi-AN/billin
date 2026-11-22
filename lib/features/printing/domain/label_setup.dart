@@ -12,9 +12,9 @@ enum LabelLanguage {
   /// receipt-style printers that also take labels.
   escPos,
 
-  /// Caysn page mode (Posiflow PSF-20 and other Caysn label printers), as
-  /// the Shreyans app prints: the printer finds each label's start itself.
-  caysn,
+  /// Posiflow PSF-20 (SRS20), exactly as the Shreyans app prints to it:
+  /// ESC/POS pictures with its own label set-up and "next label" commands.
+  posiflow,
 }
 
 /// The label printer and the labels in it. Stored as JSON in settings.
@@ -23,7 +23,7 @@ class LabelSetup {
   const LabelSetup({
     this.address,
     this.name,
-    this.language = LabelLanguage.caysn,
+    this.language = LabelLanguage.posiflow,
     this.widthMm = 50,
     this.heightMm = 25,
     this.gapMm = 2,
