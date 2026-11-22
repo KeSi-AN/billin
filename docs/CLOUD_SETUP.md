@@ -36,6 +36,12 @@ Do them in this order on a computer.
 
 Then tell Claude "cloud setup done". Don't send the client secret or the database password.
 
+## 4. Turn on syncing between phones (1 min)
+
+1. Supabase → **SQL Editor** → **New query**.
+2. Open `supabase/migrations/0002_sync_rows.sql` from this repo, copy **all** of it, paste, press **Run**.
+3. It should say *Success. No rows returned.* (Running it again is harmless.)
+
 ## Using it
 
 Phone → Settings → **Account & sync** → **Sign in with Google** → pick your account →
