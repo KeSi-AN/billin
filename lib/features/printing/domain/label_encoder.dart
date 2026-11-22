@@ -14,7 +14,47 @@ Uint8List encodeLabels(List<LabelImage> labels, LabelSetup setup) =>
     switch (setup.language) {
       LabelLanguage.tspl => _tspl(labels, setup),
       LabelLanguage.escPos => _escPos(labels),
+      LabelLanguage.caysn => _caysn(labels, setup),
     };
+
+/// Caysn label printers (Posiflow PSF-20 and others), spoken to exactly as
+/// the Shreyans app's Caysn library does it: print speed and darkness, then
+/// for each label a page the size of the label holding one picture, printed
+/// as many times as asked. In page mode the printer finds the start of the
+/// label itself (pulling the paper back from the tear-off position first), so
+/// a label never runs on to the next one.
+Uint8List _caysn(List<LabelImage> labels, LabelSetup s) {
+  List<int> u16(int v) => [v & 0xFF, (v >> 8) & 0xFF];
+  final out = BytesBuilder(copy: false)
+    // Print speed 100 mm/s (4 inches/s): 1F 28 73 02 00 nL nH.
+    ..add([0x1F, 0x28, 0x73, 0x02, 0x00, ...u16(100)])
+    // Darkness 6: 12 23 n.
+    ..add([0x12, 0x23, 6]);
+  for (final l in labels) {
+    final img = l.image;
+    var left = l.copies;
+    while (left > 0) {
+      final n = left > 255 ? 255 : left;
+      left -= n;
+      out
+        // Page begin at 0,0, label-sized, not rotated: 1A 5B 01 x y w h r.
+        ..add([
+          0x1A, 0x5B, 0x01, ...u16(0), ...u16(0), //
+          ...u16(s.widthDots), ...u16(s.heightDots), 0,
+        ])
+        // Picture at 0,0: 1A 21 01 x y widthDots height style, then rows of
+        // 1-bit dots (1 = black, leftmost dot in the top bit).
+        ..add([
+          0x1A, 0x21, 0x01, ...u16(0), ...u16(0), //
+          ...u16(img.widthBytes * 8), ...u16(img.height), ...u16(0),
+        ])
+        ..add(img.bits)
+        // Print the page n times: 1A 4F 01 n.
+        ..add([0x1A, 0x4F, 0x01, n]);
+    }
+  }
+  return out.toBytes();
+}
 
 /// One label's worth of check: a text line, a small black bar sent as a
 /// picture, then "feed to the next label". Cheap to get wrong: if the printer

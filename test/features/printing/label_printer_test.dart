@@ -30,6 +30,7 @@ int indexOf(Uint8List bytes, List<int> pattern, [int from = 0]) {
 }
 
 void main() {
+  caysnTests();
   group('TSPL', () {
     const setup = LabelSetup(
       language: LabelLanguage.tspl,
@@ -71,7 +72,7 @@ void main() {
   test('ESC/POS: raster per copy, then feed to the next label', () {
     final bytes = encodeLabels([
       (image: solid(2, 3, 0xFF), copies: 2),
-    ], const LabelSetup());
+    ], const LabelSetup(language: LabelLanguage.escPos));
     expect(bytes.take(2), [0x1B, 0x40]);
     final first = indexOf(bytes, [0x1D, 0x76, 0x30, 0x00, 2, 0, 3, 0]);
     final second = indexOf(bytes, [
@@ -132,9 +133,10 @@ void main() {
       return n;
     }
 
-    expect(blackIn(0, 100), greaterThan(200)); // text at the top
-    // Bars: a row through them has many black/white changes.
-    final row = (200 * 0.72).round();
+    // Name and the sideways price below the barcode.
+    expect(blackIn(100, 200), greaterThan(200));
+    // Bars across the top: a row through them has many black/white changes.
+    const row = 40;
     var changes = 0;
     for (var x = 1; x < image.width; x++) {
       if (image.isBlack(x, row) != image.isBlack(x - 1, row)) changes++;
@@ -143,9 +145,71 @@ void main() {
   });
 
   test('quick check fits one label and ends with feed-to-next', () {
-    final bytes = labelCheckBytes(const LabelSetup());
+    final bytes = labelCheckBytes(
+      const LabelSetup(language: LabelLanguage.escPos),
+    );
     expect(bytes.length, lessThan(700));
     expect(bytes.take(2), [0x1B, 0x40]);
     expect(bytes.skip(bytes.length - 2), [0x1D, 0x0C]);
+  });
+}
+
+void caysnTests() {
+  test('Posiflow: speed, darkness, then a label-sized page per label', () {
+    final img = MonoImage(
+      widthBytes: 48,
+      height: 2,
+      bits: Uint8List(96)..fillRange(0, 96, 0xA5),
+    );
+    final bytes = encodeLabels([
+      (image: img, copies: 3),
+      (image: img, copies: 0),
+    ], const LabelSetup(widthMm: 48, heightMm: 28));
+    expect(bytes.sublist(0, 10), [
+      0x1F, 0x28, 0x73, 0x02, 0x00, 100, 0, // speed 100 mm/s
+      0x12, 0x23, 6, // darkness 6
+    ]);
+    // Page 384 x 224 dots at 0,0, not rotated.
+    expect(bytes.sublist(10, 22), [
+      0x1A,
+      0x5B,
+      0x01,
+      0,
+      0,
+      0,
+      0,
+      0x80,
+      0x01,
+      0xE0,
+      0x00,
+      0,
+    ]);
+    // Picture 384 dots wide, 2 rows, style 0, then the dots unchanged.
+    expect(bytes.sublist(22, 35), [
+      0x1A,
+      0x21,
+      0x01,
+      0,
+      0,
+      0,
+      0,
+      0x80,
+      0x01,
+      2,
+      0,
+      0,
+      0,
+    ]);
+    expect(bytes.sublist(35, 35 + 96), everyElement(0xA5));
+    // Printed 3 times; the 0-copy label sends nothing.
+    expect(bytes.sublist(35 + 96), [0x1A, 0x4F, 0x01, 3]);
+  });
+
+  test('Posiflow is the default and old EPL settings fall back to it', () {
+    expect(const LabelSetup().language, LabelLanguage.caysn);
+    expect(
+      LabelSetup.fromJson('{"language":"epl","widthMm":48}').language,
+      LabelLanguage.caysn,
+    );
   });
 }

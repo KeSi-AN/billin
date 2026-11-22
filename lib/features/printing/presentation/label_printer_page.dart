@@ -19,10 +19,9 @@ import 'package:shop_app/l10n/gen/app_localizations.dart';
 
 /// The item used for the preview and the test label.
 const sampleLabelItem = Item(
-  name: 'kurti set',
-  salePrice: Money.rupees(1835),
-  mrp: Money.rupees(1999),
-  barcode: 'DN84375',
+  name: 'Shifon Saree',
+  salePrice: Money.rupees(565),
+  barcode: '38756',
 );
 
 /// Choose the label printer, its language and the label size; preview and
@@ -45,6 +44,7 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
   final _height = TextEditingController();
   final _gap = TextEditingController();
   final _left = TextEditingController();
+  final _note = TextEditingController();
 
   @override
   void initState() {
@@ -68,6 +68,7 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
     _height.text = _num(l.heightMm);
     _gap.text = _num(l.gapMm);
     _left.text = _num(l.leftMm);
+    _note.text = l.note;
     setState(() {
       _settings = s;
       _devices = devices;
@@ -82,6 +83,7 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
     _height.dispose();
     _gap.dispose();
     _left.dispose();
+    _note.dispose();
     super.dispose();
   }
 
@@ -120,10 +122,11 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
     final printer = context.read<PrinterService>();
     setState(() => _printing = true);
     try {
-      await printer.printBytes(
-        labelCheckBytes(_setup),
-        address: _setup.address,
-      );
+      // One label: a ruler down the side and a box along its edges.
+      final bytes = encodeLabels([
+        (image: await const LabelRenderer().renderRuler(_setup), copies: 1),
+      ], _setup);
+      await printer.printBytes(bytes, address: _setup.address);
       if (mounted) showSnack(context, l10n.lpCheckSent);
     } on PrintException catch (e) {
       if (mounted) showSnack(context, printErrorText(l10n, e));
@@ -245,6 +248,7 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
                   heightMm: l.heightMm,
                   gapMm: l.gapMm,
                   leftMm: l.leftMm,
+                  note: l.note,
                   showShop: l.showShop,
                   showPrice: l.showPrice,
                   showMrp: l.showMrp,
@@ -279,6 +283,10 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
               key: const Key('lpLanguage'),
               showSelectedIcon: false,
               segments: const [
+                ButtonSegment(
+                  value: LabelLanguage.caysn,
+                  label: Text('Posiflow'),
+                ),
                 ButtonSegment(
                   value: LabelLanguage.escPos,
                   label: Text('ESC/POS'),
@@ -317,19 +325,23 @@ class _LabelPrinterPageState extends State<LabelPrinterPage> {
           ),
           section(l10n.lpContent),
           SwitchListTile(
-            title: Text(l10n.labelsShowShop),
-            value: l.showShop,
-            onChanged: (v) => _set(l.copyWith(showShop: v)),
-          ),
-          SwitchListTile(
             title: Text(l10n.labelsShowPrice),
             value: l.showPrice,
             onChanged: (v) => _set(l.copyWith(showPrice: v)),
           ),
-          SwitchListTile(
-            title: Text(l10n.lpShowMrp),
-            value: l.showMrp,
-            onChanged: (v) => _set(l.copyWith(showMrp: v)),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            child: TextField(
+              key: const Key('lpNote'),
+              controller: _note,
+              minLines: 2,
+              maxLines: 3,
+              decoration: InputDecoration(
+                labelText: l10n.lpNote,
+                hintText: l10n.lpNoteHint,
+              ),
+              onChanged: (v) => _set(l.copyWith(note: v)),
+            ),
           ),
         ],
       ),

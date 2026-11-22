@@ -2147,7 +2147,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lpLanguageHelp =>
-      'Start with ESC/POS. Use \"Quick check\" first: it uses one label. If the check prints commands or random characters, the printer needs the other language.';
+      'Posiflow for the PSF-20 and other Caysn label printers (the way the Shreyans app prints). ESC/POS or TSPL only for other printers.';
 
   @override
   String get lpSize => 'Label size';
@@ -2178,11 +2178,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get keyboardHintFix => 'Turn on';
 
   @override
-  String get lpCheck => 'Quick check (1 label)';
+  String get lpCheck => 'Alignment test (1 label)';
 
   @override
   String get lpCheckSent =>
-      'Sent. A text line with a black bar under it means this language works.';
+      'Sent. Check where the ruler starts and if it runs onto the next label.';
 
   @override
   String get lpLeft => 'Left margin';
@@ -2268,4 +2268,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String cloudFailed(String error) {
     return 'Something went wrong: $error';
   }
+
+  @override
+  String get lpNote => 'Lines printed on every label';
+
+  @override
+  String get lpNoteHint => 'e.g. Dry wash only';
 }

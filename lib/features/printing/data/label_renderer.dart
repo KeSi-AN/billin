@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:barcode/barcode.dart';
@@ -7,16 +8,18 @@ import 'package:shop_app/features/printing/domain/ean.dart';
 import 'package:shop_app/features/printing/domain/label_setup.dart';
 import 'package:shop_app/features/printing/domain/mono_image.dart';
 
-/// Draws one product label the size of the label (8 dots per mm):
+/// Draws one product label the size of the label (8 dots per mm), laid out
+/// like the shop's own labels (positions in mm for a 48 × 29 label, scaled
+/// to other sizes):
 ///
 /// ```text
-///  ┌──────────────────────────────┐
-///  │         Sadiya Fashion       │  shop (small)
-///  │        long frock            │  item name, up to 2 lines
-///  │   ₹3495     MRP ₹3999        │  price (big), MRP struck through
-///  │   ▌▌▌ ▌▌▌▌ ▌ ▌▌▌ ▌▌ ▌▌▌     │  barcode on whole dots
-///  │          DN143018            │
-///  └──────────────────────────────┘
+///  ┌────────────────────────────────────────┐
+///  │ ▌▌▌ ▌▌▌▌ ▌ ▌▌▌ ▌▌ ▌▌▌▌ ▌▌▌               │  barcode
+///  │        38756                           │  its code
+///  │                       Shifon Saree   ₹ │  item name
+///  │ Dry wash only                        5 │  note lines
+///  │ No guarantee for colour              6 │  price, sideways
+///  └────────────────────────────────────────┘
 /// ```
 class LabelRenderer {
   const LabelRenderer();
@@ -34,100 +37,162 @@ class LabelRenderer {
         Rect.fromLTWH(0, 0, w.toDouble(), h.toDouble()),
         Paint()..color = const Color(0xFFFFFFFF),
       );
-    final margin = (w * 0.03).clamp(6, 16).toDouble();
-    final left = margin + setup.leftMm * LabelSetup.dotsPerMm;
-    final inner = w - margin - left;
-    var y = margin * 0.6;
+
+    // Layout in mm of a 48 × 29 label, scaled to this one.
+    final sx = w / (48 * LabelSetup.dotsPerMm);
+    final sy = h / (29 * LabelSetup.dotsPerMm);
+    final s = math.min(sx, sy);
+    double mm(double v) => v * LabelSetup.dotsPerMm * s;
+    final left = setup.leftMm * LabelSetup.dotsPerMm + mm(0.5);
+    final right = w - mm(1);
+
+    // The price runs up the right edge; the rest stays left of it.
+    final priceStrip = setup.showPrice ? mm(5.5) : 0.0;
+    final textRight = right - priceStrip - mm(0.5);
 
     TextPainter text(
-      String s,
-      double size, {
+      String t,
+      double sizeMm, {
       bool bold = false,
-      int maxLines = 1,
-      TextDecoration? decoration,
+      double? maxWidth,
+      TextAlign align = TextAlign.left,
     }) => TextPainter(
       text: TextSpan(
-        text: s,
+        text: t,
         style: TextStyle(
           color: const Color(0xFF000000),
-          fontSize: size,
-          height: 1.1,
-          fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-          decoration: decoration,
-          decorationThickness: 2,
+          fontSize: mm(sizeMm),
+          height: 1.05,
+          fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
         ),
       ),
-      textAlign: TextAlign.center,
+      textAlign: align,
       textDirection: TextDirection.ltr,
-      maxLines: maxLines,
+      maxLines: 1,
       ellipsis: '…',
-    )..layout(maxWidth: inner);
+    )..layout(maxWidth: maxWidth ?? (textRight - left));
 
-    void draw(TextPainter p) {
-      p.paint(canvas, Offset(left + (inner - p.width) / 2, y));
+    var y = mm(2.5);
+
+    // Barcode and its code, across the top (the full width: the price strip
+    // only starts lower down).
+    final code = item.barcode?.trim();
+    if (code != null && code.isNotEmpty) {
+      final barsHeight = mm(6).roundToDouble();
+      final (x0, barsWidth) = _bars(
+        canvas,
+        code,
+        left,
+        right - left,
+        y.roundToDouble(),
+        barsHeight,
+      );
+      y += barsHeight;
+      final digits = text(code, 3.4);
+      digits.paint(canvas, Offset(x0 + (barsWidth - digits.width) / 2, y));
+      y += digits.height + mm(0.6);
+    } else if (setup.showShop && shopName != null && shopName.isNotEmpty) {
+      final shop = text(shopName, 3.4, bold: true)
+        ..paint(canvas, Offset(left, y));
+      y += shop.height + mm(0.6);
+    }
+
+    // Item name, right-aligned next to the price.
+    final name = text(item.name, 3.5, align: TextAlign.right);
+    name.paint(canvas, Offset(textRight - name.width, y));
+    y += name.height + mm(0.8);
+
+    // The shop's fixed lines (care, returns…), as many as fit.
+    for (final line in setup.note.split('\n')) {
+      if (line.trim().isEmpty) continue;
+      final p = text(line.trim(), 3.6);
+      if (y + p.height > h - mm(0.8)) break;
+      p.paint(canvas, Offset(left, y));
       y += p.height;
     }
 
-    final barcode = item.barcode?.trim();
-    final hasBarcode = barcode != null && barcode.isNotEmpty;
-    // Space for the barcode and its digits at the bottom.
-    final digitsSize = h * 0.11;
-    final barsHeight = hasBarcode ? (h * 0.30).roundToDouble() : 0.0;
-    final bottom = hasBarcode
-        ? barsHeight + digitsSize * 1.15 + margin * 0.4
-        : 0;
-
-    if (setup.showShop && shopName != null && shopName.trim().isNotEmpty) {
-      draw(text(shopName.trim(), h * 0.10, bold: true));
-    }
-    final nameLines = h - y - bottom > h * 0.45 ? 2 : 1;
-    draw(text(item.name, h * 0.12, bold: true, maxLines: nameLines));
+    // Price, bold, reading bottom to top along the right edge.
     if (setup.showPrice) {
       final price = text(
-        '₹${_rupees(item.salePrice.paise)}',
-        h * 0.15,
+        '₹ ${_rupees(item.salePrice.paise)}/-',
+        4.4,
         bold: true,
+        maxWidth: h - mm(11.5),
       );
-      final mrp = item.mrp;
-      if (setup.showMrp && mrp != null && mrp > item.salePrice) {
-        final m = text(
-          'MRP ₹${_rupees(mrp.paise)}',
-          h * 0.10,
-          decoration: TextDecoration.lineThrough,
-        );
-        final gap = inner * 0.06;
-        final total = price.width + gap + m.width;
-        final start = left + (inner - total) / 2;
-        price.paint(canvas, Offset(start, y));
-        m.paint(
-          canvas,
-          Offset(start + price.width + gap, y + (price.height - m.height) / 2),
-        );
-        y += price.height;
-      } else {
-        draw(price);
+      canvas
+        ..save()
+        ..translate(
+          right - priceStrip + (priceStrip - price.height) / 2,
+          h - mm(1.5),
+        )
+        ..rotate(-math.pi / 2);
+      price.paint(canvas, Offset.zero);
+      canvas.restore();
+    }
+
+    return await _toMono(recorder, w, h);
+  }
+
+  /// One label's worth of ruler: a line every mm from the top, longer and
+  /// numbered every 5 mm, and a box along the label's edges. Printed once,
+  /// it shows where the printer really starts and where the label ends.
+  Future<MonoImage> renderRuler(LabelSetup setup) async {
+    final w = setup.widthDots;
+    final h = setup.heightDots;
+    const d = LabelSetup.dotsPerMm;
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder)
+      ..drawRect(
+        Rect.fromLTWH(0, 0, w.toDouble(), h.toDouble()),
+        Paint()..color = const Color(0xFFFFFFFF),
+      );
+    final ink = Paint()..color = const Color(0xFF000000);
+    final box = Paint()
+      ..color = const Color(0xFF000000)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    canvas.drawRect(Rect.fromLTWH(1, 1, w - 2, h - 2), box);
+    final x = setup.leftMm * d + 4;
+    for (var mmY = 0; mmY * d < h; mmY++) {
+      final long = mmY % 5 == 0;
+      canvas.drawRect(
+        Rect.fromLTWH(x, mmY * d.toDouble(), long ? 5.0 * d : 2.0 * d, 2),
+        ink,
+      );
+      if (long && mmY > 0) {
+        TextPainter(
+            text: TextSpan(
+              text: '$mmY',
+              style: const TextStyle(
+                color: Color(0xFF000000),
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            textDirection: TextDirection.ltr,
+          )
+          ..layout()
+          ..paint(canvas, Offset(x + 6.0 * d, mmY * d - 11.0));
       }
     }
+    return await _toMono(recorder, w, h);
+  }
 
-    if (hasBarcode) {
-      final top = (h - bottom).toDouble();
-      _bars(canvas, barcode, left, inner, top, barsHeight);
-      final digits = text(barcode, digitsSize);
-      digits.paint(
-        canvas,
-        Offset(left + (inner - digits.width) / 2, top + barsHeight),
-      );
-    }
-
+  static Future<MonoImage> _toMono(
+    ui.PictureRecorder recorder,
+    int w,
+    int h,
+  ) async {
     final image = await recorder.endRecording().toImage(w, h);
     final data = await image.toByteData();
     image.dispose();
     return MonoImage.fromRgba(data!.buffer.asUint8List(), width: w, height: h);
   }
 
-  /// Bars on whole printer dots (fractional bars blur and won't scan):
-  /// EAN-13/EAN-8 when valid, otherwise Code 128.
-  static void _bars(
+  /// Bars on whole printer dots (fractional bars blur and won't scan), as
+  /// thick as fit in [maxWidth], left-aligned: EAN-13/EAN-8 when valid,
+  /// otherwise Code 128. Returns where they start and their width.
+  static (double, double) _bars(
     Canvas canvas,
     String data,
     double left,
@@ -143,11 +208,11 @@ class LabelRenderer {
         .make(data, width: probe, height: 10)
         .whereType<BarcodeBar>()
         .toList();
-    if (bars.isEmpty) return;
+    if (bars.isEmpty) return (left, 0);
     final module = bars.map((b) => b.width).reduce((a, b) => a < b ? a : b);
     final modules = (probe / module).round();
-    final dot = (maxWidth / modules).floor().clamp(1, 4);
-    final x0 = (left + (maxWidth - modules * dot) / 2).roundToDouble();
+    final dot = (maxWidth / modules).floor().clamp(1, 3);
+    final x0 = left.roundToDouble();
     final paint = Paint()..color = const Color(0xFF000000);
     for (final b in bars.where((b) => b.black)) {
       final start = (b.left / module).round() * dot;
@@ -157,6 +222,7 @@ class LabelRenderer {
         paint,
       );
     }
+    return (x0, (modules * dot).toDouble());
   }
 
   static String _rupees(int paise) => paise % 100 == 0

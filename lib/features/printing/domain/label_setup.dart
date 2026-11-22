@@ -11,6 +11,10 @@ enum LabelLanguage {
   /// ESC/POS picture followed by "feed to the next label" (GS FF), for
   /// receipt-style printers that also take labels.
   escPos,
+
+  /// Caysn page mode (Posiflow PSF-20 and other Caysn label printers), as
+  /// the Shreyans app prints: the printer finds each label's start itself.
+  caysn,
 }
 
 /// The label printer and the labels in it. Stored as JSON in settings.
@@ -19,7 +23,7 @@ class LabelSetup {
   const LabelSetup({
     this.address,
     this.name,
-    this.language = LabelLanguage.escPos,
+    this.language = LabelLanguage.caysn,
     this.widthMm = 50,
     this.heightMm = 25,
     this.gapMm = 2,
@@ -27,6 +31,7 @@ class LabelSetup {
     this.showShop = true,
     this.showPrice = true,
     this.showMrp = true,
+    this.note = '',
   });
 
   factory LabelSetup.fromJson(String? json) {
@@ -49,6 +54,7 @@ class LabelSetup {
         showShop: b('showShop', d.showShop),
         showPrice: b('showPrice', d.showPrice),
         showMrp: b('showMrp', d.showMrp),
+        note: m['note'] is String ? m['note']! as String : d.note,
       );
     } on Object {
       return const LabelSetup();
@@ -74,6 +80,9 @@ class LabelSetup {
   /// "MRP" crossed against the price when the MRP is higher.
   final bool showMrp;
 
+  /// The shop's fixed lines printed on every label (care, returns…).
+  final String note;
+
   /// Print head resolution: 203 dpi = 8 dots per mm.
   static const dotsPerMm = 8;
 
@@ -91,6 +100,7 @@ class LabelSetup {
     'showShop': showShop,
     'showPrice': showPrice,
     'showMrp': showMrp,
+    'note': note,
   });
 
   LabelSetup copyWith({
@@ -104,6 +114,7 @@ class LabelSetup {
     bool? showShop,
     bool? showPrice,
     bool? showMrp,
+    String? note,
   }) => LabelSetup(
     address: address ?? this.address,
     name: name ?? this.name,
@@ -115,6 +126,7 @@ class LabelSetup {
     showShop: showShop ?? this.showShop,
     showPrice: showPrice ?? this.showPrice,
     showMrp: showMrp ?? this.showMrp,
+    note: note ?? this.note,
   );
 
   @override

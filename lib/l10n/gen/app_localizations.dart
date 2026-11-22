@@ -3757,7 +3757,7 @@ abstract class AppLocalizations {
   /// No description provided for @lpLanguageHelp.
   ///
   /// In en, this message translates to:
-  /// **'Start with ESC/POS. Use \"Quick check\" first: it uses one label. If the check prints commands or random characters, the printer needs the other language.'**
+  /// **'Posiflow for the PSF-20 and other Caysn label printers (the way the Shreyans app prints). ESC/POS or TSPL only for other printers.'**
   String get lpLanguageHelp;
 
   /// No description provided for @lpSize.
@@ -3817,13 +3817,13 @@ abstract class AppLocalizations {
   /// No description provided for @lpCheck.
   ///
   /// In en, this message translates to:
-  /// **'Quick check (1 label)'**
+  /// **'Alignment test (1 label)'**
   String get lpCheck;
 
   /// No description provided for @lpCheckSent.
   ///
   /// In en, this message translates to:
-  /// **'Sent. A text line with a black bar under it means this language works.'**
+  /// **'Sent. Check where the ruler starts and if it runs onto the next label.'**
   String get lpCheckSent;
 
   /// No description provided for @lpLeft.
@@ -3969,6 +3969,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong: {error}'**
   String cloudFailed(String error);
+
+  /// No description provided for @lpNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Lines printed on every label'**
+  String get lpNote;
+
+  /// No description provided for @lpNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Dry wash only'**
+  String get lpNoteHint;
 }
 
 class _AppLocalizationsDelegate

@@ -1395,7 +1395,7 @@
   "lpUseBillPrinter": "Same as the bill printer",
   "lpUseBillPrinterHelp": "Plain text labels on the receipt roll",
   "lpLanguage": "Printer language",
-  "lpLanguageHelp": "Start with ESC/POS. Use \"Quick check\" first: it uses one label. If the check prints commands or random characters, the printer needs the other language.",
+  "lpLanguageHelp": "Posiflow for the PSF-20 and other Caysn label printers (the way the Shreyans app prints). ESC/POS or TSPL only for other printers.",
   "lpSize": "Label size",
   "lpWidth": "Width",
   "lpHeight": "Height",
@@ -1405,8 +1405,8 @@
   "lpTest": "Test label",
   "keyboardHint": "The barcode scanner is hiding the typing keyboard. Turn on \"Use on-screen keyboard\".",
   "keyboardHintFix": "Turn on",
-  "lpCheck": "Quick check (1 label)",
-  "lpCheckSent": "Sent. A text line with a black bar under it means this language works.",
+  "lpCheck": "Alignment test (1 label)",
+  "lpCheckSent": "Sent. Check where the ruler starts and if it runs onto the next label.",
   "lpLeft": "Left margin",
   "lpLeftHelp": "Raise it if the left edge of the label is cut off.",
   "errPercentInvalid": "Enter a percentage from 0 to 100",
@@ -1458,5 +1458,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "lpNote": "Lines printed on every label",
+  "lpNoteHint": "e.g. Dry wash only"
 }
