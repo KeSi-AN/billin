@@ -32,8 +32,13 @@ class ShopProfiles extends Table {
 /// Things the shop sells.
 @DataClassName('ItemRow')
 @TableIndex(name: 'items_name', columns: {#name})
+@TableIndex(name: 'items_uid', columns: {#uid}, unique: true)
 class Items extends Table {
   IntColumn get id => integer().autoIncrement()();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
   TextColumn get name => text().withLength(min: 1, max: 120)();
 
   /// Unique when set. Cleared when an item is deleted so it can be reused.
@@ -84,16 +89,26 @@ class Items extends Table {
 
 /// Item categories. A category with a parent is a subcategory (one level).
 @DataClassName('CategoryRow')
+@TableIndex(name: 'categories_uid', columns: {#uid}, unique: true)
 class Categories extends Table {
   IntColumn get id => integer().autoIncrement()();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
   TextColumn get name => text().withLength(min: 1, max: 60)();
   IntColumn get parentId => integer().nullable().references(Categories, #id)();
 }
 
 /// Stock held in one batch (lot) of an item, with its expiry date.
 @DataClassName('BatchRow')
+@TableIndex(name: 'item_batches_uid', columns: {#uid}, unique: true)
 class ItemBatches extends Table {
   IntColumn get id => integer().autoIncrement()();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
   IntColumn get itemId => integer().references(Items, #id)();
   TextColumn get batchNo => text()();
   DateTimeColumn get expiry => dateTime().nullable()();
@@ -110,8 +125,13 @@ class ItemBatches extends Table {
 /// is never edited directly.
 @DataClassName('MovementRow')
 @TableIndex(name: 'movements_item', columns: {#itemId, #at})
+@TableIndex(name: 'movements_uid', columns: {#uid}, unique: true)
 class StockMovements extends Table {
   IntColumn get id => integer().autoIncrement()();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
   IntColumn get itemId => integer().references(Items, #id)();
   IntColumn get batchId => integer().nullable().references(ItemBatches, #id)();
 
@@ -132,8 +152,17 @@ class StockMovements extends Table {
 /// recomputed, so a reprint always matches what the customer got.
 @DataClassName('BillRow')
 @TableIndex(name: 'bills_billed_at', columns: {#billedAt})
+@TableIndex(name: 'bills_uid', columns: {#uid}, unique: true)
 class Bills extends Table {
   IntColumn get id => integer().autoIncrement()();
+
+  /// The phone's series letter in the number (INV-A/…; '' before
+  /// the shop was in the cloud). Each phone numbers its own.
+  TextColumn get series => text().withDefault(const Constant(''))();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
   TextColumn get invoiceNo => text().unique()();
   IntColumn get fyStart => integer()();
   IntColumn get sequence => integer()();
@@ -176,15 +205,20 @@ class Bills extends Table {
 
   @override
   List<Set<Column<Object>>> get uniqueKeys => [
-    {fyStart, sequence},
+    {series, fyStart, sequence},
   ];
 }
 
 /// Customers (and, from Phase 4, suppliers).
 @DataClassName('PartyRow')
 @TableIndex(name: 'parties_name', columns: {#name})
+@TableIndex(name: 'parties_uid', columns: {#uid}, unique: true)
 class Parties extends Table {
   IntColumn get id => integer().autoIncrement()();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
 
   /// `customer` or `supplier`.
   TextColumn get type => text().withDefault(const Constant('customer'))();
@@ -209,8 +243,13 @@ class Parties extends Table {
 /// Append-only "khata": every change to what a party owes.
 @DataClassName('PartyEntryRow')
 @TableIndex(name: 'party_entries_party', columns: {#partyId, #at})
+@TableIndex(name: 'party_entries_uid', columns: {#uid}, unique: true)
 class PartyEntries extends Table {
   IntColumn get id => integer().autoIncrement()();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
   IntColumn get partyId => integer().references(Parties, #id)();
 
   /// `opening`, `sale`, `payment`, `cancel`, `adjust`.
@@ -228,8 +267,13 @@ class PartyEntries extends Table {
 }
 
 @DataClassName('BillLineRow')
+@TableIndex(name: 'bill_lines_uid', columns: {#uid}, unique: true)
 class BillLines extends Table {
   IntColumn get id => integer().autoIncrement()();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
   IntColumn get billId =>
       integer().references(Bills, #id, onDelete: KeyAction.cascade)();
   IntColumn get position => integer()();
@@ -305,8 +349,13 @@ class AppSettings extends Table {
 /// A purchase (stock bought from a supplier). Phase 4.
 @DataClassName('PurchaseRow')
 @TableIndex(name: 'purchases_date', columns: {#purchasedAt})
+@TableIndex(name: 'purchases_uid', columns: {#uid}, unique: true)
 class Purchases extends Table {
   IntColumn get id => integer().autoIncrement()();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
   IntColumn get partyId => integer().nullable().references(Parties, #id)();
   TextColumn get supplierName => text().nullable()();
   TextColumn get supplierGstin => text().nullable()();
@@ -329,8 +378,13 @@ class Purchases extends Table {
 }
 
 @DataClassName('PurchaseLineRow')
+@TableIndex(name: 'purchase_lines_uid', columns: {#uid}, unique: true)
 class PurchaseLines extends Table {
   IntColumn get id => integer().autoIncrement()();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
   IntColumn get purchaseId =>
       integer().references(Purchases, #id, onDelete: KeyAction.cascade)();
   IntColumn get position => integer()();
@@ -354,8 +408,13 @@ class PurchaseLines extends Table {
 /// Shop running costs: rent, salary, electricity... Phase 4.
 @DataClassName('ExpenseRow')
 @TableIndex(name: 'expenses_date', columns: {#spentAt})
+@TableIndex(name: 'expenses_uid', columns: {#uid}, unique: true)
 class Expenses extends Table {
   IntColumn get id => integer().autoIncrement()();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
   DateTimeColumn get spentAt => dateTime()();
   TextColumn get category => text()();
   IntColumn get amountPaise => integer()();
@@ -367,8 +426,17 @@ class Expenses extends Table {
 /// Credit note: goods returned against a bill. Phase 4.
 @DataClassName('CreditNoteRow')
 @TableIndex(name: 'credit_notes_date', columns: {#issuedAt})
+@TableIndex(name: 'credit_notes_uid', columns: {#uid}, unique: true)
 class CreditNotes extends Table {
   IntColumn get id => integer().autoIncrement()();
+
+  /// The phone's series letter in the number (INV-A/…; '' before
+  /// the shop was in the cloud). Each phone numbers its own.
+  TextColumn get series => text().withDefault(const Constant(''))();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
   TextColumn get noteNo => text().unique()();
   IntColumn get fyStart => integer()();
   IntColumn get sequence => integer()();
@@ -385,13 +453,18 @@ class CreditNotes extends Table {
 
   @override
   List<Set<Column<Object>>> get uniqueKeys => [
-    {fyStart, sequence},
+    {series, fyStart, sequence},
   ];
 }
 
 @DataClassName('CreditNoteLineRow')
+@TableIndex(name: 'credit_note_lines_uid', columns: {#uid}, unique: true)
 class CreditNoteLines extends Table {
   IntColumn get id => integer().autoIncrement()();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
   IntColumn get creditNoteId =>
       integer().references(CreditNotes, #id, onDelete: KeyAction.cascade)();
   IntColumn get billLineId => integer().references(BillLines, #id)();
@@ -408,4 +481,34 @@ class CreditNoteCounters extends Table {
 
   @override
   Set<Column<Object>> get primaryKey => {fyStart};
+}
+
+/// Rows changed on this phone and not yet sent to the cloud (filled by
+/// database triggers; see SyncSchema).
+@DataClassName('SyncOutboxRow')
+class SyncOutbox extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get tbl => text()();
+  IntColumn get rowId => integer()();
+
+  @override
+  List<Set<Column<Object>>> get uniqueKeys => [
+    {tbl, rowId},
+  ];
+}
+
+/// Sync bookkeeping. Always exactly one row (id = 1).
+@DataClassName('SyncStateRow')
+class SyncState extends Table {
+  IntColumn get id => integer()();
+
+  /// 1 while rows from the cloud are being written, so the triggers don't
+  /// send them straight back.
+  IntColumn get applying => integer().withDefault(const Constant(0))();
+
+  /// The highest cloud row number already applied here.
+  IntColumn get pulledSeq => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
 }

@@ -105,6 +105,7 @@ class DriftReturnsRepository implements ReturnsRepository {
                 sequence: sequence,
                 series: series,
               ),
+              series: Value(series ?? ''),
               fyStart: fy.startYear,
               sequence: sequence,
               billId: billId,

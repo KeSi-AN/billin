@@ -109,6 +109,7 @@ class DriftBillRepository implements BillRepository {
                 sequence: sequence,
                 series: series,
               ),
+              series: Value(series ?? ''),
               fyStart: fy.startYear,
               sequence: sequence,
               billedAt: now,

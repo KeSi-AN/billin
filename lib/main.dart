@@ -10,6 +10,7 @@ import 'package:shop_app/features/backup/data/auto_backup.dart';
 import 'package:shop_app/features/billing/data/drift_bill_repository.dart';
 import 'package:shop_app/features/billing/data/drift_returns_repository.dart';
 import 'package:shop_app/features/cloud/data/supabase_cloud_service.dart';
+import 'package:shop_app/features/cloud/data/sync_engine.dart';
 import 'package:shop_app/features/cloud/domain/cloud.dart';
 import 'package:shop_app/features/customers/data/channel_contact_picker.dart';
 import 'package:shop_app/features/customers/data/drift_party_repository.dart';
@@ -49,6 +50,9 @@ Future<AppServices> createServices() async {
       ? SupabaseCloudService(storageDir: getApplicationSupportDirectory)
       : const NoCloudService();
   Future<String?> series() async => (await cloud.link())?.series;
+  final sync = cloudConfigured
+      ? SyncEngine(db, const SupabaseSyncRemote(), cloud.link)
+      : null;
   // Catch up a missed nightly backup, once the app has settled.
   Timer(const Duration(seconds: 20), () => backupIfDue(backup));
 
@@ -67,6 +71,7 @@ Future<AppServices> createServices() async {
     expenses: DriftExpenseRepository(db),
     backup: backup,
     cloud: cloud,
+    sync: sync,
     customerActions: AppCustomerActions(
       parties: parties,
       shopProfiles: shopProfiles,

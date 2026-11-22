@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:shop_app/core/format/dates.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
+import 'package:shop_app/features/cloud/data/sync_engine.dart';
 import 'package:shop_app/features/cloud/domain/cloud.dart';
+import 'package:shop_app/features/cloud/domain/sync.dart';
 import 'package:shop_app/features/shop_profile/presentation/cubit/shop_profile_cubit.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
@@ -75,6 +78,11 @@ class _AccountPageState extends State<AccountPage> {
     await _refresh();
   }
 
+  /// First sync right after joining: a new phone gets the shop's data.
+  Future<void> _syncNow() async {
+    await context.read<SyncEngine?>()?.syncNow();
+  }
+
   String get _localShopName => switch (context.read<ShopProfileCubit>().state) {
     ShopProfileReady(:final profile) => profile.name,
     _ => '',
@@ -135,7 +143,9 @@ class _AccountPageState extends State<AccountPage> {
               subtitle: Text(l10n.cloudPhoneSeries(link.series)),
             ),
             const SizedBox(height: 8),
-            Text(l10n.cloudSyncSoon, style: text.bodySmall),
+            Text(l10n.cloudSyncHelp, style: text.bodySmall),
+            if (context.read<SyncEngine?>() case final engine?)
+              _SyncStatusCard(engine: engine),
           ] else if (_error != null)
             Text(l10n.cloudFailed(_error!))
           else if (_shops == null)
@@ -166,7 +176,10 @@ class _AccountPageState extends State<AccountPage> {
                       FilledButton(
                         onPressed: _busy
                             ? null
-                            : () => _run(() => _cloud.linkPhone(s)),
+                            : () => _run(() async {
+                                await _cloud.linkPhone(s);
+                                await _syncNow();
+                              }),
                         child: Text(l10n.cloudUseHere),
                       ),
                     ],
@@ -181,6 +194,7 @@ class _AccountPageState extends State<AccountPage> {
                     : () => _run(() async {
                         final shop = await _cloud.createShop(_localShopName);
                         await _cloud.linkPhone(shop);
+                        await _syncNow();
                       }),
                 child: Text(l10n.cloudCreateShop(_localShopName)),
               ),
@@ -208,6 +222,59 @@ class _AccountPageState extends State<AccountPage> {
           ],
         ],
       ),
+    );
+  }
+}
+
+/// When this phone last synced, what is waiting, and a button to sync now.
+class _SyncStatusCard extends StatelessWidget {
+  const _SyncStatusCard({required this.engine});
+
+  final SyncEngine engine;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return ValueListenableBuilder<SyncStatus>(
+      valueListenable: engine.status,
+      builder: (context, s, _) {
+        final last = s.lastSyncedAt;
+        return Card(
+          key: const Key('syncStatusCard'),
+          margin: const EdgeInsets.only(top: 12),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  s.running
+                      ? l10n.cloudSyncing
+                      : last == null
+                      ? l10n.cloudSyncNever
+                      : l10n.cloudSyncedAt(formatDateTime(last)),
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                Text(l10n.cloudSyncPending(s.pending)),
+                if (s.error != null)
+                  Text(
+                    l10n.cloudSyncError,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  key: const Key('syncNowButton'),
+                  onPressed: s.running ? null : engine.syncNow,
+                  icon: const Icon(Icons.sync),
+                  label: Text(l10n.cloudSyncNow),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

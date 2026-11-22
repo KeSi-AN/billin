@@ -5,6 +5,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shop_app/core/db/app_database.steps.dart';
+import 'package:shop_app/core/db/sync_schema.dart';
 import 'package:shop_app/core/db/tables.dart';
 
 part 'app_database.g.dart';
@@ -34,13 +35,15 @@ part 'app_database.g.dart';
     CreditNotes,
     CreditNoteLines,
     CreditNoteCounters,
+    SyncOutbox,
+    SyncState,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -123,11 +126,79 @@ class AppDatabase extends _$AppDatabase {
       from6To7: (m, schema) async {
         await m.addColumn(schema.appSettings, schema.appSettings.labelSetup);
       },
+      // Build 0.6: sharing the shop between phones. Every shared row gets
+      // a uid; bill and credit-note numbers become unique per phone series;
+      // everything so far is queued to go up to the cloud.
+      from7To8: (m, schema) async {
+        // Rebuilt (not just a new column): their unique number key changes.
+        // Foreign keys are off here (switched on in beforeOpen), so the
+        // rebuild doesn't cascade into bill lines or credit-note lines.
+        await m.alterTable(
+          TableMigration(
+            schema.bills,
+            newColumns: [schema.bills.uid, schema.bills.series],
+          ),
+        );
+        await m.alterTable(
+          TableMigration(
+            schema.creditNotes,
+            newColumns: [schema.creditNotes.uid, schema.creditNotes.series],
+          ),
+        );
+        // Bills numbered after joining the cloud carry the letter already:
+        // INV-A/26-27/0007 -> series A.
+        for (final table in ['bills', 'credit_notes']) {
+          final number = table == 'bills' ? 'invoice_no' : 'note_no';
+          await customStatement(
+            'UPDATE $table SET series = substr($number, '
+            "instr($number, '/') - 1, 1) "
+            "WHERE instr($number, '/') > 2 "
+            "AND substr($number, instr($number, '/') - 2, 1) = '-'",
+          );
+        }
+        for (final (table, column) in [
+          (schema.categories, schema.categories.uid),
+          (schema.items, schema.items.uid),
+          (schema.itemBatches, schema.itemBatches.uid),
+          (schema.stockMovements, schema.stockMovements.uid),
+          (schema.parties, schema.parties.uid),
+          (schema.partyEntries, schema.partyEntries.uid),
+          (schema.billLines, schema.billLines.uid),
+          (schema.purchases, schema.purchases.uid),
+          (schema.purchaseLines, schema.purchaseLines.uid),
+          (schema.expenses, schema.expenses.uid),
+          (schema.creditNoteLines, schema.creditNoteLines.uid),
+        ]) {
+          await m.addColumn(table, column);
+        }
+        await m.createTable(schema.syncOutbox);
+        await m.createTable(schema.syncState);
+        await backfillSync(this);
+        for (final index in [
+          schema.categoriesUid,
+          schema.itemsUid,
+          schema.itemBatchesUid,
+          schema.movementsUid,
+          schema.billsUid,
+          schema.partiesUid,
+          schema.partyEntriesUid,
+          schema.billLinesUid,
+          schema.purchasesUid,
+          schema.purchaseLinesUid,
+          schema.expensesUid,
+          schema.creditNotesUid,
+          schema.creditNoteLinesUid,
+        ]) {
+          await m.createIndex(index);
+        }
+      },
     ),
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
       // The nightly backup may read while the app writes: wait, don't fail.
       await customStatement('PRAGMA busy_timeout = 5000');
+      // New rows get a uid and changed rows are queued for the cloud.
+      await installSyncTriggers(this);
     },
   );
 

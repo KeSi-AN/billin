@@ -678,6 +678,15 @@ class $CategoriesTable extends Categories
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -706,7 +715,7 @@ class $CategoriesTable extends Categories
     ),
   );
   @override
-  List<GeneratedColumn> get $columns => [id, name, parentId];
+  List<GeneratedColumn> get $columns => [id, uid, name, parentId];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -721,6 +730,12 @@ class $CategoriesTable extends Categories
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -749,6 +764,10 @@ class $CategoriesTable extends Categories
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -768,13 +787,25 @@ class $CategoriesTable extends Categories
 
 class CategoryRow extends DataClass implements Insertable<CategoryRow> {
   final int id;
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  final String? uid;
   final String name;
   final int? parentId;
-  const CategoryRow({required this.id, required this.name, this.parentId});
+  const CategoryRow({
+    required this.id,
+    this.uid,
+    required this.name,
+    this.parentId,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || parentId != null) {
       map['parent_id'] = Variable<int>(parentId);
@@ -785,6 +816,7 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
   CategoriesCompanion toCompanion(bool nullToAbsent) {
     return CategoriesCompanion(
       id: Value(id),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       name: Value(name),
       parentId: parentId == null && nullToAbsent
           ? const Value.absent()
@@ -799,6 +831,7 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return CategoryRow(
       id: serializer.fromJson<int>(json['id']),
+      uid: serializer.fromJson<String?>(json['uid']),
       name: serializer.fromJson<String>(json['name']),
       parentId: serializer.fromJson<int?>(json['parentId']),
     );
@@ -808,6 +841,7 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'uid': serializer.toJson<String?>(uid),
       'name': serializer.toJson<String>(name),
       'parentId': serializer.toJson<int?>(parentId),
     };
@@ -815,16 +849,19 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
 
   CategoryRow copyWith({
     int? id,
+    Value<String?> uid = const Value.absent(),
     String? name,
     Value<int?> parentId = const Value.absent(),
   }) => CategoryRow(
     id: id ?? this.id,
+    uid: uid.present ? uid.value : this.uid,
     name: name ?? this.name,
     parentId: parentId.present ? parentId.value : this.parentId,
   );
   CategoryRow copyWithCompanion(CategoriesCompanion data) {
     return CategoryRow(
       id: data.id.present ? data.id.value : this.id,
+      uid: data.uid.present ? data.uid.value : this.uid,
       name: data.name.present ? data.name.value : this.name,
       parentId: data.parentId.present ? data.parentId.value : this.parentId,
     );
@@ -834,6 +871,7 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
   String toString() {
     return (StringBuffer('CategoryRow(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('name: $name, ')
           ..write('parentId: $parentId')
           ..write(')'))
@@ -841,37 +879,43 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
   }
 
   @override
-  int get hashCode => Object.hash(id, name, parentId);
+  int get hashCode => Object.hash(id, uid, name, parentId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CategoryRow &&
           other.id == this.id &&
+          other.uid == this.uid &&
           other.name == this.name &&
           other.parentId == this.parentId);
 }
 
 class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
   final Value<int> id;
+  final Value<String?> uid;
   final Value<String> name;
   final Value<int?> parentId;
   const CategoriesCompanion({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     this.name = const Value.absent(),
     this.parentId = const Value.absent(),
   });
   CategoriesCompanion.insert({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     required String name,
     this.parentId = const Value.absent(),
   }) : name = Value(name);
   static Insertable<CategoryRow> custom({
     Expression<int>? id,
+    Expression<String>? uid,
     Expression<String>? name,
     Expression<int>? parentId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (uid != null) 'uid': uid,
       if (name != null) 'name': name,
       if (parentId != null) 'parent_id': parentId,
     });
@@ -879,11 +923,13 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
 
   CategoriesCompanion copyWith({
     Value<int>? id,
+    Value<String?>? uid,
     Value<String>? name,
     Value<int?>? parentId,
   }) {
     return CategoriesCompanion(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       name: name ?? this.name,
       parentId: parentId ?? this.parentId,
     );
@@ -894,6 +940,9 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -908,6 +957,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
   String toString() {
     return (StringBuffer('CategoriesCompanion(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('name: $name, ')
           ..write('parentId: $parentId')
           ..write(')'))
@@ -932,6 +982,15 @@ class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'PRIMARY KEY AUTOINCREMENT',
     ),
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
@@ -1187,6 +1246,7 @@ class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    uid,
     name,
     barcode,
     unit,
@@ -1223,6 +1283,12 @@ class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -1392,6 +1458,10 @@ class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -1487,6 +1557,10 @@ class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
 
 class ItemRow extends DataClass implements Insertable<ItemRow> {
   final int id;
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  final String? uid;
   final String name;
 
   /// Unique when set. Cleared when an item is deleted so it can be reused.
@@ -1528,6 +1602,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
   final int? costPricePaise;
   const ItemRow({
     required this.id,
+    this.uid,
     required this.name,
     this.barcode,
     required this.unit,
@@ -1554,6 +1629,9 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || barcode != null) {
       map['barcode'] = Variable<String>(barcode);
@@ -1601,6 +1679,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
   ItemsCompanion toCompanion(bool nullToAbsent) {
     return ItemsCompanion(
       id: Value(id),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       name: Value(name),
       barcode: barcode == null && nullToAbsent
           ? const Value.absent()
@@ -1650,6 +1729,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ItemRow(
       id: serializer.fromJson<int>(json['id']),
+      uid: serializer.fromJson<String?>(json['uid']),
       name: serializer.fromJson<String>(json['name']),
       barcode: serializer.fromJson<String?>(json['barcode']),
       unit: serializer.fromJson<String>(json['unit']),
@@ -1678,6 +1758,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'uid': serializer.toJson<String?>(uid),
       'name': serializer.toJson<String>(name),
       'barcode': serializer.toJson<String?>(barcode),
       'unit': serializer.toJson<String>(unit),
@@ -1704,6 +1785,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
 
   ItemRow copyWith({
     int? id,
+    Value<String?> uid = const Value.absent(),
     String? name,
     Value<String?> barcode = const Value.absent(),
     String? unit,
@@ -1727,6 +1809,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
     Value<int?> costPricePaise = const Value.absent(),
   }) => ItemRow(
     id: id ?? this.id,
+    uid: uid.present ? uid.value : this.uid,
     name: name ?? this.name,
     barcode: barcode.present ? barcode.value : this.barcode,
     unit: unit ?? this.unit,
@@ -1760,6 +1843,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
   ItemRow copyWithCompanion(ItemsCompanion data) {
     return ItemRow(
       id: data.id.present ? data.id.value : this.id,
+      uid: data.uid.present ? data.uid.value : this.uid,
       name: data.name.present ? data.name.value : this.name,
       barcode: data.barcode.present ? data.barcode.value : this.barcode,
       unit: data.unit.present ? data.unit.value : this.unit,
@@ -1808,6 +1892,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
   String toString() {
     return (StringBuffer('ItemRow(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('name: $name, ')
           ..write('barcode: $barcode, ')
           ..write('unit: $unit, ')
@@ -1836,6 +1921,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
   @override
   int get hashCode => Object.hashAll([
     id,
+    uid,
     name,
     barcode,
     unit,
@@ -1863,6 +1949,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
       identical(this, other) ||
       (other is ItemRow &&
           other.id == this.id &&
+          other.uid == this.uid &&
           other.name == this.name &&
           other.barcode == this.barcode &&
           other.unit == this.unit &&
@@ -1888,6 +1975,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
 
 class ItemsCompanion extends UpdateCompanion<ItemRow> {
   final Value<int> id;
+  final Value<String?> uid;
   final Value<String> name;
   final Value<String?> barcode;
   final Value<String> unit;
@@ -1911,6 +1999,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
   final Value<int?> costPricePaise;
   const ItemsCompanion({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     this.name = const Value.absent(),
     this.barcode = const Value.absent(),
     this.unit = const Value.absent(),
@@ -1935,6 +2024,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
   });
   ItemsCompanion.insert({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     required String name,
     this.barcode = const Value.absent(),
     this.unit = const Value.absent(),
@@ -1962,6 +2052,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
        updatedAt = Value(updatedAt);
   static Insertable<ItemRow> custom({
     Expression<int>? id,
+    Expression<String>? uid,
     Expression<String>? name,
     Expression<String>? barcode,
     Expression<String>? unit,
@@ -1986,6 +2077,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (uid != null) 'uid': uid,
       if (name != null) 'name': name,
       if (barcode != null) 'barcode': barcode,
       if (unit != null) 'unit': unit,
@@ -2013,6 +2105,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
 
   ItemsCompanion copyWith({
     Value<int>? id,
+    Value<String?>? uid,
     Value<String>? name,
     Value<String?>? barcode,
     Value<String>? unit,
@@ -2037,6 +2130,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
   }) {
     return ItemsCompanion(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       name: name ?? this.name,
       barcode: barcode ?? this.barcode,
       unit: unit ?? this.unit,
@@ -2066,6 +2160,9 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -2137,6 +2234,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
   String toString() {
     return (StringBuffer('ItemsCompanion(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('name: $name, ')
           ..write('barcode: $barcode, ')
           ..write('unit: $unit, ')
@@ -2180,6 +2278,15 @@ class $PartiesTable extends Parties with TableInfo<$PartiesTable, PartyRow> {
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'PRIMARY KEY AUTOINCREMENT',
     ),
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
@@ -2305,6 +2412,7 @@ class $PartiesTable extends Parties with TableInfo<$PartiesTable, PartyRow> {
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    uid,
     type,
     name,
     phone,
@@ -2331,6 +2439,12 @@ class $PartiesTable extends Parties with TableInfo<$PartiesTable, PartyRow> {
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
     }
     if (data.containsKey('type')) {
       context.handle(
@@ -2423,6 +2537,10 @@ class $PartiesTable extends Parties with TableInfo<$PartiesTable, PartyRow> {
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      ),
       type: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}type'],
@@ -2479,6 +2597,10 @@ class $PartiesTable extends Parties with TableInfo<$PartiesTable, PartyRow> {
 class PartyRow extends DataClass implements Insertable<PartyRow> {
   final int id;
 
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  final String? uid;
+
   /// `customer` or `supplier`.
   final String type;
   final String name;
@@ -2499,6 +2621,7 @@ class PartyRow extends DataClass implements Insertable<PartyRow> {
   final DateTime updatedAt;
   const PartyRow({
     required this.id,
+    this.uid,
     required this.type,
     required this.name,
     this.phone,
@@ -2515,6 +2638,9 @@ class PartyRow extends DataClass implements Insertable<PartyRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
     map['type'] = Variable<String>(type);
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || phone != null) {
@@ -2542,6 +2668,7 @@ class PartyRow extends DataClass implements Insertable<PartyRow> {
   PartiesCompanion toCompanion(bool nullToAbsent) {
     return PartiesCompanion(
       id: Value(id),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       type: Value(type),
       name: Value(name),
       phone: phone == null && nullToAbsent
@@ -2573,6 +2700,7 @@ class PartyRow extends DataClass implements Insertable<PartyRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return PartyRow(
       id: serializer.fromJson<int>(json['id']),
+      uid: serializer.fromJson<String?>(json['uid']),
       type: serializer.fromJson<String>(json['type']),
       name: serializer.fromJson<String>(json['name']),
       phone: serializer.fromJson<String?>(json['phone']),
@@ -2591,6 +2719,7 @@ class PartyRow extends DataClass implements Insertable<PartyRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'uid': serializer.toJson<String?>(uid),
       'type': serializer.toJson<String>(type),
       'name': serializer.toJson<String>(name),
       'phone': serializer.toJson<String?>(phone),
@@ -2607,6 +2736,7 @@ class PartyRow extends DataClass implements Insertable<PartyRow> {
 
   PartyRow copyWith({
     int? id,
+    Value<String?> uid = const Value.absent(),
     String? type,
     String? name,
     Value<String?> phone = const Value.absent(),
@@ -2620,6 +2750,7 @@ class PartyRow extends DataClass implements Insertable<PartyRow> {
     DateTime? updatedAt,
   }) => PartyRow(
     id: id ?? this.id,
+    uid: uid.present ? uid.value : this.uid,
     type: type ?? this.type,
     name: name ?? this.name,
     phone: phone.present ? phone.value : this.phone,
@@ -2635,6 +2766,7 @@ class PartyRow extends DataClass implements Insertable<PartyRow> {
   PartyRow copyWithCompanion(PartiesCompanion data) {
     return PartyRow(
       id: data.id.present ? data.id.value : this.id,
+      uid: data.uid.present ? data.uid.value : this.uid,
       type: data.type.present ? data.type.value : this.type,
       name: data.name.present ? data.name.value : this.name,
       phone: data.phone.present ? data.phone.value : this.phone,
@@ -2657,6 +2789,7 @@ class PartyRow extends DataClass implements Insertable<PartyRow> {
   String toString() {
     return (StringBuffer('PartyRow(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('type: $type, ')
           ..write('name: $name, ')
           ..write('phone: $phone, ')
@@ -2675,6 +2808,7 @@ class PartyRow extends DataClass implements Insertable<PartyRow> {
   @override
   int get hashCode => Object.hash(
     id,
+    uid,
     type,
     name,
     phone,
@@ -2692,6 +2826,7 @@ class PartyRow extends DataClass implements Insertable<PartyRow> {
       identical(this, other) ||
       (other is PartyRow &&
           other.id == this.id &&
+          other.uid == this.uid &&
           other.type == this.type &&
           other.name == this.name &&
           other.phone == this.phone &&
@@ -2707,6 +2842,7 @@ class PartyRow extends DataClass implements Insertable<PartyRow> {
 
 class PartiesCompanion extends UpdateCompanion<PartyRow> {
   final Value<int> id;
+  final Value<String?> uid;
   final Value<String> type;
   final Value<String> name;
   final Value<String?> phone;
@@ -2720,6 +2856,7 @@ class PartiesCompanion extends UpdateCompanion<PartyRow> {
   final Value<DateTime> updatedAt;
   const PartiesCompanion({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     this.type = const Value.absent(),
     this.name = const Value.absent(),
     this.phone = const Value.absent(),
@@ -2734,6 +2871,7 @@ class PartiesCompanion extends UpdateCompanion<PartyRow> {
   });
   PartiesCompanion.insert({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     this.type = const Value.absent(),
     required String name,
     this.phone = const Value.absent(),
@@ -2750,6 +2888,7 @@ class PartiesCompanion extends UpdateCompanion<PartyRow> {
        updatedAt = Value(updatedAt);
   static Insertable<PartyRow> custom({
     Expression<int>? id,
+    Expression<String>? uid,
     Expression<String>? type,
     Expression<String>? name,
     Expression<String>? phone,
@@ -2764,6 +2903,7 @@ class PartiesCompanion extends UpdateCompanion<PartyRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (uid != null) 'uid': uid,
       if (type != null) 'type': type,
       if (name != null) 'name': name,
       if (phone != null) 'phone': phone,
@@ -2780,6 +2920,7 @@ class PartiesCompanion extends UpdateCompanion<PartyRow> {
 
   PartiesCompanion copyWith({
     Value<int>? id,
+    Value<String?>? uid,
     Value<String>? type,
     Value<String>? name,
     Value<String?>? phone,
@@ -2794,6 +2935,7 @@ class PartiesCompanion extends UpdateCompanion<PartyRow> {
   }) {
     return PartiesCompanion(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       type: type ?? this.type,
       name: name ?? this.name,
       phone: phone ?? this.phone,
@@ -2813,6 +2955,9 @@ class PartiesCompanion extends UpdateCompanion<PartyRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (type.present) {
       map['type'] = Variable<String>(type.value);
@@ -2854,6 +2999,7 @@ class PartiesCompanion extends UpdateCompanion<PartyRow> {
   String toString() {
     return (StringBuffer('PartiesCompanion(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('type: $type, ')
           ..write('name: $name, ')
           ..write('phone: $phone, ')
@@ -2887,6 +3033,25 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, BillRow> {
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'PRIMARY KEY AUTOINCREMENT',
     ),
+  );
+  static const VerificationMeta _seriesMeta = const VerificationMeta('series');
+  @override
+  late final GeneratedColumn<String> series = GeneratedColumn<String>(
+    'series',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _invoiceNoMeta = const VerificationMeta(
     'invoiceNo',
@@ -3130,6 +3295,8 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, BillRow> {
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    series,
+    uid,
     invoiceNo,
     fyStart,
     sequence,
@@ -3166,6 +3333,18 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, BillRow> {
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('series')) {
+      context.handle(
+        _seriesMeta,
+        series.isAcceptableOrUnknown(data['series']!, _seriesMeta),
+      );
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
     }
     if (data.containsKey('invoice_no')) {
       context.handle(
@@ -3355,7 +3534,7 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, BillRow> {
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   List<Set<GeneratedColumn>> get uniqueKeys => [
-    {fyStart, sequence},
+    {series, fyStart, sequence},
   ];
   @override
   BillRow map(Map<String, dynamic> data, {String? tablePrefix}) {
@@ -3365,6 +3544,14 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, BillRow> {
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      series: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}series'],
+      )!,
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      ),
       invoiceNo: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}invoice_no'],
@@ -3460,6 +3647,14 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, BillRow> {
 
 class BillRow extends DataClass implements Insertable<BillRow> {
   final int id;
+
+  /// The phone's series letter in the number (INV-A/…; '' before
+  /// the shop was in the cloud). Each phone numbers its own.
+  final String series;
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  final String? uid;
   final String invoiceNo;
   final int fyStart;
   final int sequence;
@@ -3497,6 +3692,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
   final String? buyerGstin;
   const BillRow({
     required this.id,
+    required this.series,
+    this.uid,
     required this.invoiceNo,
     required this.fyStart,
     required this.sequence,
@@ -3523,6 +3720,10 @@ class BillRow extends DataClass implements Insertable<BillRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['series'] = Variable<String>(series);
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
     map['invoice_no'] = Variable<String>(invoiceNo);
     map['fy_start'] = Variable<int>(fyStart);
     map['sequence'] = Variable<int>(sequence);
@@ -3564,6 +3765,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
   BillsCompanion toCompanion(bool nullToAbsent) {
     return BillsCompanion(
       id: Value(id),
+      series: Value(series),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       invoiceNo: Value(invoiceNo),
       fyStart: Value(fyStart),
       sequence: Value(sequence),
@@ -3609,6 +3812,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return BillRow(
       id: serializer.fromJson<int>(json['id']),
+      series: serializer.fromJson<String>(json['series']),
+      uid: serializer.fromJson<String?>(json['uid']),
       invoiceNo: serializer.fromJson<String>(json['invoiceNo']),
       fyStart: serializer.fromJson<int>(json['fyStart']),
       sequence: serializer.fromJson<int>(json['sequence']),
@@ -3637,6 +3842,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'series': serializer.toJson<String>(series),
+      'uid': serializer.toJson<String?>(uid),
       'invoiceNo': serializer.toJson<String>(invoiceNo),
       'fyStart': serializer.toJson<int>(fyStart),
       'sequence': serializer.toJson<int>(sequence),
@@ -3663,6 +3870,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
 
   BillRow copyWith({
     int? id,
+    String? series,
+    Value<String?> uid = const Value.absent(),
     String? invoiceNo,
     int? fyStart,
     int? sequence,
@@ -3686,6 +3895,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
     Value<String?> buyerGstin = const Value.absent(),
   }) => BillRow(
     id: id ?? this.id,
+    series: series ?? this.series,
+    uid: uid.present ? uid.value : this.uid,
     invoiceNo: invoiceNo ?? this.invoiceNo,
     fyStart: fyStart ?? this.fyStart,
     sequence: sequence ?? this.sequence,
@@ -3715,6 +3926,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
   BillRow copyWithCompanion(BillsCompanion data) {
     return BillRow(
       id: data.id.present ? data.id.value : this.id,
+      series: data.series.present ? data.series.value : this.series,
+      uid: data.uid.present ? data.uid.value : this.uid,
       invoiceNo: data.invoiceNo.present ? data.invoiceNo.value : this.invoiceNo,
       fyStart: data.fyStart.present ? data.fyStart.value : this.fyStart,
       sequence: data.sequence.present ? data.sequence.value : this.sequence,
@@ -3769,6 +3982,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
   String toString() {
     return (StringBuffer('BillRow(')
           ..write('id: $id, ')
+          ..write('series: $series, ')
+          ..write('uid: $uid, ')
           ..write('invoiceNo: $invoiceNo, ')
           ..write('fyStart: $fyStart, ')
           ..write('sequence: $sequence, ')
@@ -3797,6 +4012,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
   @override
   int get hashCode => Object.hashAll([
     id,
+    series,
+    uid,
     invoiceNo,
     fyStart,
     sequence,
@@ -3824,6 +4041,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
       identical(this, other) ||
       (other is BillRow &&
           other.id == this.id &&
+          other.series == this.series &&
+          other.uid == this.uid &&
           other.invoiceNo == this.invoiceNo &&
           other.fyStart == this.fyStart &&
           other.sequence == this.sequence &&
@@ -3849,6 +4068,8 @@ class BillRow extends DataClass implements Insertable<BillRow> {
 
 class BillsCompanion extends UpdateCompanion<BillRow> {
   final Value<int> id;
+  final Value<String> series;
+  final Value<String?> uid;
   final Value<String> invoiceNo;
   final Value<int> fyStart;
   final Value<int> sequence;
@@ -3872,6 +4093,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
   final Value<String?> buyerGstin;
   const BillsCompanion({
     this.id = const Value.absent(),
+    this.series = const Value.absent(),
+    this.uid = const Value.absent(),
     this.invoiceNo = const Value.absent(),
     this.fyStart = const Value.absent(),
     this.sequence = const Value.absent(),
@@ -3896,6 +4119,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
   });
   BillsCompanion.insert({
     this.id = const Value.absent(),
+    this.series = const Value.absent(),
+    this.uid = const Value.absent(),
     required String invoiceNo,
     required int fyStart,
     required int sequence,
@@ -3930,6 +4155,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
        paymentMode = Value(paymentMode);
   static Insertable<BillRow> custom({
     Expression<int>? id,
+    Expression<String>? series,
+    Expression<String>? uid,
     Expression<String>? invoiceNo,
     Expression<int>? fyStart,
     Expression<int>? sequence,
@@ -3954,6 +4181,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (series != null) 'series': series,
+      if (uid != null) 'uid': uid,
       if (invoiceNo != null) 'invoice_no': invoiceNo,
       if (fyStart != null) 'fy_start': fyStart,
       if (sequence != null) 'sequence': sequence,
@@ -3980,6 +4209,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
 
   BillsCompanion copyWith({
     Value<int>? id,
+    Value<String>? series,
+    Value<String?>? uid,
     Value<String>? invoiceNo,
     Value<int>? fyStart,
     Value<int>? sequence,
@@ -4004,6 +4235,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
   }) {
     return BillsCompanion(
       id: id ?? this.id,
+      series: series ?? this.series,
+      uid: uid ?? this.uid,
       invoiceNo: invoiceNo ?? this.invoiceNo,
       fyStart: fyStart ?? this.fyStart,
       sequence: sequence ?? this.sequence,
@@ -4033,6 +4266,12 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (series.present) {
+      map['series'] = Variable<String>(series.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (invoiceNo.present) {
       map['invoice_no'] = Variable<String>(invoiceNo.value);
@@ -4104,6 +4343,8 @@ class BillsCompanion extends UpdateCompanion<BillRow> {
   String toString() {
     return (StringBuffer('BillsCompanion(')
           ..write('id: $id, ')
+          ..write('series: $series, ')
+          ..write('uid: $uid, ')
           ..write('invoiceNo: $invoiceNo, ')
           ..write('fyStart: $fyStart, ')
           ..write('sequence: $sequence, ')
@@ -4148,6 +4389,15 @@ class $BillLinesTable extends BillLines
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'PRIMARY KEY AUTOINCREMENT',
     ),
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _billIdMeta = const VerificationMeta('billId');
   @override
@@ -4350,6 +4600,7 @@ class $BillLinesTable extends BillLines
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    uid,
     billId,
     position,
     itemId,
@@ -4383,6 +4634,12 @@ class $BillLinesTable extends BillLines
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
     }
     if (data.containsKey('bill_id')) {
       context.handle(
@@ -4555,6 +4812,10 @@ class $BillLinesTable extends BillLines
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      ),
       billId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}bill_id'],
@@ -4638,6 +4899,10 @@ class $BillLinesTable extends BillLines
 
 class BillLineRow extends DataClass implements Insertable<BillLineRow> {
   final int id;
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  final String? uid;
   final int billId;
   final int position;
 
@@ -4668,6 +4933,7 @@ class BillLineRow extends DataClass implements Insertable<BillLineRow> {
   final int returnedMilli;
   const BillLineRow({
     required this.id,
+    this.uid,
     required this.billId,
     required this.position,
     this.itemId,
@@ -4691,6 +4957,9 @@ class BillLineRow extends DataClass implements Insertable<BillLineRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
     map['bill_id'] = Variable<int>(billId);
     map['position'] = Variable<int>(position);
     if (!nullToAbsent || itemId != null) {
@@ -4721,6 +4990,7 @@ class BillLineRow extends DataClass implements Insertable<BillLineRow> {
   BillLinesCompanion toCompanion(bool nullToAbsent) {
     return BillLinesCompanion(
       id: Value(id),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       billId: Value(billId),
       position: Value(position),
       itemId: itemId == null && nullToAbsent
@@ -4753,6 +5023,7 @@ class BillLineRow extends DataClass implements Insertable<BillLineRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return BillLineRow(
       id: serializer.fromJson<int>(json['id']),
+      uid: serializer.fromJson<String?>(json['uid']),
       billId: serializer.fromJson<int>(json['billId']),
       position: serializer.fromJson<int>(json['position']),
       itemId: serializer.fromJson<int?>(json['itemId']),
@@ -4780,6 +5051,7 @@ class BillLineRow extends DataClass implements Insertable<BillLineRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'uid': serializer.toJson<String?>(uid),
       'billId': serializer.toJson<int>(billId),
       'position': serializer.toJson<int>(position),
       'itemId': serializer.toJson<int?>(itemId),
@@ -4803,6 +5075,7 @@ class BillLineRow extends DataClass implements Insertable<BillLineRow> {
 
   BillLineRow copyWith({
     int? id,
+    Value<String?> uid = const Value.absent(),
     int? billId,
     int? position,
     Value<int?> itemId = const Value.absent(),
@@ -4823,6 +5096,7 @@ class BillLineRow extends DataClass implements Insertable<BillLineRow> {
     int? returnedMilli,
   }) => BillLineRow(
     id: id ?? this.id,
+    uid: uid.present ? uid.value : this.uid,
     billId: billId ?? this.billId,
     position: position ?? this.position,
     itemId: itemId.present ? itemId.value : this.itemId,
@@ -4846,6 +5120,7 @@ class BillLineRow extends DataClass implements Insertable<BillLineRow> {
   BillLineRow copyWithCompanion(BillLinesCompanion data) {
     return BillLineRow(
       id: data.id.present ? data.id.value : this.id,
+      uid: data.uid.present ? data.uid.value : this.uid,
       billId: data.billId.present ? data.billId.value : this.billId,
       position: data.position.present ? data.position.value : this.position,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
@@ -4889,6 +5164,7 @@ class BillLineRow extends DataClass implements Insertable<BillLineRow> {
   String toString() {
     return (StringBuffer('BillLineRow(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('billId: $billId, ')
           ..write('position: $position, ')
           ..write('itemId: $itemId, ')
@@ -4914,6 +5190,7 @@ class BillLineRow extends DataClass implements Insertable<BillLineRow> {
   @override
   int get hashCode => Object.hash(
     id,
+    uid,
     billId,
     position,
     itemId,
@@ -4938,6 +5215,7 @@ class BillLineRow extends DataClass implements Insertable<BillLineRow> {
       identical(this, other) ||
       (other is BillLineRow &&
           other.id == this.id &&
+          other.uid == this.uid &&
           other.billId == this.billId &&
           other.position == this.position &&
           other.itemId == this.itemId &&
@@ -4960,6 +5238,7 @@ class BillLineRow extends DataClass implements Insertable<BillLineRow> {
 
 class BillLinesCompanion extends UpdateCompanion<BillLineRow> {
   final Value<int> id;
+  final Value<String?> uid;
   final Value<int> billId;
   final Value<int> position;
   final Value<int?> itemId;
@@ -4980,6 +5259,7 @@ class BillLinesCompanion extends UpdateCompanion<BillLineRow> {
   final Value<int> returnedMilli;
   const BillLinesCompanion({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     this.billId = const Value.absent(),
     this.position = const Value.absent(),
     this.itemId = const Value.absent(),
@@ -5001,6 +5281,7 @@ class BillLinesCompanion extends UpdateCompanion<BillLineRow> {
   });
   BillLinesCompanion.insert({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     required int billId,
     required int position,
     this.itemId = const Value.absent(),
@@ -5034,6 +5315,7 @@ class BillLinesCompanion extends UpdateCompanion<BillLineRow> {
        totalPaise = Value(totalPaise);
   static Insertable<BillLineRow> custom({
     Expression<int>? id,
+    Expression<String>? uid,
     Expression<int>? billId,
     Expression<int>? position,
     Expression<int>? itemId,
@@ -5055,6 +5337,7 @@ class BillLinesCompanion extends UpdateCompanion<BillLineRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (uid != null) 'uid': uid,
       if (billId != null) 'bill_id': billId,
       if (position != null) 'position': position,
       if (itemId != null) 'item_id': itemId,
@@ -5079,6 +5362,7 @@ class BillLinesCompanion extends UpdateCompanion<BillLineRow> {
 
   BillLinesCompanion copyWith({
     Value<int>? id,
+    Value<String?>? uid,
     Value<int>? billId,
     Value<int>? position,
     Value<int?>? itemId,
@@ -5100,6 +5384,7 @@ class BillLinesCompanion extends UpdateCompanion<BillLineRow> {
   }) {
     return BillLinesCompanion(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       billId: billId ?? this.billId,
       position: position ?? this.position,
       itemId: itemId ?? this.itemId,
@@ -5127,6 +5412,9 @@ class BillLinesCompanion extends UpdateCompanion<BillLineRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (billId.present) {
       map['bill_id'] = Variable<int>(billId.value);
@@ -5191,6 +5479,7 @@ class BillLinesCompanion extends UpdateCompanion<BillLineRow> {
   String toString() {
     return (StringBuffer('BillLinesCompanion(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('billId: $billId, ')
           ..write('position: $position, ')
           ..write('itemId: $itemId, ')
@@ -6085,6 +6374,15 @@ class $ItemBatchesTable extends ItemBatches
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
   @override
   late final GeneratedColumn<int> itemId = GeneratedColumn<int>(
@@ -6143,6 +6441,7 @@ class $ItemBatchesTable extends ItemBatches
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    uid,
     itemId,
     batchNo,
     expiry,
@@ -6163,6 +6462,12 @@ class $ItemBatchesTable extends ItemBatches
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
     }
     if (data.containsKey('item_id')) {
       context.handle(
@@ -6220,6 +6525,10 @@ class $ItemBatchesTable extends ItemBatches
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      ),
       itemId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}item_id'],
@@ -6251,6 +6560,10 @@ class $ItemBatchesTable extends ItemBatches
 
 class BatchRow extends DataClass implements Insertable<BatchRow> {
   final int id;
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  final String? uid;
   final int itemId;
   final String batchNo;
   final DateTime? expiry;
@@ -6258,6 +6571,7 @@ class BatchRow extends DataClass implements Insertable<BatchRow> {
   final DateTime createdAt;
   const BatchRow({
     required this.id,
+    this.uid,
     required this.itemId,
     required this.batchNo,
     this.expiry,
@@ -6268,6 +6582,9 @@ class BatchRow extends DataClass implements Insertable<BatchRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
     map['item_id'] = Variable<int>(itemId);
     map['batch_no'] = Variable<String>(batchNo);
     if (!nullToAbsent || expiry != null) {
@@ -6281,6 +6598,7 @@ class BatchRow extends DataClass implements Insertable<BatchRow> {
   ItemBatchesCompanion toCompanion(bool nullToAbsent) {
     return ItemBatchesCompanion(
       id: Value(id),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       itemId: Value(itemId),
       batchNo: Value(batchNo),
       expiry: expiry == null && nullToAbsent
@@ -6298,6 +6616,7 @@ class BatchRow extends DataClass implements Insertable<BatchRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return BatchRow(
       id: serializer.fromJson<int>(json['id']),
+      uid: serializer.fromJson<String?>(json['uid']),
       itemId: serializer.fromJson<int>(json['itemId']),
       batchNo: serializer.fromJson<String>(json['batchNo']),
       expiry: serializer.fromJson<DateTime?>(json['expiry']),
@@ -6310,6 +6629,7 @@ class BatchRow extends DataClass implements Insertable<BatchRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'uid': serializer.toJson<String?>(uid),
       'itemId': serializer.toJson<int>(itemId),
       'batchNo': serializer.toJson<String>(batchNo),
       'expiry': serializer.toJson<DateTime?>(expiry),
@@ -6320,6 +6640,7 @@ class BatchRow extends DataClass implements Insertable<BatchRow> {
 
   BatchRow copyWith({
     int? id,
+    Value<String?> uid = const Value.absent(),
     int? itemId,
     String? batchNo,
     Value<DateTime?> expiry = const Value.absent(),
@@ -6327,6 +6648,7 @@ class BatchRow extends DataClass implements Insertable<BatchRow> {
     DateTime? createdAt,
   }) => BatchRow(
     id: id ?? this.id,
+    uid: uid.present ? uid.value : this.uid,
     itemId: itemId ?? this.itemId,
     batchNo: batchNo ?? this.batchNo,
     expiry: expiry.present ? expiry.value : this.expiry,
@@ -6336,6 +6658,7 @@ class BatchRow extends DataClass implements Insertable<BatchRow> {
   BatchRow copyWithCompanion(ItemBatchesCompanion data) {
     return BatchRow(
       id: data.id.present ? data.id.value : this.id,
+      uid: data.uid.present ? data.uid.value : this.uid,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       batchNo: data.batchNo.present ? data.batchNo.value : this.batchNo,
       expiry: data.expiry.present ? data.expiry.value : this.expiry,
@@ -6350,6 +6673,7 @@ class BatchRow extends DataClass implements Insertable<BatchRow> {
   String toString() {
     return (StringBuffer('BatchRow(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('itemId: $itemId, ')
           ..write('batchNo: $batchNo, ')
           ..write('expiry: $expiry, ')
@@ -6361,12 +6685,13 @@ class BatchRow extends DataClass implements Insertable<BatchRow> {
 
   @override
   int get hashCode =>
-      Object.hash(id, itemId, batchNo, expiry, quantityMilli, createdAt);
+      Object.hash(id, uid, itemId, batchNo, expiry, quantityMilli, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is BatchRow &&
           other.id == this.id &&
+          other.uid == this.uid &&
           other.itemId == this.itemId &&
           other.batchNo == this.batchNo &&
           other.expiry == this.expiry &&
@@ -6376,6 +6701,7 @@ class BatchRow extends DataClass implements Insertable<BatchRow> {
 
 class ItemBatchesCompanion extends UpdateCompanion<BatchRow> {
   final Value<int> id;
+  final Value<String?> uid;
   final Value<int> itemId;
   final Value<String> batchNo;
   final Value<DateTime?> expiry;
@@ -6383,6 +6709,7 @@ class ItemBatchesCompanion extends UpdateCompanion<BatchRow> {
   final Value<DateTime> createdAt;
   const ItemBatchesCompanion({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     this.itemId = const Value.absent(),
     this.batchNo = const Value.absent(),
     this.expiry = const Value.absent(),
@@ -6391,6 +6718,7 @@ class ItemBatchesCompanion extends UpdateCompanion<BatchRow> {
   });
   ItemBatchesCompanion.insert({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     required int itemId,
     required String batchNo,
     this.expiry = const Value.absent(),
@@ -6401,6 +6729,7 @@ class ItemBatchesCompanion extends UpdateCompanion<BatchRow> {
        createdAt = Value(createdAt);
   static Insertable<BatchRow> custom({
     Expression<int>? id,
+    Expression<String>? uid,
     Expression<int>? itemId,
     Expression<String>? batchNo,
     Expression<DateTime>? expiry,
@@ -6409,6 +6738,7 @@ class ItemBatchesCompanion extends UpdateCompanion<BatchRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (uid != null) 'uid': uid,
       if (itemId != null) 'item_id': itemId,
       if (batchNo != null) 'batch_no': batchNo,
       if (expiry != null) 'expiry': expiry,
@@ -6419,6 +6749,7 @@ class ItemBatchesCompanion extends UpdateCompanion<BatchRow> {
 
   ItemBatchesCompanion copyWith({
     Value<int>? id,
+    Value<String?>? uid,
     Value<int>? itemId,
     Value<String>? batchNo,
     Value<DateTime?>? expiry,
@@ -6427,6 +6758,7 @@ class ItemBatchesCompanion extends UpdateCompanion<BatchRow> {
   }) {
     return ItemBatchesCompanion(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       itemId: itemId ?? this.itemId,
       batchNo: batchNo ?? this.batchNo,
       expiry: expiry ?? this.expiry,
@@ -6440,6 +6772,9 @@ class ItemBatchesCompanion extends UpdateCompanion<BatchRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (itemId.present) {
       map['item_id'] = Variable<int>(itemId.value);
@@ -6463,6 +6798,7 @@ class ItemBatchesCompanion extends UpdateCompanion<BatchRow> {
   String toString() {
     return (StringBuffer('ItemBatchesCompanion(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('itemId: $itemId, ')
           ..write('batchNo: $batchNo, ')
           ..write('expiry: $expiry, ')
@@ -6491,6 +6827,15 @@ class $StockMovementsTable extends StockMovements
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'PRIMARY KEY AUTOINCREMENT',
     ),
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
   @override
@@ -6582,6 +6927,7 @@ class $StockMovementsTable extends StockMovements
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    uid,
     itemId,
     batchId,
     quantityMilli,
@@ -6605,6 +6951,12 @@ class $StockMovementsTable extends StockMovements
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
     }
     if (data.containsKey('item_id')) {
       context.handle(
@@ -6680,6 +7032,10 @@ class $StockMovementsTable extends StockMovements
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      ),
       itemId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}item_id'],
@@ -6723,6 +7079,10 @@ class $StockMovementsTable extends StockMovements
 
 class MovementRow extends DataClass implements Insertable<MovementRow> {
   final int id;
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  final String? uid;
   final int itemId;
   final int? batchId;
 
@@ -6739,6 +7099,7 @@ class MovementRow extends DataClass implements Insertable<MovementRow> {
   final DateTime at;
   const MovementRow({
     required this.id,
+    this.uid,
     required this.itemId,
     this.batchId,
     required this.quantityMilli,
@@ -6752,6 +7113,9 @@ class MovementRow extends DataClass implements Insertable<MovementRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
     map['item_id'] = Variable<int>(itemId);
     if (!nullToAbsent || batchId != null) {
       map['batch_id'] = Variable<int>(batchId);
@@ -6772,6 +7136,7 @@ class MovementRow extends DataClass implements Insertable<MovementRow> {
   StockMovementsCompanion toCompanion(bool nullToAbsent) {
     return StockMovementsCompanion(
       id: Value(id),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       itemId: Value(itemId),
       batchId: batchId == null && nullToAbsent
           ? const Value.absent()
@@ -6794,6 +7159,7 @@ class MovementRow extends DataClass implements Insertable<MovementRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return MovementRow(
       id: serializer.fromJson<int>(json['id']),
+      uid: serializer.fromJson<String?>(json['uid']),
       itemId: serializer.fromJson<int>(json['itemId']),
       batchId: serializer.fromJson<int?>(json['batchId']),
       quantityMilli: serializer.fromJson<int>(json['quantityMilli']),
@@ -6809,6 +7175,7 @@ class MovementRow extends DataClass implements Insertable<MovementRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'uid': serializer.toJson<String?>(uid),
       'itemId': serializer.toJson<int>(itemId),
       'batchId': serializer.toJson<int?>(batchId),
       'quantityMilli': serializer.toJson<int>(quantityMilli),
@@ -6822,6 +7189,7 @@ class MovementRow extends DataClass implements Insertable<MovementRow> {
 
   MovementRow copyWith({
     int? id,
+    Value<String?> uid = const Value.absent(),
     int? itemId,
     Value<int?> batchId = const Value.absent(),
     int? quantityMilli,
@@ -6832,6 +7200,7 @@ class MovementRow extends DataClass implements Insertable<MovementRow> {
     DateTime? at,
   }) => MovementRow(
     id: id ?? this.id,
+    uid: uid.present ? uid.value : this.uid,
     itemId: itemId ?? this.itemId,
     batchId: batchId.present ? batchId.value : this.batchId,
     quantityMilli: quantityMilli ?? this.quantityMilli,
@@ -6844,6 +7213,7 @@ class MovementRow extends DataClass implements Insertable<MovementRow> {
   MovementRow copyWithCompanion(StockMovementsCompanion data) {
     return MovementRow(
       id: data.id.present ? data.id.value : this.id,
+      uid: data.uid.present ? data.uid.value : this.uid,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       batchId: data.batchId.present ? data.batchId.value : this.batchId,
       quantityMilli: data.quantityMilli.present
@@ -6863,6 +7233,7 @@ class MovementRow extends DataClass implements Insertable<MovementRow> {
   String toString() {
     return (StringBuffer('MovementRow(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('itemId: $itemId, ')
           ..write('batchId: $batchId, ')
           ..write('quantityMilli: $quantityMilli, ')
@@ -6878,6 +7249,7 @@ class MovementRow extends DataClass implements Insertable<MovementRow> {
   @override
   int get hashCode => Object.hash(
     id,
+    uid,
     itemId,
     batchId,
     quantityMilli,
@@ -6892,6 +7264,7 @@ class MovementRow extends DataClass implements Insertable<MovementRow> {
       identical(this, other) ||
       (other is MovementRow &&
           other.id == this.id &&
+          other.uid == this.uid &&
           other.itemId == this.itemId &&
           other.batchId == this.batchId &&
           other.quantityMilli == this.quantityMilli &&
@@ -6904,6 +7277,7 @@ class MovementRow extends DataClass implements Insertable<MovementRow> {
 
 class StockMovementsCompanion extends UpdateCompanion<MovementRow> {
   final Value<int> id;
+  final Value<String?> uid;
   final Value<int> itemId;
   final Value<int?> batchId;
   final Value<int> quantityMilli;
@@ -6914,6 +7288,7 @@ class StockMovementsCompanion extends UpdateCompanion<MovementRow> {
   final Value<DateTime> at;
   const StockMovementsCompanion({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     this.itemId = const Value.absent(),
     this.batchId = const Value.absent(),
     this.quantityMilli = const Value.absent(),
@@ -6925,6 +7300,7 @@ class StockMovementsCompanion extends UpdateCompanion<MovementRow> {
   });
   StockMovementsCompanion.insert({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     required int itemId,
     this.batchId = const Value.absent(),
     required int quantityMilli,
@@ -6940,6 +7316,7 @@ class StockMovementsCompanion extends UpdateCompanion<MovementRow> {
        at = Value(at);
   static Insertable<MovementRow> custom({
     Expression<int>? id,
+    Expression<String>? uid,
     Expression<int>? itemId,
     Expression<int>? batchId,
     Expression<int>? quantityMilli,
@@ -6951,6 +7328,7 @@ class StockMovementsCompanion extends UpdateCompanion<MovementRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (uid != null) 'uid': uid,
       if (itemId != null) 'item_id': itemId,
       if (batchId != null) 'batch_id': batchId,
       if (quantityMilli != null) 'quantity_milli': quantityMilli,
@@ -6964,6 +7342,7 @@ class StockMovementsCompanion extends UpdateCompanion<MovementRow> {
 
   StockMovementsCompanion copyWith({
     Value<int>? id,
+    Value<String?>? uid,
     Value<int>? itemId,
     Value<int?>? batchId,
     Value<int>? quantityMilli,
@@ -6975,6 +7354,7 @@ class StockMovementsCompanion extends UpdateCompanion<MovementRow> {
   }) {
     return StockMovementsCompanion(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       itemId: itemId ?? this.itemId,
       batchId: batchId ?? this.batchId,
       quantityMilli: quantityMilli ?? this.quantityMilli,
@@ -6991,6 +7371,9 @@ class StockMovementsCompanion extends UpdateCompanion<MovementRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (itemId.present) {
       map['item_id'] = Variable<int>(itemId.value);
@@ -7023,6 +7406,7 @@ class StockMovementsCompanion extends UpdateCompanion<MovementRow> {
   String toString() {
     return (StringBuffer('StockMovementsCompanion(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('itemId: $itemId, ')
           ..write('batchId: $batchId, ')
           ..write('quantityMilli: $quantityMilli, ')
@@ -7054,6 +7438,15 @@ class $PartyEntriesTable extends PartyEntries
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'PRIMARY KEY AUTOINCREMENT',
     ),
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _partyIdMeta = const VerificationMeta(
     'partyId',
@@ -7144,6 +7537,7 @@ class $PartyEntriesTable extends PartyEntries
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    uid,
     partyId,
     type,
     amountPaise,
@@ -7167,6 +7561,12 @@ class $PartyEntriesTable extends PartyEntries
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
     }
     if (data.containsKey('party_id')) {
       context.handle(
@@ -7245,6 +7645,10 @@ class $PartyEntriesTable extends PartyEntries
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      ),
       partyId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}party_id'],
@@ -7288,6 +7692,10 @@ class $PartyEntriesTable extends PartyEntries
 
 class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
   final int id;
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  final String? uid;
   final int partyId;
 
   /// `opening`, `sale`, `payment`, `cancel`, `adjust`.
@@ -7304,6 +7712,7 @@ class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
   final DateTime at;
   const PartyEntryRow({
     required this.id,
+    this.uid,
     required this.partyId,
     required this.type,
     required this.amountPaise,
@@ -7317,6 +7726,9 @@ class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
     map['party_id'] = Variable<int>(partyId);
     map['type'] = Variable<String>(type);
     map['amount_paise'] = Variable<int>(amountPaise);
@@ -7337,6 +7749,7 @@ class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
   PartyEntriesCompanion toCompanion(bool nullToAbsent) {
     return PartyEntriesCompanion(
       id: Value(id),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       partyId: Value(partyId),
       type: Value(type),
       amountPaise: Value(amountPaise),
@@ -7359,6 +7772,7 @@ class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return PartyEntryRow(
       id: serializer.fromJson<int>(json['id']),
+      uid: serializer.fromJson<String?>(json['uid']),
       partyId: serializer.fromJson<int>(json['partyId']),
       type: serializer.fromJson<String>(json['type']),
       amountPaise: serializer.fromJson<int>(json['amountPaise']),
@@ -7374,6 +7788,7 @@ class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'uid': serializer.toJson<String?>(uid),
       'partyId': serializer.toJson<int>(partyId),
       'type': serializer.toJson<String>(type),
       'amountPaise': serializer.toJson<int>(amountPaise),
@@ -7387,6 +7802,7 @@ class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
 
   PartyEntryRow copyWith({
     int? id,
+    Value<String?> uid = const Value.absent(),
     int? partyId,
     String? type,
     int? amountPaise,
@@ -7397,6 +7813,7 @@ class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
     DateTime? at,
   }) => PartyEntryRow(
     id: id ?? this.id,
+    uid: uid.present ? uid.value : this.uid,
     partyId: partyId ?? this.partyId,
     type: type ?? this.type,
     amountPaise: amountPaise ?? this.amountPaise,
@@ -7409,6 +7826,7 @@ class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
   PartyEntryRow copyWithCompanion(PartyEntriesCompanion data) {
     return PartyEntryRow(
       id: data.id.present ? data.id.value : this.id,
+      uid: data.uid.present ? data.uid.value : this.uid,
       partyId: data.partyId.present ? data.partyId.value : this.partyId,
       type: data.type.present ? data.type.value : this.type,
       amountPaise: data.amountPaise.present
@@ -7430,6 +7848,7 @@ class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
   String toString() {
     return (StringBuffer('PartyEntryRow(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('partyId: $partyId, ')
           ..write('type: $type, ')
           ..write('amountPaise: $amountPaise, ')
@@ -7445,6 +7864,7 @@ class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
   @override
   int get hashCode => Object.hash(
     id,
+    uid,
     partyId,
     type,
     amountPaise,
@@ -7459,6 +7879,7 @@ class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
       identical(this, other) ||
       (other is PartyEntryRow &&
           other.id == this.id &&
+          other.uid == this.uid &&
           other.partyId == this.partyId &&
           other.type == this.type &&
           other.amountPaise == this.amountPaise &&
@@ -7471,6 +7892,7 @@ class PartyEntryRow extends DataClass implements Insertable<PartyEntryRow> {
 
 class PartyEntriesCompanion extends UpdateCompanion<PartyEntryRow> {
   final Value<int> id;
+  final Value<String?> uid;
   final Value<int> partyId;
   final Value<String> type;
   final Value<int> amountPaise;
@@ -7481,6 +7903,7 @@ class PartyEntriesCompanion extends UpdateCompanion<PartyEntryRow> {
   final Value<DateTime> at;
   const PartyEntriesCompanion({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     this.partyId = const Value.absent(),
     this.type = const Value.absent(),
     this.amountPaise = const Value.absent(),
@@ -7492,6 +7915,7 @@ class PartyEntriesCompanion extends UpdateCompanion<PartyEntryRow> {
   });
   PartyEntriesCompanion.insert({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     required int partyId,
     required String type,
     required int amountPaise,
@@ -7507,6 +7931,7 @@ class PartyEntriesCompanion extends UpdateCompanion<PartyEntryRow> {
        at = Value(at);
   static Insertable<PartyEntryRow> custom({
     Expression<int>? id,
+    Expression<String>? uid,
     Expression<int>? partyId,
     Expression<String>? type,
     Expression<int>? amountPaise,
@@ -7518,6 +7943,7 @@ class PartyEntriesCompanion extends UpdateCompanion<PartyEntryRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (uid != null) 'uid': uid,
       if (partyId != null) 'party_id': partyId,
       if (type != null) 'type': type,
       if (amountPaise != null) 'amount_paise': amountPaise,
@@ -7531,6 +7957,7 @@ class PartyEntriesCompanion extends UpdateCompanion<PartyEntryRow> {
 
   PartyEntriesCompanion copyWith({
     Value<int>? id,
+    Value<String?>? uid,
     Value<int>? partyId,
     Value<String>? type,
     Value<int>? amountPaise,
@@ -7542,6 +7969,7 @@ class PartyEntriesCompanion extends UpdateCompanion<PartyEntryRow> {
   }) {
     return PartyEntriesCompanion(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       partyId: partyId ?? this.partyId,
       type: type ?? this.type,
       amountPaise: amountPaise ?? this.amountPaise,
@@ -7558,6 +7986,9 @@ class PartyEntriesCompanion extends UpdateCompanion<PartyEntryRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (partyId.present) {
       map['party_id'] = Variable<int>(partyId.value);
@@ -7590,6 +8021,7 @@ class PartyEntriesCompanion extends UpdateCompanion<PartyEntryRow> {
   String toString() {
     return (StringBuffer('PartyEntriesCompanion(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('partyId: $partyId, ')
           ..write('type: $type, ')
           ..write('amountPaise: $amountPaise, ')
@@ -7621,6 +8053,15 @@ class $PurchasesTable extends Purchases
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'PRIMARY KEY AUTOINCREMENT',
     ),
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _partyIdMeta = const VerificationMeta(
     'partyId',
@@ -7797,6 +8238,7 @@ class $PurchasesTable extends Purchases
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    uid,
     partyId,
     supplierName,
     supplierGstin,
@@ -7827,6 +8269,12 @@ class $PurchasesTable extends Purchases
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
     }
     if (data.containsKey('party_id')) {
       context.handle(
@@ -7965,6 +8413,10 @@ class $PurchasesTable extends Purchases
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      ),
       partyId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}party_id'],
@@ -8036,6 +8488,10 @@ class $PurchasesTable extends Purchases
 
 class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
   final int id;
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  final String? uid;
   final int? partyId;
   final String? supplierName;
   final String? supplierGstin;
@@ -8057,6 +8513,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
   final DateTime? cancelledAt;
   const PurchaseRow({
     required this.id,
+    this.uid,
     this.partyId,
     this.supplierName,
     this.supplierGstin,
@@ -8077,6 +8534,9 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
     if (!nullToAbsent || partyId != null) {
       map['party_id'] = Variable<int>(partyId);
     }
@@ -8110,6 +8570,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
   PurchasesCompanion toCompanion(bool nullToAbsent) {
     return PurchasesCompanion(
       id: Value(id),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       partyId: partyId == null && nullToAbsent
           ? const Value.absent()
           : Value(partyId),
@@ -8145,6 +8606,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return PurchaseRow(
       id: serializer.fromJson<int>(json['id']),
+      uid: serializer.fromJson<String?>(json['uid']),
       partyId: serializer.fromJson<int?>(json['partyId']),
       supplierName: serializer.fromJson<String?>(json['supplierName']),
       supplierGstin: serializer.fromJson<String?>(json['supplierGstin']),
@@ -8169,6 +8631,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'uid': serializer.toJson<String?>(uid),
       'partyId': serializer.toJson<int?>(partyId),
       'supplierName': serializer.toJson<String?>(supplierName),
       'supplierGstin': serializer.toJson<String?>(supplierGstin),
@@ -8189,6 +8652,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
 
   PurchaseRow copyWith({
     int? id,
+    Value<String?> uid = const Value.absent(),
     Value<int?> partyId = const Value.absent(),
     Value<String?> supplierName = const Value.absent(),
     Value<String?> supplierGstin = const Value.absent(),
@@ -8206,6 +8670,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
     Value<DateTime?> cancelledAt = const Value.absent(),
   }) => PurchaseRow(
     id: id ?? this.id,
+    uid: uid.present ? uid.value : this.uid,
     partyId: partyId.present ? partyId.value : this.partyId,
     supplierName: supplierName.present ? supplierName.value : this.supplierName,
     supplierGstin: supplierGstin.present
@@ -8229,6 +8694,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
   PurchaseRow copyWithCompanion(PurchasesCompanion data) {
     return PurchaseRow(
       id: data.id.present ? data.id.value : this.id,
+      uid: data.uid.present ? data.uid.value : this.uid,
       partyId: data.partyId.present ? data.partyId.value : this.partyId,
       supplierName: data.supplierName.present
           ? data.supplierName.value
@@ -8271,6 +8737,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
   String toString() {
     return (StringBuffer('PurchaseRow(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('partyId: $partyId, ')
           ..write('supplierName: $supplierName, ')
           ..write('supplierGstin: $supplierGstin, ')
@@ -8293,6 +8760,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
   @override
   int get hashCode => Object.hash(
     id,
+    uid,
     partyId,
     supplierName,
     supplierGstin,
@@ -8314,6 +8782,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
       identical(this, other) ||
       (other is PurchaseRow &&
           other.id == this.id &&
+          other.uid == this.uid &&
           other.partyId == this.partyId &&
           other.supplierName == this.supplierName &&
           other.supplierGstin == this.supplierGstin &&
@@ -8333,6 +8802,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
 
 class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
   final Value<int> id;
+  final Value<String?> uid;
   final Value<int?> partyId;
   final Value<String?> supplierName;
   final Value<String?> supplierGstin;
@@ -8350,6 +8820,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
   final Value<DateTime?> cancelledAt;
   const PurchasesCompanion({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     this.partyId = const Value.absent(),
     this.supplierName = const Value.absent(),
     this.supplierGstin = const Value.absent(),
@@ -8368,6 +8839,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
   });
   PurchasesCompanion.insert({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     this.partyId = const Value.absent(),
     this.supplierName = const Value.absent(),
     this.supplierGstin = const Value.absent(),
@@ -8390,6 +8862,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
        paymentMode = Value(paymentMode);
   static Insertable<PurchaseRow> custom({
     Expression<int>? id,
+    Expression<String>? uid,
     Expression<int>? partyId,
     Expression<String>? supplierName,
     Expression<String>? supplierGstin,
@@ -8408,6 +8881,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (uid != null) 'uid': uid,
       if (partyId != null) 'party_id': partyId,
       if (supplierName != null) 'supplier_name': supplierName,
       if (supplierGstin != null) 'supplier_gstin': supplierGstin,
@@ -8428,6 +8902,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
 
   PurchasesCompanion copyWith({
     Value<int>? id,
+    Value<String?>? uid,
     Value<int?>? partyId,
     Value<String?>? supplierName,
     Value<String?>? supplierGstin,
@@ -8446,6 +8921,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
   }) {
     return PurchasesCompanion(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       partyId: partyId ?? this.partyId,
       supplierName: supplierName ?? this.supplierName,
       supplierGstin: supplierGstin ?? this.supplierGstin,
@@ -8469,6 +8945,9 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (partyId.present) {
       map['party_id'] = Variable<int>(partyId.value);
@@ -8522,6 +9001,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
   String toString() {
     return (StringBuffer('PurchasesCompanion(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('partyId: $partyId, ')
           ..write('supplierName: $supplierName, ')
           ..write('supplierGstin: $supplierGstin, ')
@@ -8560,6 +9040,15 @@ class $PurchaseLinesTable extends PurchaseLines
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'PRIMARY KEY AUTOINCREMENT',
     ),
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _purchaseIdMeta = const VerificationMeta(
     'purchaseId',
@@ -8728,6 +9217,7 @@ class $PurchaseLinesTable extends PurchaseLines
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    uid,
     purchaseId,
     position,
     itemId,
@@ -8758,6 +9248,12 @@ class $PurchaseLinesTable extends PurchaseLines
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
     }
     if (data.containsKey('purchase_id')) {
       context.handle(
@@ -8896,6 +9392,10 @@ class $PurchaseLinesTable extends PurchaseLines
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      ),
       purchaseId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}purchase_id'],
@@ -8967,6 +9467,10 @@ class $PurchaseLinesTable extends PurchaseLines
 
 class PurchaseLineRow extends DataClass implements Insertable<PurchaseLineRow> {
   final int id;
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  final String? uid;
   final int purchaseId;
   final int position;
   final int? itemId;
@@ -8986,6 +9490,7 @@ class PurchaseLineRow extends DataClass implements Insertable<PurchaseLineRow> {
   final DateTime? expiry;
   const PurchaseLineRow({
     required this.id,
+    this.uid,
     required this.purchaseId,
     required this.position,
     this.itemId,
@@ -9006,6 +9511,9 @@ class PurchaseLineRow extends DataClass implements Insertable<PurchaseLineRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
     map['purchase_id'] = Variable<int>(purchaseId);
     map['position'] = Variable<int>(position);
     if (!nullToAbsent || itemId != null) {
@@ -9035,6 +9543,7 @@ class PurchaseLineRow extends DataClass implements Insertable<PurchaseLineRow> {
   PurchaseLinesCompanion toCompanion(bool nullToAbsent) {
     return PurchaseLinesCompanion(
       id: Value(id),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       purchaseId: Value(purchaseId),
       position: Value(position),
       itemId: itemId == null && nullToAbsent
@@ -9066,6 +9575,7 @@ class PurchaseLineRow extends DataClass implements Insertable<PurchaseLineRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return PurchaseLineRow(
       id: serializer.fromJson<int>(json['id']),
+      uid: serializer.fromJson<String?>(json['uid']),
       purchaseId: serializer.fromJson<int>(json['purchaseId']),
       position: serializer.fromJson<int>(json['position']),
       itemId: serializer.fromJson<int?>(json['itemId']),
@@ -9088,6 +9598,7 @@ class PurchaseLineRow extends DataClass implements Insertable<PurchaseLineRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'uid': serializer.toJson<String?>(uid),
       'purchaseId': serializer.toJson<int>(purchaseId),
       'position': serializer.toJson<int>(position),
       'itemId': serializer.toJson<int?>(itemId),
@@ -9108,6 +9619,7 @@ class PurchaseLineRow extends DataClass implements Insertable<PurchaseLineRow> {
 
   PurchaseLineRow copyWith({
     int? id,
+    Value<String?> uid = const Value.absent(),
     int? purchaseId,
     int? position,
     Value<int?> itemId = const Value.absent(),
@@ -9125,6 +9637,7 @@ class PurchaseLineRow extends DataClass implements Insertable<PurchaseLineRow> {
     Value<DateTime?> expiry = const Value.absent(),
   }) => PurchaseLineRow(
     id: id ?? this.id,
+    uid: uid.present ? uid.value : this.uid,
     purchaseId: purchaseId ?? this.purchaseId,
     position: position ?? this.position,
     itemId: itemId.present ? itemId.value : this.itemId,
@@ -9144,6 +9657,7 @@ class PurchaseLineRow extends DataClass implements Insertable<PurchaseLineRow> {
   PurchaseLineRow copyWithCompanion(PurchaseLinesCompanion data) {
     return PurchaseLineRow(
       id: data.id.present ? data.id.value : this.id,
+      uid: data.uid.present ? data.uid.value : this.uid,
       purchaseId: data.purchaseId.present
           ? data.purchaseId.value
           : this.purchaseId,
@@ -9178,6 +9692,7 @@ class PurchaseLineRow extends DataClass implements Insertable<PurchaseLineRow> {
   String toString() {
     return (StringBuffer('PurchaseLineRow(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('purchaseId: $purchaseId, ')
           ..write('position: $position, ')
           ..write('itemId: $itemId, ')
@@ -9200,6 +9715,7 @@ class PurchaseLineRow extends DataClass implements Insertable<PurchaseLineRow> {
   @override
   int get hashCode => Object.hash(
     id,
+    uid,
     purchaseId,
     position,
     itemId,
@@ -9221,6 +9737,7 @@ class PurchaseLineRow extends DataClass implements Insertable<PurchaseLineRow> {
       identical(this, other) ||
       (other is PurchaseLineRow &&
           other.id == this.id &&
+          other.uid == this.uid &&
           other.purchaseId == this.purchaseId &&
           other.position == this.position &&
           other.itemId == this.itemId &&
@@ -9240,6 +9757,7 @@ class PurchaseLineRow extends DataClass implements Insertable<PurchaseLineRow> {
 
 class PurchaseLinesCompanion extends UpdateCompanion<PurchaseLineRow> {
   final Value<int> id;
+  final Value<String?> uid;
   final Value<int> purchaseId;
   final Value<int> position;
   final Value<int?> itemId;
@@ -9257,6 +9775,7 @@ class PurchaseLinesCompanion extends UpdateCompanion<PurchaseLineRow> {
   final Value<DateTime?> expiry;
   const PurchaseLinesCompanion({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     this.purchaseId = const Value.absent(),
     this.position = const Value.absent(),
     this.itemId = const Value.absent(),
@@ -9275,6 +9794,7 @@ class PurchaseLinesCompanion extends UpdateCompanion<PurchaseLineRow> {
   });
   PurchaseLinesCompanion.insert({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     required int purchaseId,
     required int position,
     this.itemId = const Value.absent(),
@@ -9303,6 +9823,7 @@ class PurchaseLinesCompanion extends UpdateCompanion<PurchaseLineRow> {
        totalPaise = Value(totalPaise);
   static Insertable<PurchaseLineRow> custom({
     Expression<int>? id,
+    Expression<String>? uid,
     Expression<int>? purchaseId,
     Expression<int>? position,
     Expression<int>? itemId,
@@ -9321,6 +9842,7 @@ class PurchaseLinesCompanion extends UpdateCompanion<PurchaseLineRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (uid != null) 'uid': uid,
       if (purchaseId != null) 'purchase_id': purchaseId,
       if (position != null) 'position': position,
       if (itemId != null) 'item_id': itemId,
@@ -9341,6 +9863,7 @@ class PurchaseLinesCompanion extends UpdateCompanion<PurchaseLineRow> {
 
   PurchaseLinesCompanion copyWith({
     Value<int>? id,
+    Value<String?>? uid,
     Value<int>? purchaseId,
     Value<int>? position,
     Value<int?>? itemId,
@@ -9359,6 +9882,7 @@ class PurchaseLinesCompanion extends UpdateCompanion<PurchaseLineRow> {
   }) {
     return PurchaseLinesCompanion(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       purchaseId: purchaseId ?? this.purchaseId,
       position: position ?? this.position,
       itemId: itemId ?? this.itemId,
@@ -9382,6 +9906,9 @@ class PurchaseLinesCompanion extends UpdateCompanion<PurchaseLineRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (purchaseId.present) {
       map['purchase_id'] = Variable<int>(purchaseId.value);
@@ -9435,6 +9962,7 @@ class PurchaseLinesCompanion extends UpdateCompanion<PurchaseLineRow> {
   String toString() {
     return (StringBuffer('PurchaseLinesCompanion(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('purchaseId: $purchaseId, ')
           ..write('position: $position, ')
           ..write('itemId: $itemId, ')
@@ -9473,6 +10001,15 @@ class $ExpensesTable extends Expenses
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'PRIMARY KEY AUTOINCREMENT',
     ),
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _spentAtMeta = const VerificationMeta(
     'spentAt',
@@ -9545,6 +10082,7 @@ class $ExpensesTable extends Expenses
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    uid,
     spentAt,
     category,
     amountPaise,
@@ -9566,6 +10104,12 @@ class $ExpensesTable extends Expenses
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
     }
     if (data.containsKey('spent_at')) {
       context.handle(
@@ -9630,6 +10174,10 @@ class $ExpensesTable extends Expenses
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      ),
       spentAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}spent_at'],
@@ -9665,6 +10213,10 @@ class $ExpensesTable extends Expenses
 
 class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
   final int id;
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  final String? uid;
   final DateTime spentAt;
   final String category;
   final int amountPaise;
@@ -9673,6 +10225,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
   final bool isDeleted;
   const ExpenseRow({
     required this.id,
+    this.uid,
     required this.spentAt,
     required this.category,
     required this.amountPaise,
@@ -9684,6 +10237,9 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
     map['spent_at'] = Variable<DateTime>(spentAt);
     map['category'] = Variable<String>(category);
     map['amount_paise'] = Variable<int>(amountPaise);
@@ -9698,6 +10254,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
   ExpensesCompanion toCompanion(bool nullToAbsent) {
     return ExpensesCompanion(
       id: Value(id),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       spentAt: Value(spentAt),
       category: Value(category),
       amountPaise: Value(amountPaise),
@@ -9714,6 +10271,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ExpenseRow(
       id: serializer.fromJson<int>(json['id']),
+      uid: serializer.fromJson<String?>(json['uid']),
       spentAt: serializer.fromJson<DateTime>(json['spentAt']),
       category: serializer.fromJson<String>(json['category']),
       amountPaise: serializer.fromJson<int>(json['amountPaise']),
@@ -9727,6 +10285,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'uid': serializer.toJson<String?>(uid),
       'spentAt': serializer.toJson<DateTime>(spentAt),
       'category': serializer.toJson<String>(category),
       'amountPaise': serializer.toJson<int>(amountPaise),
@@ -9738,6 +10297,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
 
   ExpenseRow copyWith({
     int? id,
+    Value<String?> uid = const Value.absent(),
     DateTime? spentAt,
     String? category,
     int? amountPaise,
@@ -9746,6 +10306,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
     bool? isDeleted,
   }) => ExpenseRow(
     id: id ?? this.id,
+    uid: uid.present ? uid.value : this.uid,
     spentAt: spentAt ?? this.spentAt,
     category: category ?? this.category,
     amountPaise: amountPaise ?? this.amountPaise,
@@ -9756,6 +10317,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
   ExpenseRow copyWithCompanion(ExpensesCompanion data) {
     return ExpenseRow(
       id: data.id.present ? data.id.value : this.id,
+      uid: data.uid.present ? data.uid.value : this.uid,
       spentAt: data.spentAt.present ? data.spentAt.value : this.spentAt,
       category: data.category.present ? data.category.value : this.category,
       amountPaise: data.amountPaise.present
@@ -9773,6 +10335,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
   String toString() {
     return (StringBuffer('ExpenseRow(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('spentAt: $spentAt, ')
           ..write('category: $category, ')
           ..write('amountPaise: $amountPaise, ')
@@ -9786,6 +10349,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
   @override
   int get hashCode => Object.hash(
     id,
+    uid,
     spentAt,
     category,
     amountPaise,
@@ -9798,6 +10362,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
       identical(this, other) ||
       (other is ExpenseRow &&
           other.id == this.id &&
+          other.uid == this.uid &&
           other.spentAt == this.spentAt &&
           other.category == this.category &&
           other.amountPaise == this.amountPaise &&
@@ -9808,6 +10373,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
 
 class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
   final Value<int> id;
+  final Value<String?> uid;
   final Value<DateTime> spentAt;
   final Value<String> category;
   final Value<int> amountPaise;
@@ -9816,6 +10382,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
   final Value<bool> isDeleted;
   const ExpensesCompanion({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     this.spentAt = const Value.absent(),
     this.category = const Value.absent(),
     this.amountPaise = const Value.absent(),
@@ -9825,6 +10392,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
   });
   ExpensesCompanion.insert({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     required DateTime spentAt,
     required String category,
     required int amountPaise,
@@ -9837,6 +10405,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
        paymentMode = Value(paymentMode);
   static Insertable<ExpenseRow> custom({
     Expression<int>? id,
+    Expression<String>? uid,
     Expression<DateTime>? spentAt,
     Expression<String>? category,
     Expression<int>? amountPaise,
@@ -9846,6 +10415,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (uid != null) 'uid': uid,
       if (spentAt != null) 'spent_at': spentAt,
       if (category != null) 'category': category,
       if (amountPaise != null) 'amount_paise': amountPaise,
@@ -9857,6 +10427,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
 
   ExpensesCompanion copyWith({
     Value<int>? id,
+    Value<String?>? uid,
     Value<DateTime>? spentAt,
     Value<String>? category,
     Value<int>? amountPaise,
@@ -9866,6 +10437,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
   }) {
     return ExpensesCompanion(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       spentAt: spentAt ?? this.spentAt,
       category: category ?? this.category,
       amountPaise: amountPaise ?? this.amountPaise,
@@ -9880,6 +10452,9 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (spentAt.present) {
       map['spent_at'] = Variable<DateTime>(spentAt.value);
@@ -9906,6 +10481,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
   String toString() {
     return (StringBuffer('ExpensesCompanion(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('spentAt: $spentAt, ')
           ..write('category: $category, ')
           ..write('amountPaise: $amountPaise, ')
@@ -9935,6 +10511,25 @@ class $CreditNotesTable extends CreditNotes
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'PRIMARY KEY AUTOINCREMENT',
     ),
+  );
+  static const VerificationMeta _seriesMeta = const VerificationMeta('series');
+  @override
+  late final GeneratedColumn<String> series = GeneratedColumn<String>(
+    'series',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _noteNoMeta = const VerificationMeta('noteNo');
   @override
@@ -10047,6 +10642,8 @@ class $CreditNotesTable extends CreditNotes
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    series,
+    uid,
     noteNo,
     fyStart,
     sequence,
@@ -10072,6 +10669,18 @@ class $CreditNotesTable extends CreditNotes
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('series')) {
+      context.handle(
+        _seriesMeta,
+        series.isAcceptableOrUnknown(data['series']!, _seriesMeta),
+      );
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
     }
     if (data.containsKey('note_no')) {
       context.handle(
@@ -10161,7 +10770,7 @@ class $CreditNotesTable extends CreditNotes
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   List<Set<GeneratedColumn>> get uniqueKeys => [
-    {fyStart, sequence},
+    {series, fyStart, sequence},
   ];
   @override
   CreditNoteRow map(Map<String, dynamic> data, {String? tablePrefix}) {
@@ -10171,6 +10780,14 @@ class $CreditNotesTable extends CreditNotes
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      series: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}series'],
+      )!,
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      ),
       noteNo: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}note_no'],
@@ -10222,6 +10839,14 @@ class $CreditNotesTable extends CreditNotes
 
 class CreditNoteRow extends DataClass implements Insertable<CreditNoteRow> {
   final int id;
+
+  /// The phone's series letter in the number (INV-A/…; '' before
+  /// the shop was in the cloud). Each phone numbers its own.
+  final String series;
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  final String? uid;
   final String noteNo;
   final int fyStart;
   final int sequence;
@@ -10237,6 +10862,8 @@ class CreditNoteRow extends DataClass implements Insertable<CreditNoteRow> {
   final String refundMode;
   const CreditNoteRow({
     required this.id,
+    required this.series,
+    this.uid,
     required this.noteNo,
     required this.fyStart,
     required this.sequence,
@@ -10252,6 +10879,10 @@ class CreditNoteRow extends DataClass implements Insertable<CreditNoteRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['series'] = Variable<String>(series);
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
     map['note_no'] = Variable<String>(noteNo);
     map['fy_start'] = Variable<int>(fyStart);
     map['sequence'] = Variable<int>(sequence);
@@ -10270,6 +10901,8 @@ class CreditNoteRow extends DataClass implements Insertable<CreditNoteRow> {
   CreditNotesCompanion toCompanion(bool nullToAbsent) {
     return CreditNotesCompanion(
       id: Value(id),
+      series: Value(series),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       noteNo: Value(noteNo),
       fyStart: Value(fyStart),
       sequence: Value(sequence),
@@ -10292,6 +10925,8 @@ class CreditNoteRow extends DataClass implements Insertable<CreditNoteRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return CreditNoteRow(
       id: serializer.fromJson<int>(json['id']),
+      series: serializer.fromJson<String>(json['series']),
+      uid: serializer.fromJson<String?>(json['uid']),
       noteNo: serializer.fromJson<String>(json['noteNo']),
       fyStart: serializer.fromJson<int>(json['fyStart']),
       sequence: serializer.fromJson<int>(json['sequence']),
@@ -10309,6 +10944,8 @@ class CreditNoteRow extends DataClass implements Insertable<CreditNoteRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'series': serializer.toJson<String>(series),
+      'uid': serializer.toJson<String?>(uid),
       'noteNo': serializer.toJson<String>(noteNo),
       'fyStart': serializer.toJson<int>(fyStart),
       'sequence': serializer.toJson<int>(sequence),
@@ -10324,6 +10961,8 @@ class CreditNoteRow extends DataClass implements Insertable<CreditNoteRow> {
 
   CreditNoteRow copyWith({
     int? id,
+    String? series,
+    Value<String?> uid = const Value.absent(),
     String? noteNo,
     int? fyStart,
     int? sequence,
@@ -10336,6 +10975,8 @@ class CreditNoteRow extends DataClass implements Insertable<CreditNoteRow> {
     String? refundMode,
   }) => CreditNoteRow(
     id: id ?? this.id,
+    series: series ?? this.series,
+    uid: uid.present ? uid.value : this.uid,
     noteNo: noteNo ?? this.noteNo,
     fyStart: fyStart ?? this.fyStart,
     sequence: sequence ?? this.sequence,
@@ -10350,6 +10991,8 @@ class CreditNoteRow extends DataClass implements Insertable<CreditNoteRow> {
   CreditNoteRow copyWithCompanion(CreditNotesCompanion data) {
     return CreditNoteRow(
       id: data.id.present ? data.id.value : this.id,
+      series: data.series.present ? data.series.value : this.series,
+      uid: data.uid.present ? data.uid.value : this.uid,
       noteNo: data.noteNo.present ? data.noteNo.value : this.noteNo,
       fyStart: data.fyStart.present ? data.fyStart.value : this.fyStart,
       sequence: data.sequence.present ? data.sequence.value : this.sequence,
@@ -10373,6 +11016,8 @@ class CreditNoteRow extends DataClass implements Insertable<CreditNoteRow> {
   String toString() {
     return (StringBuffer('CreditNoteRow(')
           ..write('id: $id, ')
+          ..write('series: $series, ')
+          ..write('uid: $uid, ')
           ..write('noteNo: $noteNo, ')
           ..write('fyStart: $fyStart, ')
           ..write('sequence: $sequence, ')
@@ -10390,6 +11035,8 @@ class CreditNoteRow extends DataClass implements Insertable<CreditNoteRow> {
   @override
   int get hashCode => Object.hash(
     id,
+    series,
+    uid,
     noteNo,
     fyStart,
     sequence,
@@ -10406,6 +11053,8 @@ class CreditNoteRow extends DataClass implements Insertable<CreditNoteRow> {
       identical(this, other) ||
       (other is CreditNoteRow &&
           other.id == this.id &&
+          other.series == this.series &&
+          other.uid == this.uid &&
           other.noteNo == this.noteNo &&
           other.fyStart == this.fyStart &&
           other.sequence == this.sequence &&
@@ -10420,6 +11069,8 @@ class CreditNoteRow extends DataClass implements Insertable<CreditNoteRow> {
 
 class CreditNotesCompanion extends UpdateCompanion<CreditNoteRow> {
   final Value<int> id;
+  final Value<String> series;
+  final Value<String?> uid;
   final Value<String> noteNo;
   final Value<int> fyStart;
   final Value<int> sequence;
@@ -10432,6 +11083,8 @@ class CreditNotesCompanion extends UpdateCompanion<CreditNoteRow> {
   final Value<String> refundMode;
   const CreditNotesCompanion({
     this.id = const Value.absent(),
+    this.series = const Value.absent(),
+    this.uid = const Value.absent(),
     this.noteNo = const Value.absent(),
     this.fyStart = const Value.absent(),
     this.sequence = const Value.absent(),
@@ -10445,6 +11098,8 @@ class CreditNotesCompanion extends UpdateCompanion<CreditNoteRow> {
   });
   CreditNotesCompanion.insert({
     this.id = const Value.absent(),
+    this.series = const Value.absent(),
+    this.uid = const Value.absent(),
     required String noteNo,
     required int fyStart,
     required int sequence,
@@ -10466,6 +11121,8 @@ class CreditNotesCompanion extends UpdateCompanion<CreditNoteRow> {
        refundMode = Value(refundMode);
   static Insertable<CreditNoteRow> custom({
     Expression<int>? id,
+    Expression<String>? series,
+    Expression<String>? uid,
     Expression<String>? noteNo,
     Expression<int>? fyStart,
     Expression<int>? sequence,
@@ -10479,6 +11136,8 @@ class CreditNotesCompanion extends UpdateCompanion<CreditNoteRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (series != null) 'series': series,
+      if (uid != null) 'uid': uid,
       if (noteNo != null) 'note_no': noteNo,
       if (fyStart != null) 'fy_start': fyStart,
       if (sequence != null) 'sequence': sequence,
@@ -10494,6 +11153,8 @@ class CreditNotesCompanion extends UpdateCompanion<CreditNoteRow> {
 
   CreditNotesCompanion copyWith({
     Value<int>? id,
+    Value<String>? series,
+    Value<String?>? uid,
     Value<String>? noteNo,
     Value<int>? fyStart,
     Value<int>? sequence,
@@ -10507,6 +11168,8 @@ class CreditNotesCompanion extends UpdateCompanion<CreditNoteRow> {
   }) {
     return CreditNotesCompanion(
       id: id ?? this.id,
+      series: series ?? this.series,
+      uid: uid ?? this.uid,
       noteNo: noteNo ?? this.noteNo,
       fyStart: fyStart ?? this.fyStart,
       sequence: sequence ?? this.sequence,
@@ -10525,6 +11188,12 @@ class CreditNotesCompanion extends UpdateCompanion<CreditNoteRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (series.present) {
+      map['series'] = Variable<String>(series.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (noteNo.present) {
       map['note_no'] = Variable<String>(noteNo.value);
@@ -10563,6 +11232,8 @@ class CreditNotesCompanion extends UpdateCompanion<CreditNoteRow> {
   String toString() {
     return (StringBuffer('CreditNotesCompanion(')
           ..write('id: $id, ')
+          ..write('series: $series, ')
+          ..write('uid: $uid, ')
           ..write('noteNo: $noteNo, ')
           ..write('fyStart: $fyStart, ')
           ..write('sequence: $sequence, ')
@@ -10596,6 +11267,15 @@ class $CreditNoteLinesTable extends CreditNoteLines
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'PRIMARY KEY AUTOINCREMENT',
     ),
+  );
+  static const VerificationMeta _uidMeta = const VerificationMeta('uid');
+  @override
+  late final GeneratedColumn<String> uid = GeneratedColumn<String>(
+    'uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _creditNoteIdMeta = const VerificationMeta(
     'creditNoteId',
@@ -10672,6 +11352,7 @@ class $CreditNoteLinesTable extends CreditNoteLines
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    uid,
     creditNoteId,
     billLineId,
     quantityMilli,
@@ -10693,6 +11374,12 @@ class $CreditNoteLinesTable extends CreditNoteLines
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+        _uidMeta,
+        uid.isAcceptableOrUnknown(data['uid']!, _uidMeta),
+      );
     }
     if (data.containsKey('credit_note_id')) {
       context.handle(
@@ -10767,6 +11454,10 @@ class $CreditNoteLinesTable extends CreditNoteLines
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      uid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uid'],
+      ),
       creditNoteId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}credit_note_id'],
@@ -10803,6 +11494,10 @@ class $CreditNoteLinesTable extends CreditNoteLines
 class CreditNoteLineRow extends DataClass
     implements Insertable<CreditNoteLineRow> {
   final int id;
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  final String? uid;
   final int creditNoteId;
   final int billLineId;
   final int quantityMilli;
@@ -10811,6 +11506,7 @@ class CreditNoteLineRow extends DataClass
   final int totalPaise;
   const CreditNoteLineRow({
     required this.id,
+    this.uid,
     required this.creditNoteId,
     required this.billLineId,
     required this.quantityMilli,
@@ -10822,6 +11518,9 @@ class CreditNoteLineRow extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
+    }
     map['credit_note_id'] = Variable<int>(creditNoteId);
     map['bill_line_id'] = Variable<int>(billLineId);
     map['quantity_milli'] = Variable<int>(quantityMilli);
@@ -10834,6 +11533,7 @@ class CreditNoteLineRow extends DataClass
   CreditNoteLinesCompanion toCompanion(bool nullToAbsent) {
     return CreditNoteLinesCompanion(
       id: Value(id),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       creditNoteId: Value(creditNoteId),
       billLineId: Value(billLineId),
       quantityMilli: Value(quantityMilli),
@@ -10850,6 +11550,7 @@ class CreditNoteLineRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return CreditNoteLineRow(
       id: serializer.fromJson<int>(json['id']),
+      uid: serializer.fromJson<String?>(json['uid']),
       creditNoteId: serializer.fromJson<int>(json['creditNoteId']),
       billLineId: serializer.fromJson<int>(json['billLineId']),
       quantityMilli: serializer.fromJson<int>(json['quantityMilli']),
@@ -10863,6 +11564,7 @@ class CreditNoteLineRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'uid': serializer.toJson<String?>(uid),
       'creditNoteId': serializer.toJson<int>(creditNoteId),
       'billLineId': serializer.toJson<int>(billLineId),
       'quantityMilli': serializer.toJson<int>(quantityMilli),
@@ -10874,6 +11576,7 @@ class CreditNoteLineRow extends DataClass
 
   CreditNoteLineRow copyWith({
     int? id,
+    Value<String?> uid = const Value.absent(),
     int? creditNoteId,
     int? billLineId,
     int? quantityMilli,
@@ -10882,6 +11585,7 @@ class CreditNoteLineRow extends DataClass
     int? totalPaise,
   }) => CreditNoteLineRow(
     id: id ?? this.id,
+    uid: uid.present ? uid.value : this.uid,
     creditNoteId: creditNoteId ?? this.creditNoteId,
     billLineId: billLineId ?? this.billLineId,
     quantityMilli: quantityMilli ?? this.quantityMilli,
@@ -10892,6 +11596,7 @@ class CreditNoteLineRow extends DataClass
   CreditNoteLineRow copyWithCompanion(CreditNoteLinesCompanion data) {
     return CreditNoteLineRow(
       id: data.id.present ? data.id.value : this.id,
+      uid: data.uid.present ? data.uid.value : this.uid,
       creditNoteId: data.creditNoteId.present
           ? data.creditNoteId.value
           : this.creditNoteId,
@@ -10915,6 +11620,7 @@ class CreditNoteLineRow extends DataClass
   String toString() {
     return (StringBuffer('CreditNoteLineRow(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('creditNoteId: $creditNoteId, ')
           ..write('billLineId: $billLineId, ')
           ..write('quantityMilli: $quantityMilli, ')
@@ -10928,6 +11634,7 @@ class CreditNoteLineRow extends DataClass
   @override
   int get hashCode => Object.hash(
     id,
+    uid,
     creditNoteId,
     billLineId,
     quantityMilli,
@@ -10940,6 +11647,7 @@ class CreditNoteLineRow extends DataClass
       identical(this, other) ||
       (other is CreditNoteLineRow &&
           other.id == this.id &&
+          other.uid == this.uid &&
           other.creditNoteId == this.creditNoteId &&
           other.billLineId == this.billLineId &&
           other.quantityMilli == this.quantityMilli &&
@@ -10950,6 +11658,7 @@ class CreditNoteLineRow extends DataClass
 
 class CreditNoteLinesCompanion extends UpdateCompanion<CreditNoteLineRow> {
   final Value<int> id;
+  final Value<String?> uid;
   final Value<int> creditNoteId;
   final Value<int> billLineId;
   final Value<int> quantityMilli;
@@ -10958,6 +11667,7 @@ class CreditNoteLinesCompanion extends UpdateCompanion<CreditNoteLineRow> {
   final Value<int> totalPaise;
   const CreditNoteLinesCompanion({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     this.creditNoteId = const Value.absent(),
     this.billLineId = const Value.absent(),
     this.quantityMilli = const Value.absent(),
@@ -10967,6 +11677,7 @@ class CreditNoteLinesCompanion extends UpdateCompanion<CreditNoteLineRow> {
   });
   CreditNoteLinesCompanion.insert({
     this.id = const Value.absent(),
+    this.uid = const Value.absent(),
     required int creditNoteId,
     required int billLineId,
     required int quantityMilli,
@@ -10981,6 +11692,7 @@ class CreditNoteLinesCompanion extends UpdateCompanion<CreditNoteLineRow> {
        totalPaise = Value(totalPaise);
   static Insertable<CreditNoteLineRow> custom({
     Expression<int>? id,
+    Expression<String>? uid,
     Expression<int>? creditNoteId,
     Expression<int>? billLineId,
     Expression<int>? quantityMilli,
@@ -10990,6 +11702,7 @@ class CreditNoteLinesCompanion extends UpdateCompanion<CreditNoteLineRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (uid != null) 'uid': uid,
       if (creditNoteId != null) 'credit_note_id': creditNoteId,
       if (billLineId != null) 'bill_line_id': billLineId,
       if (quantityMilli != null) 'quantity_milli': quantityMilli,
@@ -11001,6 +11714,7 @@ class CreditNoteLinesCompanion extends UpdateCompanion<CreditNoteLineRow> {
 
   CreditNoteLinesCompanion copyWith({
     Value<int>? id,
+    Value<String?>? uid,
     Value<int>? creditNoteId,
     Value<int>? billLineId,
     Value<int>? quantityMilli,
@@ -11010,6 +11724,7 @@ class CreditNoteLinesCompanion extends UpdateCompanion<CreditNoteLineRow> {
   }) {
     return CreditNoteLinesCompanion(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       creditNoteId: creditNoteId ?? this.creditNoteId,
       billLineId: billLineId ?? this.billLineId,
       quantityMilli: quantityMilli ?? this.quantityMilli,
@@ -11024,6 +11739,9 @@ class CreditNoteLinesCompanion extends UpdateCompanion<CreditNoteLineRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (creditNoteId.present) {
       map['credit_note_id'] = Variable<int>(creditNoteId.value);
@@ -11050,6 +11768,7 @@ class CreditNoteLinesCompanion extends UpdateCompanion<CreditNoteLineRow> {
   String toString() {
     return (StringBuffer('CreditNoteLinesCompanion(')
           ..write('id: $id, ')
+          ..write('uid: $uid, ')
           ..write('creditNoteId: $creditNoteId, ')
           ..write('billLineId: $billLineId, ')
           ..write('quantityMilli: $quantityMilli, ')
@@ -11271,6 +11990,505 @@ class CreditNoteCountersCompanion extends UpdateCompanion<CreditNoteCounter> {
   }
 }
 
+class $SyncOutboxTable extends SyncOutbox
+    with TableInfo<$SyncOutboxTable, SyncOutboxRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncOutboxTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _tblMeta = const VerificationMeta('tbl');
+  @override
+  late final GeneratedColumn<String> tbl = GeneratedColumn<String>(
+    'tbl',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rowIdMeta = const VerificationMeta('rowId');
+  @override
+  late final GeneratedColumn<int> rowId = GeneratedColumn<int>(
+    'row_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, tbl, rowId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_outbox';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncOutboxRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('tbl')) {
+      context.handle(
+        _tblMeta,
+        tbl.isAcceptableOrUnknown(data['tbl']!, _tblMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tblMeta);
+    }
+    if (data.containsKey('row_id')) {
+      context.handle(
+        _rowIdMeta,
+        rowId.isAcceptableOrUnknown(data['row_id']!, _rowIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_rowIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {tbl, rowId},
+  ];
+  @override
+  SyncOutboxRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncOutboxRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      tbl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tbl'],
+      )!,
+      rowId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}row_id'],
+      )!,
+    );
+  }
+
+  @override
+  $SyncOutboxTable createAlias(String alias) {
+    return $SyncOutboxTable(attachedDatabase, alias);
+  }
+}
+
+class SyncOutboxRow extends DataClass implements Insertable<SyncOutboxRow> {
+  final int id;
+  final String tbl;
+  final int rowId;
+  const SyncOutboxRow({
+    required this.id,
+    required this.tbl,
+    required this.rowId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['tbl'] = Variable<String>(tbl);
+    map['row_id'] = Variable<int>(rowId);
+    return map;
+  }
+
+  SyncOutboxCompanion toCompanion(bool nullToAbsent) {
+    return SyncOutboxCompanion(
+      id: Value(id),
+      tbl: Value(tbl),
+      rowId: Value(rowId),
+    );
+  }
+
+  factory SyncOutboxRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncOutboxRow(
+      id: serializer.fromJson<int>(json['id']),
+      tbl: serializer.fromJson<String>(json['tbl']),
+      rowId: serializer.fromJson<int>(json['rowId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'tbl': serializer.toJson<String>(tbl),
+      'rowId': serializer.toJson<int>(rowId),
+    };
+  }
+
+  SyncOutboxRow copyWith({int? id, String? tbl, int? rowId}) => SyncOutboxRow(
+    id: id ?? this.id,
+    tbl: tbl ?? this.tbl,
+    rowId: rowId ?? this.rowId,
+  );
+  SyncOutboxRow copyWithCompanion(SyncOutboxCompanion data) {
+    return SyncOutboxRow(
+      id: data.id.present ? data.id.value : this.id,
+      tbl: data.tbl.present ? data.tbl.value : this.tbl,
+      rowId: data.rowId.present ? data.rowId.value : this.rowId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncOutboxRow(')
+          ..write('id: $id, ')
+          ..write('tbl: $tbl, ')
+          ..write('rowId: $rowId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, tbl, rowId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncOutboxRow &&
+          other.id == this.id &&
+          other.tbl == this.tbl &&
+          other.rowId == this.rowId);
+}
+
+class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxRow> {
+  final Value<int> id;
+  final Value<String> tbl;
+  final Value<int> rowId;
+  const SyncOutboxCompanion({
+    this.id = const Value.absent(),
+    this.tbl = const Value.absent(),
+    this.rowId = const Value.absent(),
+  });
+  SyncOutboxCompanion.insert({
+    this.id = const Value.absent(),
+    required String tbl,
+    required int rowId,
+  }) : tbl = Value(tbl),
+       rowId = Value(rowId);
+  static Insertable<SyncOutboxRow> custom({
+    Expression<int>? id,
+    Expression<String>? tbl,
+    Expression<int>? rowId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (tbl != null) 'tbl': tbl,
+      if (rowId != null) 'row_id': rowId,
+    });
+  }
+
+  SyncOutboxCompanion copyWith({
+    Value<int>? id,
+    Value<String>? tbl,
+    Value<int>? rowId,
+  }) {
+    return SyncOutboxCompanion(
+      id: id ?? this.id,
+      tbl: tbl ?? this.tbl,
+      rowId: rowId ?? this.rowId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (tbl.present) {
+      map['tbl'] = Variable<String>(tbl.value);
+    }
+    if (rowId.present) {
+      map['row_id'] = Variable<int>(rowId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncOutboxCompanion(')
+          ..write('id: $id, ')
+          ..write('tbl: $tbl, ')
+          ..write('rowId: $rowId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SyncStateTable extends SyncState
+    with TableInfo<$SyncStateTable, SyncStateRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncStateTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _applyingMeta = const VerificationMeta(
+    'applying',
+  );
+  @override
+  late final GeneratedColumn<int> applying = GeneratedColumn<int>(
+    'applying',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _pulledSeqMeta = const VerificationMeta(
+    'pulledSeq',
+  );
+  @override
+  late final GeneratedColumn<int> pulledSeq = GeneratedColumn<int>(
+    'pulled_seq',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, applying, pulledSeq];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_state';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncStateRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('applying')) {
+      context.handle(
+        _applyingMeta,
+        applying.isAcceptableOrUnknown(data['applying']!, _applyingMeta),
+      );
+    }
+    if (data.containsKey('pulled_seq')) {
+      context.handle(
+        _pulledSeqMeta,
+        pulledSeq.isAcceptableOrUnknown(data['pulled_seq']!, _pulledSeqMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SyncStateRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncStateRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      applying: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}applying'],
+      )!,
+      pulledSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}pulled_seq'],
+      )!,
+    );
+  }
+
+  @override
+  $SyncStateTable createAlias(String alias) {
+    return $SyncStateTable(attachedDatabase, alias);
+  }
+}
+
+class SyncStateRow extends DataClass implements Insertable<SyncStateRow> {
+  final int id;
+
+  /// 1 while rows from the cloud are being written, so the triggers don't
+  /// send them straight back.
+  final int applying;
+
+  /// The highest cloud row number already applied here.
+  final int pulledSeq;
+  const SyncStateRow({
+    required this.id,
+    required this.applying,
+    required this.pulledSeq,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['applying'] = Variable<int>(applying);
+    map['pulled_seq'] = Variable<int>(pulledSeq);
+    return map;
+  }
+
+  SyncStateCompanion toCompanion(bool nullToAbsent) {
+    return SyncStateCompanion(
+      id: Value(id),
+      applying: Value(applying),
+      pulledSeq: Value(pulledSeq),
+    );
+  }
+
+  factory SyncStateRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncStateRow(
+      id: serializer.fromJson<int>(json['id']),
+      applying: serializer.fromJson<int>(json['applying']),
+      pulledSeq: serializer.fromJson<int>(json['pulledSeq']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'applying': serializer.toJson<int>(applying),
+      'pulledSeq': serializer.toJson<int>(pulledSeq),
+    };
+  }
+
+  SyncStateRow copyWith({int? id, int? applying, int? pulledSeq}) =>
+      SyncStateRow(
+        id: id ?? this.id,
+        applying: applying ?? this.applying,
+        pulledSeq: pulledSeq ?? this.pulledSeq,
+      );
+  SyncStateRow copyWithCompanion(SyncStateCompanion data) {
+    return SyncStateRow(
+      id: data.id.present ? data.id.value : this.id,
+      applying: data.applying.present ? data.applying.value : this.applying,
+      pulledSeq: data.pulledSeq.present ? data.pulledSeq.value : this.pulledSeq,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncStateRow(')
+          ..write('id: $id, ')
+          ..write('applying: $applying, ')
+          ..write('pulledSeq: $pulledSeq')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, applying, pulledSeq);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncStateRow &&
+          other.id == this.id &&
+          other.applying == this.applying &&
+          other.pulledSeq == this.pulledSeq);
+}
+
+class SyncStateCompanion extends UpdateCompanion<SyncStateRow> {
+  final Value<int> id;
+  final Value<int> applying;
+  final Value<int> pulledSeq;
+  const SyncStateCompanion({
+    this.id = const Value.absent(),
+    this.applying = const Value.absent(),
+    this.pulledSeq = const Value.absent(),
+  });
+  SyncStateCompanion.insert({
+    this.id = const Value.absent(),
+    this.applying = const Value.absent(),
+    this.pulledSeq = const Value.absent(),
+  });
+  static Insertable<SyncStateRow> custom({
+    Expression<int>? id,
+    Expression<int>? applying,
+    Expression<int>? pulledSeq,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (applying != null) 'applying': applying,
+      if (pulledSeq != null) 'pulled_seq': pulledSeq,
+    });
+  }
+
+  SyncStateCompanion copyWith({
+    Value<int>? id,
+    Value<int>? applying,
+    Value<int>? pulledSeq,
+  }) {
+    return SyncStateCompanion(
+      id: id ?? this.id,
+      applying: applying ?? this.applying,
+      pulledSeq: pulledSeq ?? this.pulledSeq,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (applying.present) {
+      map['applying'] = Variable<int>(applying.value);
+    }
+    if (pulledSeq.present) {
+      map['pulled_seq'] = Variable<int>(pulledSeq.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncStateCompanion(')
+          ..write('id: $id, ')
+          ..write('applying: $applying, ')
+          ..write('pulledSeq: $pulledSeq')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -11296,37 +12514,91 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $CreditNoteCountersTable creditNoteCounters =
       $CreditNoteCountersTable(this);
+  late final $SyncOutboxTable syncOutbox = $SyncOutboxTable(this);
+  late final $SyncStateTable syncState = $SyncStateTable(this);
   late final Index itemsName = Index(
     'items_name',
     'CREATE INDEX items_name ON items (name)',
+  );
+  late final Index itemsUid = Index(
+    'items_uid',
+    'CREATE UNIQUE INDEX items_uid ON items (uid)',
   );
   late final Index billsBilledAt = Index(
     'bills_billed_at',
     'CREATE INDEX bills_billed_at ON bills (billed_at)',
   );
+  late final Index billsUid = Index(
+    'bills_uid',
+    'CREATE UNIQUE INDEX bills_uid ON bills (uid)',
+  );
+  late final Index billLinesUid = Index(
+    'bill_lines_uid',
+    'CREATE UNIQUE INDEX bill_lines_uid ON bill_lines (uid)',
+  );
+  late final Index categoriesUid = Index(
+    'categories_uid',
+    'CREATE UNIQUE INDEX categories_uid ON categories (uid)',
+  );
+  late final Index itemBatchesUid = Index(
+    'item_batches_uid',
+    'CREATE UNIQUE INDEX item_batches_uid ON item_batches (uid)',
+  );
   late final Index movementsItem = Index(
     'movements_item',
     'CREATE INDEX movements_item ON stock_movements (item_id, at)',
+  );
+  late final Index movementsUid = Index(
+    'movements_uid',
+    'CREATE UNIQUE INDEX movements_uid ON stock_movements (uid)',
   );
   late final Index partiesName = Index(
     'parties_name',
     'CREATE INDEX parties_name ON parties (name)',
   );
+  late final Index partiesUid = Index(
+    'parties_uid',
+    'CREATE UNIQUE INDEX parties_uid ON parties (uid)',
+  );
   late final Index partyEntriesParty = Index(
     'party_entries_party',
     'CREATE INDEX party_entries_party ON party_entries (party_id, at)',
+  );
+  late final Index partyEntriesUid = Index(
+    'party_entries_uid',
+    'CREATE UNIQUE INDEX party_entries_uid ON party_entries (uid)',
   );
   late final Index purchasesDate = Index(
     'purchases_date',
     'CREATE INDEX purchases_date ON purchases (purchased_at)',
   );
+  late final Index purchasesUid = Index(
+    'purchases_uid',
+    'CREATE UNIQUE INDEX purchases_uid ON purchases (uid)',
+  );
+  late final Index purchaseLinesUid = Index(
+    'purchase_lines_uid',
+    'CREATE UNIQUE INDEX purchase_lines_uid ON purchase_lines (uid)',
+  );
   late final Index expensesDate = Index(
     'expenses_date',
     'CREATE INDEX expenses_date ON expenses (spent_at)',
   );
+  late final Index expensesUid = Index(
+    'expenses_uid',
+    'CREATE UNIQUE INDEX expenses_uid ON expenses (uid)',
+  );
   late final Index creditNotesDate = Index(
     'credit_notes_date',
     'CREATE INDEX credit_notes_date ON credit_notes (issued_at)',
+  );
+  late final Index creditNotesUid = Index(
+    'credit_notes_uid',
+    'CREATE UNIQUE INDEX credit_notes_uid ON credit_notes (uid)',
+  );
+  late final Index creditNoteLinesUid = Index(
+    'credit_note_lines_uid',
+    'CREATE UNIQUE INDEX credit_note_lines_uid ON credit_note_lines (uid)',
   );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -11350,14 +12622,29 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     creditNotes,
     creditNoteLines,
     creditNoteCounters,
+    syncOutbox,
+    syncState,
     itemsName,
+    itemsUid,
     billsBilledAt,
+    billsUid,
+    billLinesUid,
+    categoriesUid,
+    itemBatchesUid,
     movementsItem,
+    movementsUid,
     partiesName,
+    partiesUid,
     partyEntriesParty,
+    partyEntriesUid,
     purchasesDate,
+    purchasesUid,
+    purchaseLinesUid,
     expensesDate,
+    expensesUid,
     creditNotesDate,
+    creditNotesUid,
+    creditNoteLinesUid,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -11706,11 +12993,13 @@ typedef $$ShopProfilesTableProcessedTableManager =
     >;
 typedef $$CategoriesTableCreateCompanionBuilder = CategoriesCompanion Function({
   Value<int> id,
+  Value<String?> uid,
   required String name,
   Value<int?> parentId,
 });
 typedef $$CategoriesTableUpdateCompanionBuilder = CategoriesCompanion Function({
   Value<int> id,
+  Value<String?> uid,
   Value<String> name,
   Value<int?> parentId,
 });
@@ -11767,6 +13056,11 @@ class $$CategoriesTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11838,6 +13132,11 @@ class $$CategoriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get name => $composableBuilder(
     column: $table.name,
     builder: (column) => ColumnOrderings(column),
@@ -11878,6 +13177,9 @@ class $$CategoriesTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -11957,18 +13259,27 @@ class $$CategoriesTableTableManager
               $$CategoriesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$CategoriesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<String> name = const Value.absent(),
-            Value<int?> parentId = const Value.absent(),
-          }) => CategoriesCompanion(id: id, name: name, parentId: parentId),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<int?> parentId = const Value.absent(),
+              }) => CategoriesCompanion(
+                id: id,
+                uid: uid,
+                name: name,
+                parentId: parentId,
+              ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 required String name,
                 Value<int?> parentId = const Value.absent(),
               }) => CategoriesCompanion.insert(
                 id: id,
+                uid: uid,
                 name: name,
                 parentId: parentId,
               ),
@@ -12056,6 +13367,7 @@ typedef $$CategoriesTableProcessedTableManager =
     >;
 typedef $$ItemsTableCreateCompanionBuilder = ItemsCompanion Function({
   Value<int> id,
+  Value<String?> uid,
   required String name,
   Value<String?> barcode,
   Value<String> unit,
@@ -12080,6 +13392,7 @@ typedef $$ItemsTableCreateCompanionBuilder = ItemsCompanion Function({
 });
 typedef $$ItemsTableUpdateCompanionBuilder = ItemsCompanion Function({
   Value<int> id,
+  Value<String?> uid,
   Value<String> name,
   Value<String?> barcode,
   Value<String> unit,
@@ -12207,6 +13520,11 @@ class $$ItemsTableFilterComposer extends Composer<_$AppDatabase, $ItemsTable> {
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12448,6 +13766,11 @@ class $$ItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get name => $composableBuilder(
     column: $table.name,
     builder: (column) => ColumnOrderings(column),
@@ -12583,6 +13906,9 @@ class $$ItemsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -12821,6 +14147,7 @@ class $$ItemsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String?> barcode = const Value.absent(),
                 Value<String> unit = const Value.absent(),
@@ -12844,6 +14171,7 @@ class $$ItemsTableTableManager
                 Value<int?> costPricePaise = const Value.absent(),
               }) => ItemsCompanion(
                 id: id,
+                uid: uid,
                 name: name,
                 barcode: barcode,
                 unit: unit,
@@ -12869,6 +14197,7 @@ class $$ItemsTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 required String name,
                 Value<String?> barcode = const Value.absent(),
                 Value<String> unit = const Value.absent(),
@@ -12892,6 +14221,7 @@ class $$ItemsTableTableManager
                 Value<int?> costPricePaise = const Value.absent(),
               }) => ItemsCompanion.insert(
                 id: id,
+                uid: uid,
                 name: name,
                 barcode: barcode,
                 unit: unit,
@@ -13080,6 +14410,7 @@ typedef $$ItemsTableProcessedTableManager =
     >;
 typedef $$PartiesTableCreateCompanionBuilder = PartiesCompanion Function({
   Value<int> id,
+  Value<String?> uid,
   Value<String> type,
   required String name,
   Value<String?> phone,
@@ -13094,6 +14425,7 @@ typedef $$PartiesTableCreateCompanionBuilder = PartiesCompanion Function({
 });
 typedef $$PartiesTableUpdateCompanionBuilder = PartiesCompanion Function({
   Value<int> id,
+  Value<String?> uid,
   Value<String> type,
   Value<String> name,
   Value<String?> phone,
@@ -13178,6 +14510,11 @@ class $$PartiesTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13326,6 +14663,11 @@ class $$PartiesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get type => $composableBuilder(
     column: $table.type,
     builder: (column) => ColumnOrderings(column),
@@ -13393,6 +14735,9 @@ class $$PartiesTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
 
   GeneratedColumn<String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
@@ -13540,6 +14885,7 @@ class $$PartiesTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<String> type = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String?> phone = const Value.absent(),
@@ -13553,6 +14899,7 @@ class $$PartiesTableTableManager
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => PartiesCompanion(
                 id: id,
+                uid: uid,
                 type: type,
                 name: name,
                 phone: phone,
@@ -13568,6 +14915,7 @@ class $$PartiesTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<String> type = const Value.absent(),
                 required String name,
                 Value<String?> phone = const Value.absent(),
@@ -13581,6 +14929,7 @@ class $$PartiesTableTableManager
                 required DateTime updatedAt,
               }) => PartiesCompanion.insert(
                 id: id,
+                uid: uid,
                 type: type,
                 name: name,
                 phone: phone,
@@ -13701,6 +15050,8 @@ typedef $$PartiesTableProcessedTableManager =
     >;
 typedef $$BillsTableCreateCompanionBuilder = BillsCompanion Function({
   Value<int> id,
+  Value<String> series,
+  Value<String?> uid,
   required String invoiceNo,
   required int fyStart,
   required int sequence,
@@ -13725,6 +15076,8 @@ typedef $$BillsTableCreateCompanionBuilder = BillsCompanion Function({
 });
 typedef $$BillsTableUpdateCompanionBuilder = BillsCompanion Function({
   Value<int> id,
+  Value<String> series,
+  Value<String?> uid,
   Value<String> invoiceNo,
   Value<int> fyStart,
   Value<int> sequence,
@@ -13852,6 +15205,16 @@ class $$BillsTableFilterComposer extends Composer<_$AppDatabase, $BillsTable> {
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get series => $composableBuilder(
+    column: $table.series,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14093,6 +15456,16 @@ class $$BillsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get series => $composableBuilder(
+    column: $table.series,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get invoiceNo => $composableBuilder(
     column: $table.invoiceNo,
     builder: (column) => ColumnOrderings(column),
@@ -14228,6 +15601,12 @@ class $$BillsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get series =>
+      $composableBuilder(column: $table.series, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
 
   GeneratedColumn<String> get invoiceNo =>
       $composableBuilder(column: $table.invoiceNo, builder: (column) => column);
@@ -14474,6 +15853,8 @@ class $$BillsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String> series = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<String> invoiceNo = const Value.absent(),
                 Value<int> fyStart = const Value.absent(),
                 Value<int> sequence = const Value.absent(),
@@ -14497,6 +15878,8 @@ class $$BillsTableTableManager
                 Value<String?> buyerGstin = const Value.absent(),
               }) => BillsCompanion(
                 id: id,
+                series: series,
+                uid: uid,
                 invoiceNo: invoiceNo,
                 fyStart: fyStart,
                 sequence: sequence,
@@ -14522,6 +15905,8 @@ class $$BillsTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String> series = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 required String invoiceNo,
                 required int fyStart,
                 required int sequence,
@@ -14545,6 +15930,8 @@ class $$BillsTableTableManager
                 Value<String?> buyerGstin = const Value.absent(),
               }) => BillsCompanion.insert(
                 id: id,
+                series: series,
+                uid: uid,
                 invoiceNo: invoiceNo,
                 fyStart: fyStart,
                 sequence: sequence,
@@ -14733,6 +16120,7 @@ typedef $$BillsTableProcessedTableManager =
     >;
 typedef $$BillLinesTableCreateCompanionBuilder = BillLinesCompanion Function({
   Value<int> id,
+  Value<String?> uid,
   required int billId,
   required int position,
   Value<int?> itemId,
@@ -14754,6 +16142,7 @@ typedef $$BillLinesTableCreateCompanionBuilder = BillLinesCompanion Function({
 });
 typedef $$BillLinesTableUpdateCompanionBuilder = BillLinesCompanion Function({
   Value<int> id,
+  Value<String?> uid,
   Value<int> billId,
   Value<int> position,
   Value<int?> itemId,
@@ -14844,6 +16233,11 @@ class $$BillLinesTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15013,6 +16407,11 @@ class $$BillLinesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get position => $composableBuilder(
     column: $table.position,
     builder: (column) => ColumnOrderings(column),
@@ -15151,6 +16550,9 @@ class $$BillLinesTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
 
   GeneratedColumn<int> get position =>
       $composableBuilder(column: $table.position, builder: (column) => column);
@@ -15323,6 +16725,7 @@ class $$BillLinesTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<int> billId = const Value.absent(),
                 Value<int> position = const Value.absent(),
                 Value<int?> itemId = const Value.absent(),
@@ -15343,6 +16746,7 @@ class $$BillLinesTableTableManager
                 Value<int> returnedMilli = const Value.absent(),
               }) => BillLinesCompanion(
                 id: id,
+                uid: uid,
                 billId: billId,
                 position: position,
                 itemId: itemId,
@@ -15365,6 +16769,7 @@ class $$BillLinesTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 required int billId,
                 required int position,
                 Value<int?> itemId = const Value.absent(),
@@ -15385,6 +16790,7 @@ class $$BillLinesTableTableManager
                 Value<int> returnedMilli = const Value.absent(),
               }) => BillLinesCompanion.insert(
                 id: id,
+                uid: uid,
                 billId: billId,
                 position: position,
                 itemId: itemId,
@@ -15979,6 +17385,7 @@ typedef $$AppSettingsTableProcessedTableManager =
 typedef $$ItemBatchesTableCreateCompanionBuilder =
     ItemBatchesCompanion Function({
       Value<int> id,
+      Value<String?> uid,
       required int itemId,
       required String batchNo,
       Value<DateTime?> expiry,
@@ -15988,6 +17395,7 @@ typedef $$ItemBatchesTableCreateCompanionBuilder =
 typedef $$ItemBatchesTableUpdateCompanionBuilder =
     ItemBatchesCompanion Function({
       Value<int> id,
+      Value<String?> uid,
       Value<int> itemId,
       Value<String> batchNo,
       Value<DateTime?> expiry,
@@ -16046,6 +17454,11 @@ class $$ItemBatchesTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16132,6 +17545,11 @@ class $$ItemBatchesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get batchNo => $composableBuilder(
     column: $table.batchNo,
     builder: (column) => ColumnOrderings(column),
@@ -16187,6 +17605,9 @@ class $$ItemBatchesTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
 
   GeneratedColumn<String> get batchNo =>
       $composableBuilder(column: $table.batchNo, builder: (column) => column);
@@ -16280,6 +17701,7 @@ class $$ItemBatchesTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<int> itemId = const Value.absent(),
                 Value<String> batchNo = const Value.absent(),
                 Value<DateTime?> expiry = const Value.absent(),
@@ -16287,6 +17709,7 @@ class $$ItemBatchesTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
               }) => ItemBatchesCompanion(
                 id: id,
+                uid: uid,
                 itemId: itemId,
                 batchNo: batchNo,
                 expiry: expiry,
@@ -16296,6 +17719,7 @@ class $$ItemBatchesTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 required int itemId,
                 required String batchNo,
                 Value<DateTime?> expiry = const Value.absent(),
@@ -16303,6 +17727,7 @@ class $$ItemBatchesTableTableManager
                 required DateTime createdAt,
               }) => ItemBatchesCompanion.insert(
                 id: id,
+                uid: uid,
                 itemId: itemId,
                 batchNo: batchNo,
                 expiry: expiry,
@@ -16401,6 +17826,7 @@ typedef $$ItemBatchesTableProcessedTableManager =
 typedef $$StockMovementsTableCreateCompanionBuilder =
     StockMovementsCompanion Function({
       Value<int> id,
+      Value<String?> uid,
       required int itemId,
       Value<int?> batchId,
       required int quantityMilli,
@@ -16413,6 +17839,7 @@ typedef $$StockMovementsTableCreateCompanionBuilder =
 typedef $$StockMovementsTableUpdateCompanionBuilder =
     StockMovementsCompanion Function({
       Value<int> id,
+      Value<String?> uid,
       Value<int> itemId,
       Value<int?> batchId,
       Value<int> quantityMilli,
@@ -16494,6 +17921,11 @@ class $$StockMovementsTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16606,6 +18038,11 @@ class $$StockMovementsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get quantityMilli => $composableBuilder(
     column: $table.quantityMilli,
     builder: (column) => ColumnOrderings(column),
@@ -16712,6 +18149,9 @@ class $$StockMovementsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
 
   GeneratedColumn<int> get quantityMilli => $composableBuilder(
     column: $table.quantityMilli,
@@ -16833,6 +18273,7 @@ class $$StockMovementsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<int> itemId = const Value.absent(),
                 Value<int?> batchId = const Value.absent(),
                 Value<int> quantityMilli = const Value.absent(),
@@ -16843,6 +18284,7 @@ class $$StockMovementsTableTableManager
                 Value<DateTime> at = const Value.absent(),
               }) => StockMovementsCompanion(
                 id: id,
+                uid: uid,
                 itemId: itemId,
                 batchId: batchId,
                 quantityMilli: quantityMilli,
@@ -16855,6 +18297,7 @@ class $$StockMovementsTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 required int itemId,
                 Value<int?> batchId = const Value.absent(),
                 required int quantityMilli,
@@ -16865,6 +18308,7 @@ class $$StockMovementsTableTableManager
                 required DateTime at,
               }) => StockMovementsCompanion.insert(
                 id: id,
+                uid: uid,
                 itemId: itemId,
                 batchId: batchId,
                 quantityMilli: quantityMilli,
@@ -16965,6 +18409,7 @@ typedef $$StockMovementsTableProcessedTableManager =
 typedef $$PartyEntriesTableCreateCompanionBuilder =
     PartyEntriesCompanion Function({
       Value<int> id,
+      Value<String?> uid,
       required int partyId,
       required String type,
       required int amountPaise,
@@ -16977,6 +18422,7 @@ typedef $$PartyEntriesTableCreateCompanionBuilder =
 typedef $$PartyEntriesTableUpdateCompanionBuilder =
     PartyEntriesCompanion Function({
       Value<int> id,
+      Value<String?> uid,
       Value<int> partyId,
       Value<String> type,
       Value<int> amountPaise,
@@ -17037,6 +18483,11 @@ class $$PartyEntriesTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -17131,6 +18582,11 @@ class $$PartyEntriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get type => $composableBuilder(
     column: $table.type,
     builder: (column) => ColumnOrderings(column),
@@ -17219,6 +18675,9 @@ class $$PartyEntriesTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
 
   GeneratedColumn<String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
@@ -17320,6 +18779,7 @@ class $$PartyEntriesTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<int> partyId = const Value.absent(),
                 Value<String> type = const Value.absent(),
                 Value<int> amountPaise = const Value.absent(),
@@ -17330,6 +18790,7 @@ class $$PartyEntriesTableTableManager
                 Value<DateTime> at = const Value.absent(),
               }) => PartyEntriesCompanion(
                 id: id,
+                uid: uid,
                 partyId: partyId,
                 type: type,
                 amountPaise: amountPaise,
@@ -17342,6 +18803,7 @@ class $$PartyEntriesTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 required int partyId,
                 required String type,
                 required int amountPaise,
@@ -17352,6 +18814,7 @@ class $$PartyEntriesTableTableManager
                 required DateTime at,
               }) => PartyEntriesCompanion.insert(
                 id: id,
+                uid: uid,
                 partyId: partyId,
                 type: type,
                 amountPaise: amountPaise,
@@ -17439,6 +18902,7 @@ typedef $$PartyEntriesTableProcessedTableManager =
     >;
 typedef $$PurchasesTableCreateCompanionBuilder = PurchasesCompanion Function({
   Value<int> id,
+  Value<String?> uid,
   Value<int?> partyId,
   Value<String?> supplierName,
   Value<String?> supplierGstin,
@@ -17457,6 +18921,7 @@ typedef $$PurchasesTableCreateCompanionBuilder = PurchasesCompanion Function({
 });
 typedef $$PurchasesTableUpdateCompanionBuilder = PurchasesCompanion Function({
   Value<int> id,
+  Value<String?> uid,
   Value<int?> partyId,
   Value<String?> supplierName,
   Value<String?> supplierGstin,
@@ -17525,6 +18990,11 @@ class $$PurchasesTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -17661,6 +19131,11 @@ class $$PurchasesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get supplierName => $composableBuilder(
     column: $table.supplierName,
     builder: (column) => ColumnOrderings(column),
@@ -17766,6 +19241,9 @@ class $$PurchasesTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
 
   GeneratedColumn<String> get supplierName => $composableBuilder(
     column: $table.supplierName,
@@ -17907,6 +19385,7 @@ class $$PurchasesTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<int?> partyId = const Value.absent(),
                 Value<String?> supplierName = const Value.absent(),
                 Value<String?> supplierGstin = const Value.absent(),
@@ -17924,6 +19403,7 @@ class $$PurchasesTableTableManager
                 Value<DateTime?> cancelledAt = const Value.absent(),
               }) => PurchasesCompanion(
                 id: id,
+                uid: uid,
                 partyId: partyId,
                 supplierName: supplierName,
                 supplierGstin: supplierGstin,
@@ -17943,6 +19423,7 @@ class $$PurchasesTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<int?> partyId = const Value.absent(),
                 Value<String?> supplierName = const Value.absent(),
                 Value<String?> supplierGstin = const Value.absent(),
@@ -17960,6 +19441,7 @@ class $$PurchasesTableTableManager
                 Value<DateTime?> cancelledAt = const Value.absent(),
               }) => PurchasesCompanion.insert(
                 id: id,
+                uid: uid,
                 partyId: partyId,
                 supplierName: supplierName,
                 supplierGstin: supplierGstin,
@@ -18068,6 +19550,7 @@ typedef $$PurchasesTableProcessedTableManager =
 typedef $$PurchaseLinesTableCreateCompanionBuilder =
     PurchaseLinesCompanion Function({
       Value<int> id,
+      Value<String?> uid,
       required int purchaseId,
       required int position,
       Value<int?> itemId,
@@ -18087,6 +19570,7 @@ typedef $$PurchaseLinesTableCreateCompanionBuilder =
 typedef $$PurchaseLinesTableUpdateCompanionBuilder =
     PurchaseLinesCompanion Function({
       Value<int> id,
+      Value<String?> uid,
       Value<int> purchaseId,
       Value<int> position,
       Value<int?> itemId,
@@ -18159,6 +19643,11 @@ class $$PurchaseLinesTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -18288,6 +19777,11 @@ class $$PurchaseLinesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get position => $composableBuilder(
     column: $table.position,
     builder: (column) => ColumnOrderings(column),
@@ -18411,6 +19905,9 @@ class $$PurchaseLinesTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
 
   GeneratedColumn<int> get position =>
       $composableBuilder(column: $table.position, builder: (column) => column);
@@ -18537,6 +20034,7 @@ class $$PurchaseLinesTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<int> purchaseId = const Value.absent(),
                 Value<int> position = const Value.absent(),
                 Value<int?> itemId = const Value.absent(),
@@ -18554,6 +20052,7 @@ class $$PurchaseLinesTableTableManager
                 Value<DateTime?> expiry = const Value.absent(),
               }) => PurchaseLinesCompanion(
                 id: id,
+                uid: uid,
                 purchaseId: purchaseId,
                 position: position,
                 itemId: itemId,
@@ -18573,6 +20072,7 @@ class $$PurchaseLinesTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 required int purchaseId,
                 required int position,
                 Value<int?> itemId = const Value.absent(),
@@ -18590,6 +20090,7 @@ class $$PurchaseLinesTableTableManager
                 Value<DateTime?> expiry = const Value.absent(),
               }) => PurchaseLinesCompanion.insert(
                 id: id,
+                uid: uid,
                 purchaseId: purchaseId,
                 position: position,
                 itemId: itemId,
@@ -18684,6 +20185,7 @@ typedef $$PurchaseLinesTableProcessedTableManager =
     >;
 typedef $$ExpensesTableCreateCompanionBuilder = ExpensesCompanion Function({
   Value<int> id,
+  Value<String?> uid,
   required DateTime spentAt,
   required String category,
   required int amountPaise,
@@ -18693,6 +20195,7 @@ typedef $$ExpensesTableCreateCompanionBuilder = ExpensesCompanion Function({
 });
 typedef $$ExpensesTableUpdateCompanionBuilder = ExpensesCompanion Function({
   Value<int> id,
+  Value<String?> uid,
   Value<DateTime> spentAt,
   Value<String> category,
   Value<int> amountPaise,
@@ -18712,6 +20215,11 @@ class $$ExpensesTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -18760,6 +20268,11 @@ class $$ExpensesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get spentAt => $composableBuilder(
     column: $table.spentAt,
     builder: (column) => ColumnOrderings(column),
@@ -18802,6 +20315,9 @@ class $$ExpensesTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
 
   GeneratedColumn<DateTime> get spentAt =>
       $composableBuilder(column: $table.spentAt, builder: (column) => column);
@@ -18858,6 +20374,7 @@ class $$ExpensesTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<DateTime> spentAt = const Value.absent(),
                 Value<String> category = const Value.absent(),
                 Value<int> amountPaise = const Value.absent(),
@@ -18866,6 +20383,7 @@ class $$ExpensesTableTableManager
                 Value<bool> isDeleted = const Value.absent(),
               }) => ExpensesCompanion(
                 id: id,
+                uid: uid,
                 spentAt: spentAt,
                 category: category,
                 amountPaise: amountPaise,
@@ -18876,6 +20394,7 @@ class $$ExpensesTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 required DateTime spentAt,
                 required String category,
                 required int amountPaise,
@@ -18884,6 +20403,7 @@ class $$ExpensesTableTableManager
                 Value<bool> isDeleted = const Value.absent(),
               }) => ExpensesCompanion.insert(
                 id: id,
+                uid: uid,
                 spentAt: spentAt,
                 category: category,
                 amountPaise: amountPaise,
@@ -18925,6 +20445,8 @@ typedef $$ExpensesTableProcessedTableManager =
 typedef $$CreditNotesTableCreateCompanionBuilder =
     CreditNotesCompanion Function({
       Value<int> id,
+      Value<String> series,
+      Value<String?> uid,
       required String noteNo,
       required int fyStart,
       required int sequence,
@@ -18939,6 +20461,8 @@ typedef $$CreditNotesTableCreateCompanionBuilder =
 typedef $$CreditNotesTableUpdateCompanionBuilder =
     CreditNotesCompanion Function({
       Value<int> id,
+      Value<String> series,
+      Value<String?> uid,
       Value<String> noteNo,
       Value<int> fyStart,
       Value<int> sequence,
@@ -19004,6 +20528,16 @@ class $$CreditNotesTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get series => $composableBuilder(
+    column: $table.series,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -19115,6 +20649,16 @@ class $$CreditNotesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get series => $composableBuilder(
+    column: $table.series,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get noteNo => $composableBuilder(
     column: $table.noteNo,
     builder: (column) => ColumnOrderings(column),
@@ -19195,6 +20739,12 @@ class $$CreditNotesTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get series =>
+      $composableBuilder(column: $table.series, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
 
   GeneratedColumn<String> get noteNo =>
       $composableBuilder(column: $table.noteNo, builder: (column) => column);
@@ -19307,6 +20857,8 @@ class $$CreditNotesTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String> series = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<String> noteNo = const Value.absent(),
                 Value<int> fyStart = const Value.absent(),
                 Value<int> sequence = const Value.absent(),
@@ -19319,6 +20871,8 @@ class $$CreditNotesTableTableManager
                 Value<String> refundMode = const Value.absent(),
               }) => CreditNotesCompanion(
                 id: id,
+                series: series,
+                uid: uid,
                 noteNo: noteNo,
                 fyStart: fyStart,
                 sequence: sequence,
@@ -19333,6 +20887,8 @@ class $$CreditNotesTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String> series = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 required String noteNo,
                 required int fyStart,
                 required int sequence,
@@ -19345,6 +20901,8 @@ class $$CreditNotesTableTableManager
                 required String refundMode,
               }) => CreditNotesCompanion.insert(
                 id: id,
+                series: series,
+                uid: uid,
                 noteNo: noteNo,
                 fyStart: fyStart,
                 sequence: sequence,
@@ -19448,6 +21006,7 @@ typedef $$CreditNotesTableProcessedTableManager =
 typedef $$CreditNoteLinesTableCreateCompanionBuilder =
     CreditNoteLinesCompanion Function({
       Value<int> id,
+      Value<String?> uid,
       required int creditNoteId,
       required int billLineId,
       required int quantityMilli,
@@ -19458,6 +21017,7 @@ typedef $$CreditNoteLinesTableCreateCompanionBuilder =
 typedef $$CreditNoteLinesTableUpdateCompanionBuilder =
     CreditNoteLinesCompanion Function({
       Value<int> id,
+      Value<String?> uid,
       Value<int> creditNoteId,
       Value<int> billLineId,
       Value<int> quantityMilli,
@@ -19526,6 +21086,11 @@ class $$CreditNoteLinesTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uid => $composableBuilder(
+    column: $table.uid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -19610,6 +21175,11 @@ class $$CreditNoteLinesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get uid => $composableBuilder(
+    column: $table.uid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get quantityMilli => $composableBuilder(
     column: $table.quantityMilli,
     builder: (column) => ColumnOrderings(column),
@@ -19688,6 +21258,9 @@ class $$CreditNoteLinesTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get uid =>
+      $composableBuilder(column: $table.uid, builder: (column) => column);
 
   GeneratedColumn<int> get quantityMilli => $composableBuilder(
     column: $table.quantityMilli,
@@ -19785,6 +21358,7 @@ class $$CreditNoteLinesTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 Value<int> creditNoteId = const Value.absent(),
                 Value<int> billLineId = const Value.absent(),
                 Value<int> quantityMilli = const Value.absent(),
@@ -19793,6 +21367,7 @@ class $$CreditNoteLinesTableTableManager
                 Value<int> totalPaise = const Value.absent(),
               }) => CreditNoteLinesCompanion(
                 id: id,
+                uid: uid,
                 creditNoteId: creditNoteId,
                 billLineId: billLineId,
                 quantityMilli: quantityMilli,
@@ -19803,6 +21378,7 @@ class $$CreditNoteLinesTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> uid = const Value.absent(),
                 required int creditNoteId,
                 required int billLineId,
                 required int quantityMilli,
@@ -19811,6 +21387,7 @@ class $$CreditNoteLinesTableTableManager
                 required int totalPaise,
               }) => CreditNoteLinesCompanion.insert(
                 id: id,
+                uid: uid,
                 creditNoteId: creditNoteId,
                 billLineId: billLineId,
                 quantityMilli: quantityMilli,
@@ -20057,6 +21634,322 @@ typedef $$CreditNoteCountersTableProcessedTableManager =
       CreditNoteCounter,
       PrefetchHooks Function()
     >;
+typedef $$SyncOutboxTableCreateCompanionBuilder = SyncOutboxCompanion Function({
+  Value<int> id,
+  required String tbl,
+  required int rowId,
+});
+typedef $$SyncOutboxTableUpdateCompanionBuilder = SyncOutboxCompanion Function({
+  Value<int> id,
+  Value<String> tbl,
+  Value<int> rowId,
+});
+
+class $$SyncOutboxTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncOutboxTable> {
+  $$SyncOutboxTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tbl => $composableBuilder(
+    column: $table.tbl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get rowId => $composableBuilder(
+    column: $table.rowId,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SyncOutboxTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncOutboxTable> {
+  $$SyncOutboxTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tbl => $composableBuilder(
+    column: $table.tbl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get rowId => $composableBuilder(
+    column: $table.rowId,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SyncOutboxTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncOutboxTable> {
+  $$SyncOutboxTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get tbl =>
+      $composableBuilder(column: $table.tbl, builder: (column) => column);
+
+  GeneratedColumn<int> get rowId =>
+      $composableBuilder(column: $table.rowId, builder: (column) => column);
+}
+
+class $$SyncOutboxTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncOutboxTable,
+          SyncOutboxRow,
+          $$SyncOutboxTableFilterComposer,
+          $$SyncOutboxTableOrderingComposer,
+          $$SyncOutboxTableAnnotationComposer,
+          $$SyncOutboxTableCreateCompanionBuilder,
+          $$SyncOutboxTableUpdateCompanionBuilder,
+          (
+            SyncOutboxRow,
+            BaseReferences<_$AppDatabase, $SyncOutboxTable, SyncOutboxRow>,
+          ),
+          SyncOutboxRow,
+          PrefetchHooks Function()
+        > {
+  $$SyncOutboxTableTableManager(_$AppDatabase db, $SyncOutboxTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncOutboxTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncOutboxTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncOutboxTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> tbl = const Value.absent(),
+            Value<int> rowId = const Value.absent(),
+          }) => SyncOutboxCompanion(id: id, tbl: tbl, rowId: rowId),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String tbl,
+            required int rowId,
+          }) => SyncOutboxCompanion.insert(id: id, tbl: tbl, rowId: rowId),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$SyncOutboxTable, SyncOutboxRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $SyncOutboxTable,
+                    SyncOutboxRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncOutboxTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncOutboxTable,
+      SyncOutboxRow,
+      $$SyncOutboxTableFilterComposer,
+      $$SyncOutboxTableOrderingComposer,
+      $$SyncOutboxTableAnnotationComposer,
+      $$SyncOutboxTableCreateCompanionBuilder,
+      $$SyncOutboxTableUpdateCompanionBuilder,
+      (
+        SyncOutboxRow,
+        BaseReferences<_$AppDatabase, $SyncOutboxTable, SyncOutboxRow>,
+      ),
+      SyncOutboxRow,
+      PrefetchHooks Function()
+    >;
+typedef $$SyncStateTableCreateCompanionBuilder = SyncStateCompanion Function({
+  Value<int> id,
+  Value<int> applying,
+  Value<int> pulledSeq,
+});
+typedef $$SyncStateTableUpdateCompanionBuilder = SyncStateCompanion Function({
+  Value<int> id,
+  Value<int> applying,
+  Value<int> pulledSeq,
+});
+
+class $$SyncStateTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncStateTable> {
+  $$SyncStateTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get applying => $composableBuilder(
+    column: $table.applying,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pulledSeq => $composableBuilder(
+    column: $table.pulledSeq,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SyncStateTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncStateTable> {
+  $$SyncStateTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get applying => $composableBuilder(
+    column: $table.applying,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pulledSeq => $composableBuilder(
+    column: $table.pulledSeq,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SyncStateTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncStateTable> {
+  $$SyncStateTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get applying =>
+      $composableBuilder(column: $table.applying, builder: (column) => column);
+
+  GeneratedColumn<int> get pulledSeq =>
+      $composableBuilder(column: $table.pulledSeq, builder: (column) => column);
+}
+
+class $$SyncStateTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncStateTable,
+          SyncStateRow,
+          $$SyncStateTableFilterComposer,
+          $$SyncStateTableOrderingComposer,
+          $$SyncStateTableAnnotationComposer,
+          $$SyncStateTableCreateCompanionBuilder,
+          $$SyncStateTableUpdateCompanionBuilder,
+          (
+            SyncStateRow,
+            BaseReferences<_$AppDatabase, $SyncStateTable, SyncStateRow>,
+          ),
+          SyncStateRow,
+          PrefetchHooks Function()
+        > {
+  $$SyncStateTableTableManager(_$AppDatabase db, $SyncStateTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncStateTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncStateTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncStateTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> applying = const Value.absent(),
+                Value<int> pulledSeq = const Value.absent(),
+              }) => SyncStateCompanion(
+                id: id,
+                applying: applying,
+                pulledSeq: pulledSeq,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> applying = const Value.absent(),
+                Value<int> pulledSeq = const Value.absent(),
+              }) => SyncStateCompanion.insert(
+                id: id,
+                applying: applying,
+                pulledSeq: pulledSeq,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$SyncStateTable, SyncStateRow>(table),
+                  BaseReferences<_$AppDatabase, $SyncStateTable, SyncStateRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncStateTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncStateTable,
+      SyncStateRow,
+      $$SyncStateTableFilterComposer,
+      $$SyncStateTableOrderingComposer,
+      $$SyncStateTableAnnotationComposer,
+      $$SyncStateTableCreateCompanionBuilder,
+      $$SyncStateTableUpdateCompanionBuilder,
+      (
+        SyncStateRow,
+        BaseReferences<_$AppDatabase, $SyncStateTable, SyncStateRow>,
+      ),
+      SyncStateRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -20095,4 +21988,8 @@ class $AppDatabaseManager {
       $$CreditNoteLinesTableTableManager(_db, _db.creditNoteLines);
   $$CreditNoteCountersTableTableManager get creditNoteCounters =>
       $$CreditNoteCountersTableTableManager(_db, _db.creditNoteCounters);
+  $$SyncOutboxTableTableManager get syncOutbox =>
+      $$SyncOutboxTableTableManager(_db, _db.syncOutbox);
+  $$SyncStateTableTableManager get syncState =>
+      $$SyncStateTableTableManager(_db, _db.syncState);
 }

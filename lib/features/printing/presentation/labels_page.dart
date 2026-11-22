@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
+import 'package:shop_app/features/cloud/domain/cloud.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/printing/data/label_renderer.dart';
 import 'package:shop_app/features/printing/data/printer_service.dart';
@@ -243,10 +244,11 @@ class _LabelsPageState extends State<LabelsPage> {
 
   Future<void> _createBarcode(Item item) async {
     final l10n = AppLocalizations.of(context);
-    final code = Ean.inStore(item.id!);
-    final saved = await context.read<ItemRepository>().save(
-      item.copyWith(barcode: code),
-    );
+    final items = context.read<ItemRepository>();
+    final series = (await context.read<CloudService>().link())?.series;
+    if (!mounted) return;
+    final code = Ean.inStore(item.id!, series: series);
+    final saved = await items.save(item.copyWith(barcode: code));
     if (!mounted) return;
     setState(() => _items[saved.id!] = saved);
     showSnack(context, l10n.labelsBarcodeCreated(code, item.name));

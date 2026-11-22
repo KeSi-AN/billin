@@ -23,8 +23,18 @@ abstract final class Ean {
   /// A barcode for an item the shop packs itself (loose rice, sweets).
   /// GS1 reserves EAN-13 numbers starting with 2 for in-store use, so these
   /// never clash with a manufacturer's barcode.
-  static String inStore(int itemId) {
-    final body = '2${itemId.toString().padLeft(11, '0')}';
+  ///
+  /// The phone's [series] letter (A = 01, B = 02…; none = 00) comes next,
+  /// so two phones of a shop never make the same number for different
+  /// items: 2 · series (2 digits) · item number (9 digits) · check digit.
+  /// Codes made before a phone had a series are unchanged.
+  static String inStore(int itemId, {String? series}) {
+    final s = series == null || series.isEmpty
+        ? 0
+        : series.toUpperCase().codeUnitAt(0) - 64;
+    final body =
+        '2${s.clamp(0, 99).toString().padLeft(2, '0')}'
+        '${itemId.toString().padLeft(9, '0')}';
     return '$body${checkDigit(body)}';
   }
 }

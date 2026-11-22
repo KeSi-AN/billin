@@ -96,7 +96,11 @@ GoRouter buildRouter(ShopProfileCubit profile) => GoRouter(
     final at = state.matchedLocation;
     return switch (profile.state) {
       ShopProfileLoading() => at == AppRoutes.splash ? null : AppRoutes.splash,
-      ShopProfileMissing() => at == AppRoutes.setup ? null : AppRoutes.setup,
+      // A second phone joins from setup: the account page fetches the shop.
+      ShopProfileMissing() =>
+        at == AppRoutes.setup || at == AppRoutes.account
+            ? null
+            : AppRoutes.setup,
       ShopProfileReady() =>
         at == AppRoutes.splash || at == AppRoutes.setup ? AppRoutes.home : null,
     };

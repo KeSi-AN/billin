@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:path/path.dart' as p;
 import 'package:shop_app/app/flavor.dart';
 import 'package:shop_app/features/cloud/domain/cloud.dart';
+import 'package:shop_app/features/cloud/domain/sync.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Where the browser sends the user back after Google sign-in. Must be in
@@ -140,6 +141,56 @@ class SupabaseCloudService implements CloudService {
     final h = b.map((x) => x.toRadixString(16).padLeft(2, '0')).join();
     return '${h.substring(0, 8)}-${h.substring(8, 12)}-'
         '${h.substring(12, 16)}-${h.substring(16, 20)}-${h.substring(20)}';
+  }
+}
+
+/// The shop's shared rows in Supabase (`sync_rows`; see
+/// supabase/migrations/0002_sync_rows.sql). Row-level security only lets
+/// members of the shop read or write them.
+class SupabaseSyncRemote implements SyncRemote {
+  const SupabaseSyncRemote();
+
+  SupabaseClient get _db => Supabase.instance.client;
+
+  @override
+  Future<void> push(String shopId, String deviceId, List<CloudRow> rows) async {
+    // A few hundred rows per request keeps each request small.
+    for (var i = 0; i < rows.length; i += 200) {
+      await _db.from('sync_rows').upsert([
+        for (final r in rows.skip(i).take(200))
+          {
+            'shop_id': shopId,
+            'tbl': r.tbl,
+            'row_id': r.rowId,
+            'data': r.data,
+            'device_id': deviceId,
+          },
+      ], onConflict: 'shop_id,tbl,row_id');
+    }
+  }
+
+  @override
+  Future<List<CloudRow>> pull(
+    String shopId, {
+    required int after,
+    int limit = 500,
+  }) async {
+    final rows = await _db
+        .from('sync_rows')
+        .select('tbl, row_id, data, seq')
+        .eq('shop_id', shopId)
+        .gt('seq', after)
+        .order('seq')
+        .limit(limit);
+    return [
+      for (final r in rows)
+        CloudRow(
+          tbl: r['tbl'] as String,
+          rowId: r['row_id'] as String,
+          data: (r['data'] as Map).cast<String, Object?>(),
+          seq: (r['seq'] as num).toInt(),
+        ),
+    ];
   }
 }
 

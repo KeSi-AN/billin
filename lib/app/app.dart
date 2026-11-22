@@ -11,6 +11,7 @@ import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/credit_note.dart';
 import 'package:shop_app/features/billing/presentation/bill_actions.dart';
 import 'package:shop_app/features/cloud/data/supabase_cloud_service.dart';
+import 'package:shop_app/features/cloud/data/sync_engine.dart';
 import 'package:shop_app/features/cloud/domain/cloud.dart';
 import 'package:shop_app/features/customers/domain/contact_picker.dart';
 import 'package:shop_app/features/customers/domain/customer_actions.dart';
@@ -46,6 +47,7 @@ class AppServices {
     required this.expenses,
     required this.backup,
     this.cloud = const NoCloudService(),
+    this.sync,
   });
 
   final ShopProfileRepository shopProfiles;
@@ -64,6 +66,9 @@ class AppServices {
   final ExpenseRepository expenses;
   final BackupService backup;
   final CloudService cloud;
+
+  /// Syncing with the shop's other phones (`null`: no cloud in this build).
+  final SyncEngine? sync;
 }
 
 class ShopApp extends StatefulWidget {
@@ -81,9 +86,18 @@ class _ShopAppState extends State<ShopApp> {
     widget.services.shopProfiles,
   );
   late final GoRouter _router = buildRouter(_profileCubit);
+  SyncScheduler? _sync;
+
+  @override
+  void initState() {
+    super.initState();
+    final engine = widget.services.sync;
+    if (engine != null) _sync = SyncScheduler(engine)..start();
+  }
 
   @override
   void dispose() {
+    _sync?.dispose();
     _router.dispose();
     unawaited(_profileCubit.close());
     super.dispose();
@@ -111,6 +125,7 @@ class _ShopAppState extends State<ShopApp> {
         RepositoryProvider.value(value: s.expenses),
         RepositoryProvider.value(value: s.backup),
         RepositoryProvider<CloudService>.value(value: s.cloud),
+        RepositoryProvider<SyncEngine?>.value(value: s.sync),
       ],
       child: BlocProvider.value(
         value: _profileCubit,

@@ -37,6 +37,80 @@ void main() {
     }
   });
 
+  test('v7 -> v8 keeps bills and lines, reads series, queues everything', () async {
+    final schema = await verifier.schemaAt(7);
+    final raw = schema.rawDatabase;
+    raw.execute(
+      "INSERT INTO items (id, name, unit, sale_price_paise, tax_rate_bp, "
+      "price_includes_tax, is_active, created_at, updated_at, track_stock, "
+      "stock_milli, tracks_batches) VALUES (1, 'Saree', 'pcs', 50000, 500, 1, 1, 0, 0, 1, 3000, 0)",
+    );
+    for (final (id, no, seq) in [
+      (1, 'INV/26-27/0001', 1),
+      (2, 'INV-A/26-27/0002', 2),
+    ]) {
+      raw.execute(
+        "INSERT INTO bills (id, invoice_no, fy_start, sequence, billed_at, "
+        "items_total_paise, bill_discount_paise, taxable_paise, tax_paise, "
+        "round_off_paise, grand_total_paise, payment_mode, status, due_paise, inter_state) "
+        "VALUES ($id, '$no', 2026, $seq, 0, 50000, 0, 47619, 2381, 0, 50000, 'cash', 'final', 0, 0)",
+      );
+      raw.execute(
+        "INSERT INTO bill_lines (bill_id, position, item_id, name, unit, "
+        "quantity_milli, unit_price_paise, tax_rate_bp, price_includes_tax, "
+        "discount_paise, bill_discount_share_paise, taxable_paise, tax_paise, total_paise, "
+        "unit_factor_milli, returned_milli) VALUES ($id, 0, 1, 'Saree', 'pcs', 1000, 50000, "
+        "500, 1, 0, 0, 47619, 2381, 50000, 1000, 0)",
+      );
+    }
+    final db = AppDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, 8);
+
+    final bills = await db
+        .customSelect('SELECT id, series, uid FROM bills ORDER BY id')
+        .get();
+    expect([for (final b in bills) b.read<String>('series')], ['', 'A']);
+    expect(
+      bills.every((b) => (b.readNullable<String>('uid') ?? '').length == 32),
+      isTrue,
+    );
+    final lines = await db
+        .customSelect('SELECT bill_id, uid FROM bill_lines')
+        .get();
+    expect(
+      lines,
+      hasLength(2),
+      reason: 'rebuilding bills must not drop its lines',
+    );
+    expect(lines.every((l) => l.readNullable<String>('uid') != null), isTrue);
+    final item = await db
+        .customSelect('SELECT stock_milli, uid FROM items')
+        .getSingle();
+    expect(item.read<int>('stock_milli'), 3000);
+    final queued = await db
+        .customSelect('SELECT tbl, COUNT(*) AS n FROM sync_outbox GROUP BY tbl')
+        .get();
+    expect(
+      {for (final q in queued) q.read<String>('tbl'): q.read<int>('n')},
+      {'items': 1, 'bills': 2, 'bill_lines': 2},
+    );
+
+    // New rows get a uid and are queued; a stock-only change is not.
+    await db.customStatement('DELETE FROM sync_outbox');
+    await db.customStatement(
+      "UPDATE items SET stock_milli = 2000 WHERE id = 1",
+    );
+    expect(await db.customSelect('SELECT * FROM sync_outbox').get(), isEmpty);
+    await db.customStatement(
+      "UPDATE items SET sale_price_paise = 60000 WHERE id = 1",
+    );
+    expect(
+      await db.customSelect('SELECT * FROM sync_outbox').get(),
+      hasLength(1),
+    );
+    await db.close();
+  });
+
   // The following template shows how to write tests ensuring your migrations
   // preserve existing data.
   // Testing this can be useful for migrations that change existing columns

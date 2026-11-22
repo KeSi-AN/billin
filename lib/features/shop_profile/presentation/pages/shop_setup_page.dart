@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:shop_app/app/router.dart';
 import 'package:shop_app/core/india/gstin.dart';
 import 'package:shop_app/core/india/indian_states.dart';
+import 'package:shop_app/features/cloud/domain/cloud.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile_repository.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile_validators.dart';
@@ -191,6 +193,33 @@ class _ShopSetupViewState extends State<_ShopSetupView> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             children: [
               if (!widget.isEditing) ...[
+                if (context.read<CloudService>().available) ...[
+                  Card(
+                    key: const Key('setupJoinCard'),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.setupJoinTitle,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(l10n.setupJoinBody),
+                          const SizedBox(height: 8),
+                          OutlinedButton.icon(
+                            key: const Key('setupJoinButton'),
+                            onPressed: () => context.push(AppRoutes.account),
+                            icon: const Icon(Icons.login),
+                            label: Text(l10n.setupJoinButton),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 Text(l10n.setupIntro),
                 const SizedBox(height: 16),
               ],

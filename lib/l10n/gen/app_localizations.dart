@@ -3994,11 +3994,65 @@ abstract class AppLocalizations {
   /// **'This phone\'s bills are numbered INV-{series}/…'**
   String cloudPhoneSeries(String series);
 
-  /// No description provided for @cloudSyncSoon.
+  /// No description provided for @cloudSyncHelp.
   ///
   /// In en, this message translates to:
-  /// **'Syncing bills, items and customers between phones comes in the next update. Until then each phone keeps its own data.'**
-  String get cloudSyncSoon;
+  /// **'Bills, items, stock and customers are shared with the shop\'s other phones whenever there is internet. Each phone keeps working without it.'**
+  String get cloudSyncHelp;
+
+  /// No description provided for @cloudSyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing…'**
+  String get cloudSyncing;
+
+  /// No description provided for @cloudSyncedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced at {time}'**
+  String cloudSyncedAt(String time);
+
+  /// No description provided for @cloudSyncNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet'**
+  String get cloudSyncNever;
+
+  /// No description provided for @cloudSyncPending.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Everything is in the cloud} =1{1 change waiting to go up} other{{count} changes waiting to go up}}'**
+  String cloudSyncPending(int count);
+
+  /// No description provided for @cloudSyncError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t sync (no internet?). It will try again.'**
+  String get cloudSyncError;
+
+  /// No description provided for @cloudSyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get cloudSyncNow;
+
+  /// No description provided for @setupJoinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Already using this app on another phone?'**
+  String get setupJoinTitle;
+
+  /// No description provided for @setupJoinBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with the shop\'s Google account to get its items, customers and bills here.'**
+  String get setupJoinBody;
+
+  /// No description provided for @setupJoinButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in and join'**
+  String get setupJoinButton;
 
   /// No description provided for @cloudSignOut.
   ///

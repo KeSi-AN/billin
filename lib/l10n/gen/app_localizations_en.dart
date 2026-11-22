@@ -2291,8 +2291,48 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get cloudSyncSoon =>
-      'Syncing bills, items and customers between phones comes in the next update. Until then each phone keeps its own data.';
+  String get cloudSyncHelp =>
+      'Bills, items, stock and customers are shared with the shop\'s other phones whenever there is internet. Each phone keeps working without it.';
+
+  @override
+  String get cloudSyncing => 'Syncing…';
+
+  @override
+  String cloudSyncedAt(String time) {
+    return 'Synced at $time';
+  }
+
+  @override
+  String get cloudSyncNever => 'Not synced yet';
+
+  @override
+  String cloudSyncPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes waiting to go up',
+      one: '1 change waiting to go up',
+      zero: 'Everything is in the cloud',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cloudSyncError =>
+      'Couldn\'t sync (no internet?). It will try again.';
+
+  @override
+  String get cloudSyncNow => 'Sync now';
+
+  @override
+  String get setupJoinTitle => 'Already using this app on another phone?';
+
+  @override
+  String get setupJoinBody =>
+      'Sign in with the shop\'s Google account to get its items, customers and bills here.';
+
+  @override
+  String get setupJoinButton => 'Sign in and join';
 
   @override
   String get cloudSignOut => 'Sign out';
