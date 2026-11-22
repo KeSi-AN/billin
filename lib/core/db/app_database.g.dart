@@ -8214,6 +8214,17 @@ class $PurchasesTable extends Purchases
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _photoPathMeta = const VerificationMeta(
+    'photoPath',
+  );
+  @override
+  late final GeneratedColumn<String> photoPath = GeneratedColumn<String>(
+    'photo_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
   late final GeneratedColumn<String> status = GeneratedColumn<String>(
@@ -8252,6 +8263,7 @@ class $PurchasesTable extends Purchases
     duePaise,
     paymentMode,
     note,
+    photoPath,
     status,
     cancelledAt,
   ];
@@ -8385,6 +8397,12 @@ class $PurchasesTable extends Purchases
         note.isAcceptableOrUnknown(data['note']!, _noteMeta),
       );
     }
+    if (data.containsKey('photo_path')) {
+      context.handle(
+        _photoPathMeta,
+        photoPath.isAcceptableOrUnknown(data['photo_path']!, _photoPathMeta),
+      );
+    }
     if (data.containsKey('status')) {
       context.handle(
         _statusMeta,
@@ -8469,6 +8487,10 @@ class $PurchasesTable extends Purchases
         DriftSqlType.string,
         data['${effectivePrefix}note'],
       ),
+      photoPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}photo_path'],
+      ),
       status: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}status'],
@@ -8509,6 +8531,10 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
   final int duePaise;
   final String paymentMode;
   final String? note;
+
+  /// Photo of the supplier's bill (a file on this phone). A purchase can be
+  /// just this photo, its date and the supplier, without item lines.
+  final String? photoPath;
   final String status;
   final DateTime? cancelledAt;
   const PurchaseRow({
@@ -8527,6 +8553,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
     required this.duePaise,
     required this.paymentMode,
     this.note,
+    this.photoPath,
     required this.status,
     this.cancelledAt,
   });
@@ -8560,6 +8587,9 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
     }
+    if (!nullToAbsent || photoPath != null) {
+      map['photo_path'] = Variable<String>(photoPath);
+    }
     map['status'] = Variable<String>(status);
     if (!nullToAbsent || cancelledAt != null) {
       map['cancelled_at'] = Variable<DateTime>(cancelledAt);
@@ -8592,6 +8622,9 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
       duePaise: Value(duePaise),
       paymentMode: Value(paymentMode),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      photoPath: photoPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(photoPath),
       status: Value(status),
       cancelledAt: cancelledAt == null && nullToAbsent
           ? const Value.absent()
@@ -8622,6 +8655,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
       duePaise: serializer.fromJson<int>(json['duePaise']),
       paymentMode: serializer.fromJson<String>(json['paymentMode']),
       note: serializer.fromJson<String?>(json['note']),
+      photoPath: serializer.fromJson<String?>(json['photoPath']),
       status: serializer.fromJson<String>(json['status']),
       cancelledAt: serializer.fromJson<DateTime?>(json['cancelledAt']),
     );
@@ -8645,6 +8679,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
       'duePaise': serializer.toJson<int>(duePaise),
       'paymentMode': serializer.toJson<String>(paymentMode),
       'note': serializer.toJson<String?>(note),
+      'photoPath': serializer.toJson<String?>(photoPath),
       'status': serializer.toJson<String>(status),
       'cancelledAt': serializer.toJson<DateTime?>(cancelledAt),
     };
@@ -8666,6 +8701,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
     int? duePaise,
     String? paymentMode,
     Value<String?> note = const Value.absent(),
+    Value<String?> photoPath = const Value.absent(),
     String? status,
     Value<DateTime?> cancelledAt = const Value.absent(),
   }) => PurchaseRow(
@@ -8688,6 +8724,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
     duePaise: duePaise ?? this.duePaise,
     paymentMode: paymentMode ?? this.paymentMode,
     note: note.present ? note.value : this.note,
+    photoPath: photoPath.present ? photoPath.value : this.photoPath,
     status: status ?? this.status,
     cancelledAt: cancelledAt.present ? cancelledAt.value : this.cancelledAt,
   );
@@ -8726,6 +8763,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
           ? data.paymentMode.value
           : this.paymentMode,
       note: data.note.present ? data.note.value : this.note,
+      photoPath: data.photoPath.present ? data.photoPath.value : this.photoPath,
       status: data.status.present ? data.status.value : this.status,
       cancelledAt: data.cancelledAt.present
           ? data.cancelledAt.value
@@ -8751,6 +8789,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
           ..write('duePaise: $duePaise, ')
           ..write('paymentMode: $paymentMode, ')
           ..write('note: $note, ')
+          ..write('photoPath: $photoPath, ')
           ..write('status: $status, ')
           ..write('cancelledAt: $cancelledAt')
           ..write(')'))
@@ -8774,6 +8813,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
     duePaise,
     paymentMode,
     note,
+    photoPath,
     status,
     cancelledAt,
   );
@@ -8796,6 +8836,7 @@ class PurchaseRow extends DataClass implements Insertable<PurchaseRow> {
           other.duePaise == this.duePaise &&
           other.paymentMode == this.paymentMode &&
           other.note == this.note &&
+          other.photoPath == this.photoPath &&
           other.status == this.status &&
           other.cancelledAt == this.cancelledAt);
 }
@@ -8816,6 +8857,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
   final Value<int> duePaise;
   final Value<String> paymentMode;
   final Value<String?> note;
+  final Value<String?> photoPath;
   final Value<String> status;
   final Value<DateTime?> cancelledAt;
   const PurchasesCompanion({
@@ -8834,6 +8876,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
     this.duePaise = const Value.absent(),
     this.paymentMode = const Value.absent(),
     this.note = const Value.absent(),
+    this.photoPath = const Value.absent(),
     this.status = const Value.absent(),
     this.cancelledAt = const Value.absent(),
   });
@@ -8853,6 +8896,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
     this.duePaise = const Value.absent(),
     required String paymentMode,
     this.note = const Value.absent(),
+    this.photoPath = const Value.absent(),
     this.status = const Value.absent(),
     this.cancelledAt = const Value.absent(),
   }) : purchasedAt = Value(purchasedAt),
@@ -8876,6 +8920,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
     Expression<int>? duePaise,
     Expression<String>? paymentMode,
     Expression<String>? note,
+    Expression<String>? photoPath,
     Expression<String>? status,
     Expression<DateTime>? cancelledAt,
   }) {
@@ -8895,6 +8940,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
       if (duePaise != null) 'due_paise': duePaise,
       if (paymentMode != null) 'payment_mode': paymentMode,
       if (note != null) 'note': note,
+      if (photoPath != null) 'photo_path': photoPath,
       if (status != null) 'status': status,
       if (cancelledAt != null) 'cancelled_at': cancelledAt,
     });
@@ -8916,6 +8962,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
     Value<int>? duePaise,
     Value<String>? paymentMode,
     Value<String?>? note,
+    Value<String?>? photoPath,
     Value<String>? status,
     Value<DateTime?>? cancelledAt,
   }) {
@@ -8935,6 +8982,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
       duePaise: duePaise ?? this.duePaise,
       paymentMode: paymentMode ?? this.paymentMode,
       note: note ?? this.note,
+      photoPath: photoPath ?? this.photoPath,
       status: status ?? this.status,
       cancelledAt: cancelledAt ?? this.cancelledAt,
     );
@@ -8988,6 +9036,9 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
+    if (photoPath.present) {
+      map['photo_path'] = Variable<String>(photoPath.value);
+    }
     if (status.present) {
       map['status'] = Variable<String>(status.value);
     }
@@ -9015,6 +9066,7 @@ class PurchasesCompanion extends UpdateCompanion<PurchaseRow> {
           ..write('duePaise: $duePaise, ')
           ..write('paymentMode: $paymentMode, ')
           ..write('note: $note, ')
+          ..write('photoPath: $photoPath, ')
           ..write('status: $status, ')
           ..write('cancelledAt: $cancelledAt')
           ..write(')'))
@@ -18916,6 +18968,7 @@ typedef $$PurchasesTableCreateCompanionBuilder = PurchasesCompanion Function({
   Value<int> duePaise,
   required String paymentMode,
   Value<String?> note,
+  Value<String?> photoPath,
   Value<String> status,
   Value<DateTime?> cancelledAt,
 });
@@ -18935,6 +18988,7 @@ typedef $$PurchasesTableUpdateCompanionBuilder = PurchasesCompanion Function({
   Value<int> duePaise,
   Value<String> paymentMode,
   Value<String?> note,
+  Value<String?> photoPath,
   Value<String> status,
   Value<DateTime?> cancelledAt,
 });
@@ -19055,6 +19109,11 @@ class $$PurchasesTableFilterComposer
 
   ColumnFilters<String> get note => $composableBuilder(
     column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get photoPath => $composableBuilder(
+    column: $table.photoPath,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -19196,6 +19255,11 @@ class $$PurchasesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get photoPath => $composableBuilder(
+    column: $table.photoPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get status => $composableBuilder(
     column: $table.status,
     builder: (column) => ColumnOrderings(column),
@@ -19299,6 +19363,9 @@ class $$PurchasesTableAnnotationComposer
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
 
+  GeneratedColumn<String> get photoPath =>
+      $composableBuilder(column: $table.photoPath, builder: (column) => column);
+
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
@@ -19399,6 +19466,7 @@ class $$PurchasesTableTableManager
                 Value<int> duePaise = const Value.absent(),
                 Value<String> paymentMode = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<String?> photoPath = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<DateTime?> cancelledAt = const Value.absent(),
               }) => PurchasesCompanion(
@@ -19417,6 +19485,7 @@ class $$PurchasesTableTableManager
                 duePaise: duePaise,
                 paymentMode: paymentMode,
                 note: note,
+                photoPath: photoPath,
                 status: status,
                 cancelledAt: cancelledAt,
               ),
@@ -19437,6 +19506,7 @@ class $$PurchasesTableTableManager
                 Value<int> duePaise = const Value.absent(),
                 required String paymentMode,
                 Value<String?> note = const Value.absent(),
+                Value<String?> photoPath = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<DateTime?> cancelledAt = const Value.absent(),
               }) => PurchasesCompanion.insert(
@@ -19455,6 +19525,7 @@ class $$PurchasesTableTableManager
                 duePaise: duePaise,
                 paymentMode: paymentMode,
                 note: note,
+                photoPath: photoPath,
                 status: status,
                 cancelledAt: cancelledAt,
               ),

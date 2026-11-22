@@ -373,6 +373,10 @@ class Purchases extends Table {
   IntColumn get duePaise => integer().withDefault(const Constant(0))();
   TextColumn get paymentMode => text()();
   TextColumn get note => text().nullable()();
+
+  /// Photo of the supplier's bill (a file on this phone). A purchase can be
+  /// just this photo, its date and the supplier, without item lines.
+  TextColumn get photoPath => text().nullable()();
   TextColumn get status => text().withDefault(const Constant('completed'))();
   DateTimeColumn get cancelledAt => dateTime().nullable()();
 }

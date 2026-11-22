@@ -47,7 +47,11 @@ const syncTables = <SyncTable>[
   SyncTable('parties', localOnly: {'balance_paise'}),
   SyncTable('bills', refs: {'party_id': 'parties'}),
   SyncTable('bill_lines', refs: {'bill_id': 'bills', 'item_id': 'items'}),
-  SyncTable('purchases', refs: {'party_id': 'parties'}),
+  SyncTable(
+    'purchases',
+    refs: {'party_id': 'parties'},
+    localOnly: {'photo_path'},
+  ),
   SyncTable(
     'purchase_lines',
     refs: {'purchase_id': 'purchases', 'item_id': 'items'},

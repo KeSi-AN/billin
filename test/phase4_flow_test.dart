@@ -59,6 +59,8 @@ void main() {
     expect(find.text('No purchases this month'), findsOneWidget);
     await tester.tap(find.byKey(const Key('addPurchaseButton')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('addTypedPurchase')));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key('pickSupplierTile')));
     await tester.pumpAndSettle();
@@ -146,6 +148,8 @@ void main() {
     await tester.tap(find.byKey(const Key('purchasesTile')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('addPurchaseButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('addTypedPurchase')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('purchaseAddItemButton')));
     await tester.pumpAndSettle();

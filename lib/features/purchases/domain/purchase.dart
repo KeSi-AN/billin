@@ -45,7 +45,24 @@ class PurchaseDraft {
     this.paymentMode = PaymentMode.cash,
     this.paidNow = Money.zero,
     this.note,
+    this.photoPath,
+    this.supplierName,
+    this.amount = Money.zero,
   });
+
+  /// A photo-only purchase ([photoPath] set) has no lines: just the photo
+  /// of the supplier's bill, its date, the supplier and maybe [amount].
+  const PurchaseDraft.photo({
+    required String this.photoPath,
+    required DateTime this.purchasedAt,
+    this.supplierName,
+    this.partyId,
+    this.amount = Money.zero,
+    this.note,
+  }) : lines = const [],
+       supplierInvoiceNo = null,
+       paymentMode = PaymentMode.cash,
+       paidNow = Money.zero;
 
   final List<PurchaseDraftLine> lines;
 
@@ -60,6 +77,15 @@ class PurchaseDraft {
   /// Credit purchases only: paid now; the rest is owed to the supplier.
   final Money paidNow;
   final String? note;
+
+  /// Photo of the supplier's bill (already copied into app storage).
+  final String? photoPath;
+
+  /// Typed supplier name, when no saved supplier ([partyId]) is chosen.
+  final String? supplierName;
+
+  /// Bill total for a photo-only purchase (lines give it otherwise).
+  final Money amount;
 }
 
 class PurchaseLine {
@@ -111,6 +137,7 @@ class Purchase {
     this.due = Money.zero,
     this.note,
     this.isCancelled = false,
+    this.photoPath,
   });
 
   final int id;
@@ -130,6 +157,9 @@ class Purchase {
   final PaymentMode paymentMode;
   final String? note;
   final bool isCancelled;
+
+  /// Photo of the supplier's bill, if one was saved.
+  final String? photoPath;
 }
 
 class SupplierRequiredException implements Exception {

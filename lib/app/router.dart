@@ -22,6 +22,7 @@ import 'package:shop_app/features/printing/presentation/bill_template_page.dart'
 import 'package:shop_app/features/printing/presentation/label_printer_page.dart';
 import 'package:shop_app/features/printing/presentation/labels_page.dart';
 import 'package:shop_app/features/printing/presentation/printer_settings_page.dart';
+import 'package:shop_app/features/purchases/presentation/photo_purchase_page.dart';
 import 'package:shop_app/features/purchases/presentation/purchase_form_page.dart';
 import 'package:shop_app/features/purchases/presentation/purchase_page.dart';
 import 'package:shop_app/features/purchases/presentation/purchases_page.dart';
@@ -67,6 +68,7 @@ abstract final class AppRoutes {
       newParty(PartyType.customer, name: name);
   static const purchases = '/purchases';
   static const newPurchase = '/purchases/new';
+  static const photoPurchase = '/purchases/photo';
   static String purchase(int id) => '/purchases/$id';
   static const expenses = '/expenses';
   static const reports = '/reports';
@@ -211,6 +213,10 @@ GoRouter buildRouter(ShopProfileCubit profile) => GoRouter(
     GoRoute(
       path: AppRoutes.newPurchase,
       builder: (context, state) => const PurchaseFormPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.photoPurchase,
+      builder: (context, state) => const PhotoPurchasePage(),
     ),
     GoRoute(
       path: '/purchases/:id',

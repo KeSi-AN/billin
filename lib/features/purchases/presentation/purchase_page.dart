@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/core/format/dates.dart';
@@ -91,6 +93,10 @@ class _PurchasePageState extends State<PurchasePage> {
                     ),
                     if (p.supplierGstin != null)
                       Text('GSTIN ${p.supplierGstin}'),
+                    if (p.photoPath != null) ...[
+                      const SizedBox(height: 12),
+                      _BillPhoto(path: p.photoPath!),
+                    ],
                     const Divider(height: 24),
                     for (final l in p.lines)
                       ListTile(
@@ -118,6 +124,46 @@ class _PurchasePageState extends State<PurchasePage> {
                 ),
         );
       },
+    );
+  }
+}
+
+/// The supplier bill's photo; tap to see it full screen and zoom in.
+class _BillPhoto extends StatelessWidget {
+  const _BillPhoto({required this.path});
+
+  final String path;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final file = File(path);
+    if (!file.existsSync()) {
+      // Saved on another phone of the shop: photos stay on the phone.
+      return ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.image_not_supported_outlined),
+        title: Text(l10n.purchasePhotoElsewhere),
+      );
+    }
+    return InkWell(
+      key: const Key('purchasePhoto'),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (context) => Scaffold(
+            appBar: AppBar(title: Text(l10n.purchaseFromPhoto)),
+            backgroundColor: Colors.black,
+            body: InteractiveViewer(
+              maxScale: 6,
+              child: Center(child: Image.file(file)),
+            ),
+          ),
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.file(file, height: 320, fit: BoxFit.contain),
+      ),
     );
   }
 }

@@ -2458,6 +2458,102 @@ abstract class AppLocalizations {
   /// **'Add purchase'**
   String get purchaseAdd;
 
+  /// No description provided for @purchaseAddTyped.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the items'**
+  String get purchaseAddTyped;
+
+  /// No description provided for @purchaseAddTypedHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock comes in item by item'**
+  String get purchaseAddTypedHelp;
+
+  /// No description provided for @purchaseAddPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of the supplier bill'**
+  String get purchaseAddPhoto;
+
+  /// No description provided for @purchaseAddPhotoHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Just the photo, date and supplier'**
+  String get purchaseAddPhotoHelp;
+
+  /// No description provided for @purchaseFromPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill photo'**
+  String get purchaseFromPhoto;
+
+  /// No description provided for @purchasePhotoElsewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'The bill photo is on the phone that saved this purchase.'**
+  String get purchasePhotoElsewhere;
+
+  /// No description provided for @photoPurchaseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase from a photo'**
+  String get photoPurchaseTitle;
+
+  /// No description provided for @photoPurchaseTakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to take a photo of the bill'**
+  String get photoPurchaseTakePhoto;
+
+  /// No description provided for @photoPurchaseRetake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take another photo'**
+  String get photoPurchaseRetake;
+
+  /// No description provided for @photoPurchaseSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier'**
+  String get photoPurchaseSupplier;
+
+  /// No description provided for @photoPurchaseSupplierRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is the supplier?'**
+  String get photoPurchaseSupplierRequired;
+
+  /// No description provided for @photoPurchaseDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of purchase'**
+  String get photoPurchaseDate;
+
+  /// No description provided for @photoPurchaseAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill amount'**
+  String get photoPurchaseAmount;
+
+  /// No description provided for @photoPurchaseAmountHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Counts in the month\'s purchases total.'**
+  String get photoPurchaseAmountHelp;
+
+  /// No description provided for @photoPurchaseNeedPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take or pick the photo of the bill first.'**
+  String get photoPurchaseNeedPhoto;
+
+  /// No description provided for @photoPurchaseSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase saved. A copy of the photo is in Downloads/ShopPurchases.'**
+  String get photoPurchaseSaved;
+
   /// No description provided for @fieldSupplierInvoice.
   ///
   /// In en, this message translates to:

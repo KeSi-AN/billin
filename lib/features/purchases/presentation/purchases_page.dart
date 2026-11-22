@@ -19,6 +19,37 @@ class PurchasesPage extends StatefulWidget {
 class _PurchasesPageState extends State<PurchasesPage> {
   DateTime _month = monthStart(DateTime.now());
 
+  /// Typed purchase (stock comes in) or just a photo of the bill.
+  Future<void> _add(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final route = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              key: const Key('addPhotoPurchase'),
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: Text(l10n.purchaseAddPhoto),
+              subtitle: Text(l10n.purchaseAddPhotoHelp),
+              onTap: () => Navigator.pop(context, AppRoutes.photoPurchase),
+            ),
+            ListTile(
+              key: const Key('addTypedPurchase'),
+              leading: const Icon(Icons.edit_note_outlined),
+              title: Text(l10n.purchaseAddTyped),
+              subtitle: Text(l10n.purchaseAddTypedHelp),
+              onTap: () => Navigator.pop(context, AppRoutes.newPurchase),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (route != null && context.mounted) await context.push(route);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -38,7 +69,7 @@ class _PurchasesPageState extends State<PurchasesPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('addPurchaseButton'),
-        onPressed: () => context.push(AppRoutes.newPurchase),
+        onPressed: () => _add(context),
         icon: const Icon(Icons.add),
         label: Text(l10n.purchaseAdd),
       ),
@@ -95,7 +126,10 @@ class _PurchasesPageState extends State<PurchasesPage> {
                           [
                             formatDate(p.purchasedAt),
                             ?p.supplierInvoiceNo,
-                            l10n.purchaseItems(p.lines.length),
+                            if (p.lines.isEmpty && p.photoPath != null)
+                              l10n.purchaseFromPhoto
+                            else
+                              l10n.purchaseItems(p.lines.length),
                             if (p.due.isPositive)
                               l10n.balanceYouOwe(p.due.format()),
                             if (p.isCancelled) l10n.purchaseCancelled,

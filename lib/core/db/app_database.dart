@@ -43,7 +43,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -191,6 +191,10 @@ class AppDatabase extends _$AppDatabase {
         ]) {
           await m.createIndex(index);
         }
+      },
+      // Build 0.6.1: a purchase can be a photo of the supplier's bill.
+      from8To9: (m, schema) async {
+        await m.addColumn(schema.purchases, schema.purchases.photoPath);
       },
     ),
     beforeOpen: (details) async {

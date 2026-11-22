@@ -24,7 +24,8 @@ class DriftPurchaseRepository implements PurchaseRepository {
 
   @override
   Future<Purchase> create(PurchaseDraft draft) async {
-    if (draft.lines.isEmpty) {
+    final photoOnly = draft.lines.isEmpty;
+    if (photoOnly && draft.photoPath == null) {
       throw ArgumentError.value(draft, 'draft', 'A purchase needs a line');
     }
     final credit = draft.paymentMode == PaymentMode.credit;
@@ -53,27 +54,33 @@ class DriftPurchaseRepository implements PurchaseRepository {
           supplier?.stateCode != null &&
           shop != null &&
           supplier!.stateCode != shop.stateCode;
-      final paid = draft.paidNow > totals.grandTotal
-          ? totals.grandTotal
-          : draft.paidNow;
-      final due = credit ? totals.grandTotal - paid : Money.zero;
+      // A photo-only purchase: the amount typed (GST unknown, so none is
+      // claimed as input credit).
+      final taxable = photoOnly ? draft.amount : totals.taxable;
+      final tax = photoOnly ? Money.zero : totals.tax;
+      final grandTotal = photoOnly ? draft.amount : totals.grandTotal;
+      final paid = draft.paidNow > grandTotal ? grandTotal : draft.paidNow;
+      final due = credit ? grandTotal - paid : Money.zero;
 
       final purchaseId = await _db
           .into(_db.purchases)
           .insert(
             PurchasesCompanion.insert(
               partyId: Value(draft.partyId),
-              supplierName: Value(supplier?.name),
+              supplierName: Value(
+                supplier?.name ?? _blankToNull(draft.supplierName),
+              ),
               supplierGstin: Value(supplier?.gstin),
               supplierInvoiceNo: Value(_blankToNull(draft.supplierInvoiceNo)),
               purchasedAt: draft.purchasedAt ?? _clock(),
               interState: Value(interState),
-              taxablePaise: totals.taxable.paise,
-              taxPaise: totals.tax.paise,
-              totalPaise: totals.grandTotal.paise,
+              taxablePaise: taxable.paise,
+              taxPaise: tax.paise,
+              totalPaise: grandTotal.paise,
               duePaise: Value(due.paise),
               paymentMode: draft.paymentMode.name,
               note: Value(_blankToNull(draft.note)),
+              photoPath: Value(draft.photoPath),
             ),
           );
 
@@ -256,6 +263,7 @@ class DriftPurchaseRepository implements PurchaseRepository {
         paymentMode: PaymentMode.values.byName(r.paymentMode),
         note: r.note,
         isCancelled: r.status == 'cancelled',
+        photoPath: r.photoPath,
         lines: [
           for (final l in lines)
             PurchaseLine(

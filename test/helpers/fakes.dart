@@ -729,13 +729,15 @@ class FakePurchases implements PurchaseRepository {
     final supplier = draft.partyId == null
         ? null
         : await parties.byId(draft.partyId!);
+    final photoOnly = draft.lines.isEmpty && draft.photoPath != null;
     final due = draft.paymentMode == PaymentMode.credit
         ? totals.grandTotal - draft.paidNow
         : Money.zero;
     final p = Purchase(
+      photoPath: draft.photoPath,
       id: _purchases.length + 1,
       partyId: draft.partyId,
-      supplierName: supplier?.name,
+      supplierName: supplier?.name ?? draft.supplierName,
       supplierGstin: supplier?.gstin,
       supplierInvoiceNo: (draft.supplierInvoiceNo?.trim().isEmpty ?? true)
           ? null
@@ -759,9 +761,9 @@ class FakePurchases implements PurchaseRepository {
             expiry: draft.lines[i].expiry,
           ),
       ],
-      taxable: totals.taxable,
-      tax: totals.tax,
-      total: totals.grandTotal,
+      taxable: photoOnly ? draft.amount : totals.taxable,
+      tax: photoOnly ? Money.zero : totals.tax,
+      total: photoOnly ? draft.amount : totals.grandTotal,
       due: due.isPositive ? due : Money.zero,
       paymentMode: draft.paymentMode,
     );

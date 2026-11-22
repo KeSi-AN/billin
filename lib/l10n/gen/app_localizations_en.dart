@@ -1422,6 +1422,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get purchaseAdd => 'Add purchase';
 
   @override
+  String get purchaseAddTyped => 'Type the items';
+
+  @override
+  String get purchaseAddTypedHelp => 'Stock comes in item by item';
+
+  @override
+  String get purchaseAddPhoto => 'Photo of the supplier bill';
+
+  @override
+  String get purchaseAddPhotoHelp => 'Just the photo, date and supplier';
+
+  @override
+  String get purchaseFromPhoto => 'Bill photo';
+
+  @override
+  String get purchasePhotoElsewhere =>
+      'The bill photo is on the phone that saved this purchase.';
+
+  @override
+  String get photoPurchaseTitle => 'Purchase from a photo';
+
+  @override
+  String get photoPurchaseTakePhoto => 'Tap to take a photo of the bill';
+
+  @override
+  String get photoPurchaseRetake => 'Take another photo';
+
+  @override
+  String get photoPurchaseSupplier => 'Supplier';
+
+  @override
+  String get photoPurchaseSupplierRequired => 'Who is the supplier?';
+
+  @override
+  String get photoPurchaseDate => 'Date of purchase';
+
+  @override
+  String get photoPurchaseAmount => 'Bill amount';
+
+  @override
+  String get photoPurchaseAmountHelp =>
+      'Optional. Counts in the month\'s purchases total.';
+
+  @override
+  String get photoPurchaseNeedPhoto =>
+      'Take or pick the photo of the bill first.';
+
+  @override
+  String get photoPurchaseSaved =>
+      'Purchase saved. A copy of the photo is in Downloads/ShopPurchases.';
+
+  @override
   String get fieldSupplierInvoice => 'Supplier bill no.';
 
   @override

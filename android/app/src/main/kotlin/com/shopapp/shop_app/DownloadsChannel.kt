@@ -12,7 +12,8 @@ import io.flutter.plugin.common.MethodChannel
 import java.io.File
 
 /**
- * Saves backup files to the phone's Downloads/ShopBackups folder, where they
+ * Saves backup files to the phone's Downloads/ShopBackups folder (and
+ * purchase bill photos to Downloads/ShopPurchases), where they
  * survive the app being uninstalled and can be found in the Files app.
  * Keeps the newest [KEEP]; older backups this app saved there are removed.
  * Android 10+ only (older phones would need a storage permission).
@@ -43,18 +44,38 @@ class DownloadsChannel(
                     result.error("DOWNLOADS", e.message, null)
                 }
             }
+            "savePhoto" -> {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                    result.success(false)
+                    return
+                }
+                try {
+                    saveTo(
+                        File(call.argument<String>("path")!!),
+                        call.argument<String>("name")!!,
+                        "${Environment.DIRECTORY_DOWNLOADS}/ShopPurchases/",
+                        if (call.argument<String>("name")!!.endsWith(".png")) "image/png" else "image/jpeg",
+                    )
+                    result.success(true)
+                } catch (e: Exception) {
+                    result.error("DOWNLOADS", e.message, null)
+                }
+            }
             else -> result.notImplemented()
         }
     }
 
     private val folder = "${Environment.DIRECTORY_DOWNLOADS}/ShopBackups/"
 
-    private fun save(file: File) {
+    private fun save(file: File) = saveTo(file, file.name, folder, "application/zip")
+
+    /** Copies [file] into [relativePath] of Downloads as [name]. */
+    private fun saveTo(file: File, name: String, relativePath: String, mime: String) {
         val resolver = context.contentResolver
         val values = ContentValues().apply {
-            put(MediaStore.Downloads.DISPLAY_NAME, file.name)
-            put(MediaStore.Downloads.MIME_TYPE, "application/zip")
-            put(MediaStore.Downloads.RELATIVE_PATH, folder)
+            put(MediaStore.Downloads.DISPLAY_NAME, name)
+            put(MediaStore.Downloads.MIME_TYPE, mime)
+            put(MediaStore.Downloads.RELATIVE_PATH, relativePath)
             put(MediaStore.Downloads.IS_PENDING, 1)
         }
         val collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
