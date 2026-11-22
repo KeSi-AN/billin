@@ -1840,6 +1840,60 @@ abstract class AppLocalizations {
   /// **'Choose items and how many labels of each.'**
   String get labelsHint;
 
+  /// No description provided for @logoLabels.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo labels'**
+  String get logoLabels;
+
+  /// No description provided for @logoLabelsShopLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'Your shop logo, for the front of price tags'**
+  String get logoLabelsShopLogo;
+
+  /// No description provided for @logoLabelsOwnPicture.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own picture, for the front of price tags'**
+  String get logoLabelsOwnPicture;
+
+  /// No description provided for @logoLabelsChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change picture'**
+  String get logoLabelsChange;
+
+  /// No description provided for @logoLabelsUseShopLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'Use shop logo'**
+  String get logoLabelsUseShopLogo;
+
+  /// No description provided for @logoLabelsNoPicture.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a shop logo (Settings → Bill template) or pick a picture first.'**
+  String get logoLabelsNoPicture;
+
+  /// No description provided for @logoLabelsNotImage.
+  ///
+  /// In en, this message translates to:
+  /// **'That file isn\'t a picture the app can read.'**
+  String get logoLabelsNotImage;
+
+  /// No description provided for @logoLabelsNeedPrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the label printer first.'**
+  String get logoLabelsNeedPrinter;
+
+  /// No description provided for @logoLabelsPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Print} =1{Print 1} other{Print {count}}}'**
+  String logoLabelsPrint(int count);
+
   /// No description provided for @labelsPrint.
   ///
   /// In en, this message translates to:

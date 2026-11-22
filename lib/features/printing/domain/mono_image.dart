@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:image/image.dart' as img;
@@ -101,6 +102,56 @@ class MonoImage {
       }
     }
     return MonoImage(widthBytes: widthBytes, height: height, bits: bits);
+  }
+
+  /// A whole label ([widthDots] x [heightDots]) showing a picture: a
+  /// picture made for exactly this label size is printed dot for dot;
+  /// anything else is fitted inside a [marginDots] border and centred.
+  /// Black where darker than [threshold] (no dithering: logos stay crisp).
+  /// Returns `null` if the file isn't an image.
+  static MonoImage? labelFromEncoded(
+    Uint8List encoded, {
+    required int widthDots,
+    required int heightDots,
+    int marginDots = 12,
+    int threshold = 128,
+  }) {
+    final raw = img.decodeImage(encoded);
+    if (raw == null || raw.width < 1 || raw.height < 1) return null;
+    // 8-bit RGBA whatever the file was (1-bit, palette, grey, 16-bit...), so
+    // brightness and transparency read the same way for every picture.
+    final decoded = raw.convert(format: img.Format.uint8, numChannels: 4);
+    final widthBytes = (widthDots + 7) ~/ 8;
+    final bits = Uint8List(widthBytes * heightDots);
+    var picture = decoded;
+    var left = 0;
+    var top = 0;
+    if (decoded.width != widthDots || decoded.height != heightDots) {
+      final boxW = widthDots - 2 * marginDots;
+      final boxH = heightDots - 2 * marginDots;
+      final scale = math.min(boxW / decoded.width, boxH / decoded.height);
+      final w = math.max(1, (decoded.width * scale).round());
+      final h = math.max(1, (decoded.height * scale).round());
+      picture = img.copyResize(
+        decoded,
+        width: w,
+        height: h,
+        interpolation: img.Interpolation.average,
+      );
+      left = (widthDots - w) ~/ 2;
+      top = (heightDots - h) ~/ 2;
+    }
+    for (final p in picture) {
+      final x = left + p.x;
+      final y = top + p.y;
+      if (x < 0 || y < 0 || x >= widthDots || y >= heightDots) continue;
+      final a = p.a / 255;
+      final l = 0.299 * p.r + 0.587 * p.g + 0.114 * p.b;
+      if (l * a + 255 * (1 - a) < threshold) {
+        bits[y * widthBytes + (x >> 3)] |= 0x80 >> (x & 7);
+      }
+    }
+    return MonoImage(widthBytes: widthBytes, height: heightDots, bits: bits);
   }
 
   final int widthBytes;

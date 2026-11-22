@@ -1,4 +1,8 @@
-import 'dart:typed_data';
+import 'dart:async';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -11,10 +15,20 @@ import 'package:shop_app/features/printing/data/printer_service.dart';
 import 'package:shop_app/features/printing/domain/ean.dart';
 import 'package:shop_app/features/printing/domain/label_encoder.dart';
 import 'package:shop_app/features/printing/domain/label_formatter.dart';
+import 'package:shop_app/features/printing/domain/mono_image.dart';
 import 'package:shop_app/features/printing/presentation/print_error_text.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
 import 'package:shop_app/features/shop_profile/domain/shop_profile_repository.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
+
+/// The logo label picture, made off the UI thread (top-level: only the
+/// argument crosses to the background isolate).
+MonoImage? _logoLabel(({Uint8List bytes, int width, int height}) a) =>
+    MonoImage.labelFromEncoded(
+      a.bytes,
+      widthDots: a.width,
+      heightDots: a.height,
+    );
 
 /// Pick items and copies, then print barcode labels on the receipt printer.
 class LabelsPage extends StatefulWidget {
@@ -31,6 +45,187 @@ class _LabelsPageState extends State<LabelsPage> {
   bool _showPrice = true;
   bool _showShop = true;
   bool _printing = false;
+
+  /// Logo labels (price-tag fronts): how many, and the picture used.
+  int _logoCopies = 0;
+  String? _ownLogo;
+  String? _shopLogo;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_loadLogo());
+  }
+
+  Future<void> _loadLogo() async {
+    final settings = await context.read<SettingsRepository>().load();
+    if (!mounted) return;
+    final shop = await context.read<ShopProfileRepository>().load();
+    if (!mounted) return;
+    setState(() {
+      _ownLogo = settings.labelSetup.logoPath;
+      _shopLogo = shop?.logoPath;
+    });
+  }
+
+  Future<void> _saveOwnLogo(String? path) async {
+    final repo = context.read<SettingsRepository>();
+    final settings = await repo.load();
+    final setup = path == null
+        ? settings.labelSetup.copyWith(clearLogo: true)
+        : settings.labelSetup.copyWith(logoPath: path);
+    await repo.save(settings.copyWith(labelSetup: setup));
+    if (mounted) setState(() => _ownLogo = path);
+  }
+
+  Future<void> _changeLogo() async {
+    final shops = context.read<ShopProfileRepository>();
+    final files = await FilePicker.pickFiles(type: FileType.image);
+    if (files.isEmpty) return;
+    final stored = await shops.importLogo(files.single.xFile.path);
+    await _saveOwnLogo(stored);
+  }
+
+  Future<void> _printLogo() async {
+    final l10n = AppLocalizations.of(context);
+    final router = GoRouter.of(context);
+    final printer = context.read<PrinterService>();
+    final setup = (await context.read<SettingsRepository>().load()).labelSetup;
+    if (!mounted) return;
+    if (setup.address == null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            persist: false,
+            content: Text(l10n.logoLabelsNeedPrinter),
+            action: SnackBarAction(
+              label: l10n.setUpPrinter,
+              onPressed: () => router.push(AppRoutes.labelPrinter),
+            ),
+          ),
+        );
+      return;
+    }
+    final path = _ownLogo ?? _shopLogo;
+    if (path == null || !File(path).existsSync()) {
+      showSnack(context, l10n.logoLabelsNoPicture);
+      return;
+    }
+    setState(() => _printing = true);
+    try {
+      final bytes = await File(path).readAsBytes();
+      final image = await compute(_logoLabel, (
+        bytes: bytes,
+        width: setup.widthDots,
+        height: setup.heightDots,
+      ));
+      if (!mounted) return;
+      if (image == null) {
+        showSnack(context, l10n.logoLabelsNotImage);
+        return;
+      }
+      await printer.printParts(
+        encodeLabelJob([(image: image, copies: _logoCopies)], setup),
+        address: setup.address,
+      );
+      if (mounted) showSnack(context, l10n.printed);
+    } on PrintException catch (e) {
+      if (mounted) showSnack(context, printErrorText(l10n, e));
+    } finally {
+      if (mounted) setState(() => _printing = false);
+    }
+  }
+
+  Widget _logoCard(AppLocalizations l10n) {
+    final picture = _ownLogo ?? _shopLogo;
+    return Card(
+      key: const Key('logoLabelsCard'),
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 8, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                if (picture != null && File(picture).existsSync())
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Image.file(
+                      File(picture),
+                      width: 56,
+                      height: 40,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.logoLabels,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(
+                        _ownLogo != null
+                            ? l10n.logoLabelsOwnPicture
+                            : l10n.logoLabelsShopLogo,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Wrap(
+              children: [
+                TextButton(
+                  key: const Key('logoLabelsChange'),
+                  style: TextButton.styleFrom(minimumSize: const Size(0, 40)),
+                  onPressed: _changeLogo,
+                  child: Text(l10n.logoLabelsChange),
+                ),
+                if (_ownLogo != null)
+                  TextButton(
+                    style: TextButton.styleFrom(minimumSize: const Size(0, 40)),
+                    onPressed: () => _saveOwnLogo(null),
+                    child: Text(l10n.logoLabelsUseShopLogo),
+                  ),
+              ],
+            ),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.remove_circle_outline),
+                  onPressed: _logoCopies == 0
+                      ? null
+                      : () => setState(() => _logoCopies--),
+                ),
+                SizedBox(
+                  width: 28,
+                  child: Text('$_logoCopies', textAlign: TextAlign.center),
+                ),
+                IconButton(
+                  key: const Key('logoLabelsPlus'),
+                  icon: const Icon(Icons.add_circle_outline),
+                  onPressed: () => setState(() => _logoCopies++),
+                ),
+                const Spacer(),
+                FilledButton.tonalIcon(
+                  key: const Key('logoLabelsPrint'),
+                  style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
+                  onPressed: _logoCopies == 0 || _printing ? null : _printLogo,
+                  icon: const Icon(Icons.print_outlined),
+                  label: Text(l10n.logoLabelsPrint(_logoCopies)),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   int get _total => _copies.values.fold(0, (a, b) => a + b);
 
@@ -139,6 +334,7 @@ class _LabelsPageState extends State<LabelsPage> {
       ),
       body: Column(
         children: [
+          _logoCard(l10n),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: TextField(

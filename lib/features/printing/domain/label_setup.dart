@@ -32,6 +32,7 @@ class LabelSetup {
     this.showPrice = true,
     this.showMrp = true,
     this.note = '',
+    this.logoPath,
   });
 
   factory LabelSetup.fromJson(String? json) {
@@ -55,6 +56,7 @@ class LabelSetup {
         showPrice: b('showPrice', d.showPrice),
         showMrp: b('showMrp', d.showMrp),
         note: m['note'] is String ? m['note']! as String : d.note,
+        logoPath: m['logoPath'] is String ? m['logoPath']! as String : null,
       );
     } on Object {
       return const LabelSetup();
@@ -83,6 +85,9 @@ class LabelSetup {
   /// The shop's fixed lines printed on every label (care, returns…).
   final String note;
 
+  /// Picture for logo labels (price-tag fronts); `null`: the shop logo.
+  final String? logoPath;
+
   /// Print head resolution: 203 dpi = 8 dots per mm.
   static const dotsPerMm = 8;
 
@@ -101,6 +106,7 @@ class LabelSetup {
     'showPrice': showPrice,
     'showMrp': showMrp,
     'note': note,
+    'logoPath': logoPath,
   });
 
   LabelSetup copyWith({
@@ -115,6 +121,8 @@ class LabelSetup {
     bool? showPrice,
     bool? showMrp,
     String? note,
+    String? logoPath,
+    bool clearLogo = false,
   }) => LabelSetup(
     address: address ?? this.address,
     name: name ?? this.name,
@@ -127,6 +135,7 @@ class LabelSetup {
     showPrice: showPrice ?? this.showPrice,
     showMrp: showMrp ?? this.showMrp,
     note: note ?? this.note,
+    logoPath: clearLogo ? null : (logoPath ?? this.logoPath),
   );
 
   @override

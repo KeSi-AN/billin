@@ -1034,6 +1034,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labelsHint => 'Choose items and how many labels of each.';
 
   @override
+  String get logoLabels => 'Logo labels';
+
+  @override
+  String get logoLabelsShopLogo =>
+      'Your shop logo, for the front of price tags';
+
+  @override
+  String get logoLabelsOwnPicture =>
+      'Your own picture, for the front of price tags';
+
+  @override
+  String get logoLabelsChange => 'Change picture';
+
+  @override
+  String get logoLabelsUseShopLogo => 'Use shop logo';
+
+  @override
+  String get logoLabelsNoPicture =>
+      'Add a shop logo (Settings → Bill template) or pick a picture first.';
+
+  @override
+  String get logoLabelsNotImage =>
+      'That file isn\'t a picture the app can read.';
+
+  @override
+  String get logoLabelsNeedPrinter => 'Choose the label printer first.';
+
+  @override
+  String logoLabelsPrint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Print $count',
+      one: 'Print 1',
+      zero: 'Print',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String labelsPrint(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

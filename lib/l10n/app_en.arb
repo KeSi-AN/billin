@@ -686,6 +686,22 @@
   "exportFailed": "Couldn't create the file. Please try again.",
   "labelsTitle": "Print labels",
   "labelsHint": "Choose items and how many labels of each.",
+  "logoLabels": "Logo labels",
+  "logoLabelsShopLogo": "Your shop logo, for the front of price tags",
+  "logoLabelsOwnPicture": "Your own picture, for the front of price tags",
+  "logoLabelsChange": "Change picture",
+  "logoLabelsUseShopLogo": "Use shop logo",
+  "logoLabelsNoPicture": "Add a shop logo (Settings → Bill template) or pick a picture first.",
+  "logoLabelsNotImage": "That file isn't a picture the app can read.",
+  "logoLabelsNeedPrinter": "Choose the label printer first.",
+  "logoLabelsPrint": "{count, plural, =0{Print} =1{Print 1} other{Print {count}}}",
+  "@logoLabelsPrint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "labelsPrint": "{count, plural, =0{Print labels} =1{Print 1 label} other{Print {count} labels}}",
   "@labelsPrint": {
     "placeholders": {
