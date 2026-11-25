@@ -6,6 +6,7 @@ import 'package:shop_app/core/money/quantity.dart';
 import 'package:shop_app/features/billing/domain/bill.dart';
 import 'package:shop_app/features/billing/domain/bill_calculator.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
+import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 
 import 'helpers/fakes.dart';
@@ -127,10 +128,16 @@ void main() {
     // 5% of 3574 = 178.70; round-off brings the total to a whole rupee.
     expect(find.text('= ₹178.70 off'), findsOneWidget);
 
-    await tester.ensureVisible(find.byKey(const Key('walkInNameField')));
-    await tester.enterText(find.byKey(const Key('walkInNameField')), 'Asha');
+    // A new customer: the name in the one box, then the mobile.
+    await tester.ensureVisible(find.byKey(const Key('customerSearchField')));
     await tester.enterText(
-      find.byKey(const Key('walkInPhoneField')),
+      find.byKey(const Key('customerSearchField')),
+      'Asha',
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('New customer: saved with this bill.'), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const Key('newCustomerOtherField')),
       '98765 43210',
     );
     await tester.ensureVisible(find.byKey(const Key('saveBillButton')));
@@ -142,6 +149,12 @@ void main() {
     expect(bill.lines.first.discount, const Money.rupees(311));
     expect(bill.customerName, 'Asha');
     expect(bill.customerPhone, '9876543210');
+    // Saved as a customer, so next time typing either finds her.
+    final asha = (await h.parties.watchAll().first).single;
+    expect((asha.name, asha.phone), ('Asha', '9876543210'));
+    expect(bill.partyId, asha.id);
+    // Right after saving: one tap sends it on WhatsApp.
+    expect(find.text('Send bill to Asha on WhatsApp'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('whatsappBillButton')));
     await tester.pumpAndSettle();
@@ -156,12 +169,76 @@ void main() {
     await scan(tester, 'A029');
     await tester.tap(find.byKey(const Key('checkoutButton')));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.byKey(const Key('walkInPhoneField')));
-    await tester.enterText(find.byKey(const Key('walkInPhoneField')), '12345');
+    await tester.ensureVisible(find.byKey(const Key('customerSearchField')));
+    await tester.enterText(
+      find.byKey(const Key('customerSearchField')),
+      'Asha',
+    );
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('newCustomerOtherField')),
+      '12345',
+    );
     await tester.ensureVisible(find.byKey(const Key('saveBillButton')));
     await tester.tap(find.byKey(const Key('saveBillButton')));
     await tester.pumpAndSettle();
     expect(h.bills.all, isEmpty);
     expect(find.text('Enter a valid 10-digit mobile number'), findsOneWidget);
+  });
+
+  testWidgets('typing part of a number finds the customer to pick', (
+    tester,
+  ) async {
+    final h = await harness();
+    final ravi = await h.parties.save(
+      const Party(name: 'Ravi Kumar', phone: '9123456780'),
+    );
+    await h.pump(tester);
+    await tester.tap(find.byKey(const Key('newBillButton')));
+    await tester.pumpAndSettle();
+    await scan(tester, 'A029');
+    await tester.tap(find.byKey(const Key('checkoutButton')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('customerSearchField')));
+    await tester.enterText(
+      find.byKey(const Key('customerSearchField')),
+      '45678',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('customerMatch-${ravi.id}')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('chosenCustomerTile')), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('saveBillButton')));
+    await tester.tap(find.byKey(const Key('saveBillButton')));
+    await tester.pumpAndSettle();
+    final bill = h.bills.all.single;
+    expect(bill.partyId, ravi.id);
+    expect(bill.customerPhone, '9123456780');
+    expect(await h.parties.watchAll().first, hasLength(1));
+  });
+
+  testWidgets('just a number makes a new customer named by it', (tester) async {
+    final h = await harness();
+    await h.pump(tester);
+    await tester.tap(find.byKey(const Key('newBillButton')));
+    await tester.pumpAndSettle();
+    await scan(tester, 'A029');
+    await tester.tap(find.byKey(const Key('checkoutButton')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('customerSearchField')));
+    await tester.enterText(
+      find.byKey(const Key('customerSearchField')),
+      '98858 19674',
+    );
+    await tester.pumpAndSettle();
+    // A number was typed, so the second box asks for the name.
+    expect(find.text('Name (optional)'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('saveBillButton')));
+    await tester.tap(find.byKey(const Key('saveBillButton')));
+    await tester.pumpAndSettle();
+    final bill = h.bills.all.single;
+    expect(bill.customerPhone, '9885819674');
+    final party = (await h.parties.watchAll().first).single;
+    expect(party.phone, '9885819674');
   });
 }

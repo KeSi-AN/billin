@@ -643,6 +643,43 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get checkoutCustomerSearch => 'Customer name or mobile';
+
+  @override
+  String get checkoutNewCustomer => 'New customer: saved with this bill.';
+
+  @override
+  String get checkoutOrNewCustomer =>
+      'Tap a customer above, or carry on to add a new one.';
+
+  @override
+  String get checkoutNewCustomerName => 'Name (optional)';
+
+  @override
+  String billSendWhatsApp(String name) {
+    return 'Send bill to $name on WhatsApp';
+  }
+
+  @override
+  String whatsappMessage(String shop, String invoice, String amount) {
+    return 'Thank you for shopping at $shop! Bill $invoice · Total $amount';
+  }
+
+  @override
+  String whatsappMessageNamed(
+    String name,
+    String shop,
+    String invoice,
+    String amount,
+  ) {
+    return 'Hi $name, thank you for shopping at $shop! Bill $invoice · Total $amount';
+  }
+
+  @override
+  String get whatsappFirstTime =>
+      'First bill to this number: send the message in WhatsApp, then come back here and the bill picture opens in the same chat.';
+
+  @override
   String get shareFailed => 'Couldn\'t create the PDF. Please try again.';
 
   @override

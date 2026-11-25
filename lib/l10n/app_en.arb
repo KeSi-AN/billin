@@ -336,6 +336,34 @@
   "printerTurnOnBluetooth": "Open Bluetooth settings",
   "sharePreparing": "Preparing PDF…",
   "shareText": "Invoice {invoice} from {shop}: {amount}",
+  "checkoutCustomerSearch": "Customer name or mobile",
+  "checkoutNewCustomer": "New customer: saved with this bill.",
+  "checkoutOrNewCustomer": "Tap a customer above, or carry on to add a new one.",
+  "checkoutNewCustomerName": "Name (optional)",
+  "billSendWhatsApp": "Send bill to {name} on WhatsApp",
+  "@billSendWhatsApp": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "whatsappMessage": "Thank you for shopping at {shop}! Bill {invoice} · Total {amount}",
+  "@whatsappMessage": {
+    "placeholders": {
+      "shop": {"type": "String"},
+      "invoice": {"type": "String"},
+      "amount": {"type": "String"}
+    }
+  },
+  "whatsappMessageNamed": "Hi {name}, thank you for shopping at {shop}! Bill {invoice} · Total {amount}",
+  "@whatsappMessageNamed": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "shop": {"type": "String"},
+      "invoice": {"type": "String"},
+      "amount": {"type": "String"}
+    }
+  },
+  "whatsappFirstTime": "First bill to this number: send the message in WhatsApp, then come back here and the bill picture opens in the same chat.",
   "@shareText": {
     "placeholders": {
       "invoice": {

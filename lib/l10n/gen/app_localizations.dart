@@ -1216,6 +1216,59 @@ abstract class AppLocalizations {
   /// **'Invoice {invoice} from {shop}: {amount}'**
   String shareText(String invoice, String shop, String amount);
 
+  /// No description provided for @checkoutCustomerSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer name or mobile'**
+  String get checkoutCustomerSearch;
+
+  /// No description provided for @checkoutNewCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'New customer: saved with this bill.'**
+  String get checkoutNewCustomer;
+
+  /// No description provided for @checkoutOrNewCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a customer above, or carry on to add a new one.'**
+  String get checkoutOrNewCustomer;
+
+  /// No description provided for @checkoutNewCustomerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get checkoutNewCustomerName;
+
+  /// No description provided for @billSendWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send bill to {name} on WhatsApp'**
+  String billSendWhatsApp(String name);
+
+  /// No description provided for @whatsappMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for shopping at {shop}! Bill {invoice} · Total {amount}'**
+  String whatsappMessage(String shop, String invoice, String amount);
+
+  /// No description provided for @whatsappMessageNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi {name}, thank you for shopping at {shop}! Bill {invoice} · Total {amount}'**
+  String whatsappMessageNamed(
+    String name,
+    String shop,
+    String invoice,
+    String amount,
+  );
+
+  /// No description provided for @whatsappFirstTime.
+  ///
+  /// In en, this message translates to:
+  /// **'First bill to this number: send the message in WhatsApp, then come back here and the bill picture opens in the same chat.'**
+  String get whatsappFirstTime;
+
   /// No description provided for @shareFailed.
   ///
   /// In en, this message translates to:

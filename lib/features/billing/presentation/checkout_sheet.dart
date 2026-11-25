@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shop_app/core/keyboard/keyboard_hint.dart';
@@ -40,8 +42,14 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
   final _discount = TextEditingController();
   final _cashReceived = TextEditingController();
   final _paidNow = TextEditingController();
-  final _walkInName = TextEditingController();
-  final _walkInPhone = TextEditingController();
+
+  /// What was typed in the customer box: a name or a mobile number.
+  final _customerSearch = TextEditingController();
+
+  /// The other detail of a new customer (mobile if a name was typed,
+  /// name if a number was typed).
+  final _newCustomerOther = TextEditingController();
+  List<Party> _matches = const [];
   bool _discountPercent = false;
   PaymentMode _mode = PaymentMode.cash;
   Party? _customer;
@@ -54,8 +62,8 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
       _discount,
       _cashReceived,
       _paidNow,
-      _walkInName,
-      _walkInPhone,
+      _customerSearch,
+      _newCustomerOther,
     ]) {
       c.dispose();
     }
@@ -86,10 +94,7 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
   Future<void> _pickCustomer() async {
     final party = await showCustomerPicker(context);
     if (party != null && mounted) {
-      setState(() {
-        _customer = party;
-        _customerMissing = false;
-      });
+      _choose(party);
     }
   }
 
@@ -103,27 +108,87 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
     return Money.paise(divRound(_itemsTotal.paise * bp, 10000));
   }
 
-  /// A walk-in customer's mobile, as 10 digits (for the WhatsApp bill).
-  String? get _walkInMobile {
-    final digits = _walkInPhone.text.replaceAll(RegExp(r'\D'), '');
+  void _choose(Party party) => setState(() {
+    _customer = party;
+    _customerMissing = false;
+    _customerSearch.clear();
+    _newCustomerOther.clear();
+    _matches = const [];
+  });
+
+  /// A number was typed in the customer box (not a name).
+  bool get _typedNumber =>
+      RegExp(r'^[+\d\s-]+$').hasMatch(_customerSearch.text.trim());
+
+  /// 10 digits from [raw], or `null` when nothing was typed.
+  static String? _mobile(String raw) {
+    final digits = raw.replaceAll(RegExp(r'\D'), '');
     if (digits.isEmpty) return null;
     return digits.length > 10 ? digits.substring(digits.length - 10) : digits;
   }
 
+  /// The new customer's mobile and name, from the two boxes.
+  ({String? name, String? phone}) get _newCustomer {
+    final typed = _customerSearch.text.trim();
+    final other = _newCustomerOther.text.trim();
+    return _typedNumber
+        ? (name: other.isEmpty ? null : other, phone: _mobile(typed))
+        : (name: typed.isEmpty ? null : typed, phone: _mobile(other));
+  }
+
+  Future<void> _search(String text) async {
+    final q = text.trim();
+    if (q.isEmpty) {
+      setState(() => _matches = const []);
+      return;
+    }
+    final found = await context
+        .read<PartyRepository>()
+        .watchAll(filter: PartyFilter(query: q))
+        .first;
+    if (mounted && _customerSearch.text.trim() == q) {
+      setState(() => _matches = found.take(4).toList());
+    }
+  }
+
+  /// The customer for the bill: the one chosen, or a new one made from
+  /// what was typed (one already saved with that mobile is used instead).
+  Future<Party?> _customerForBill() async {
+    if (_customer != null) return _customer;
+    final n = _newCustomer;
+    if (n.name == null && n.phone == null) return null;
+    final parties = context.read<PartyRepository>();
+    try {
+      return await parties.save(
+        Party(name: n.name ?? n.phone!, phone: n.phone),
+      );
+    } on DuplicatePhoneException {
+      final same = await parties
+          .watchAll(filter: PartyFilter(query: n.phone!))
+          .first;
+      return same.where((p) => p.phone == n.phone).firstOrNull;
+    }
+  }
+
   Future<void> _save() async {
     final valid = _formKey.currentState?.validate() ?? false;
-    final needsCustomer = _mode == PaymentMode.credit && _customer == null;
+    final typed = _newCustomer;
+    final needsCustomer =
+        _mode == PaymentMode.credit &&
+        _customer == null &&
+        typed.name == null &&
+        typed.phone == null;
     setState(() => _customerMissing = needsCustomer);
     if (!valid || needsCustomer) return;
     setState(() => _saving = true);
     final l10n = AppLocalizations.of(context);
     try {
-      final bill = await context.read<BillingCubit>().save(
+      final billing = context.read<BillingCubit>();
+      final customer = await _customerForBill();
+      final bill = await billing.save(
         paymentMode: _mode,
         billDiscount: _billDiscount,
-        customer: _customer,
-        customerName: _customer == null ? _walkInName.text : null,
-        customerPhone: _customer == null ? _walkInMobile : null,
+        customer: customer,
         paidNow: _mode == PaymentMode.credit
             ? (Money.tryParse(_paidNow.text) ?? Money.zero)
             : Money.zero,
@@ -224,63 +289,100 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
                   : l10n.checkoutCustomer,
               style: text.titleSmall,
             ),
-            ListTile(
-              key: const Key('pickCustomerTile'),
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.person_outline),
-              title: Text(_customer?.name ?? l10n.checkoutPickCustomer),
-              subtitle: _customerMissing
-                  ? Text(
-                      l10n.checkoutCustomerNeeded,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    )
-                  : _customerDetails(l10n),
-              trailing: _customer == null
-                  ? const Icon(Icons.chevron_right)
-                  : IconButton(
-                      tooltip: l10n.cancel,
-                      icon: const Icon(Icons.close),
-                      onPressed: () => setState(() => _customer = null),
-                    ),
-              onTap: _pickCustomer,
-            ),
-            if (_customer == null && _mode != PaymentMode.credit) ...[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      key: const Key('walkInNameField'),
-                      controller: _walkInName,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: InputDecoration(
-                        labelText: l10n.fieldCustomerName,
-                      ),
-                    ),
+            const SizedBox(height: 8),
+            if (_customer case final c?)
+              ListTile(
+                key: const Key('chosenCustomerTile'),
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.person),
+                title: Text(c.name),
+                subtitle: _customerDetails(l10n),
+                trailing: IconButton(
+                  key: const Key('clearCustomerButton'),
+                  tooltip: l10n.cancel,
+                  icon: const Icon(Icons.close),
+                  onPressed: () => setState(() => _customer = null),
+                ),
+              )
+            else ...[
+              TextFormField(
+                key: const Key('customerSearchField'),
+                controller: _customerSearch,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  labelText: l10n.checkoutCustomerSearch,
+                  prefixIcon: const Icon(Icons.person_search_outlined),
+                  suffixIcon: IconButton(
+                    key: const Key('pickCustomerTile'),
+                    tooltip: l10n.checkoutPickCustomer,
+                    icon: const Icon(Icons.contacts_outlined),
+                    onPressed: _pickCustomer,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextFormField(
-                      key: const Key('walkInPhoneField'),
-                      controller: _walkInPhone,
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        labelText: l10n.fieldCustomerPhone,
-                        prefixText: '+91 ',
-                        helperText: l10n.checkoutPhoneForWhatsApp,
-                      ),
-                      validator: (_) {
-                        final m = _walkInMobile;
-                        return m == null || RegExp(r'^[6-9]\d{9}$').hasMatch(m)
-                            ? null
-                            : l10n.errPhoneInvalid;
-                      },
-                    ),
-                  ),
-                ],
+                  errorText: _customerMissing
+                      ? l10n.checkoutCustomerNeeded
+                      : null,
+                ),
+                onChanged: (v) {
+                  setState(() => _customerMissing = false);
+                  unawaited(_search(v));
+                },
+                validator: (_) {
+                  final phone = _newCustomer.phone;
+                  return _typedNumber &&
+                          phone != null &&
+                          !RegExp(r'^[6-9]\d{9}$').hasMatch(phone)
+                      ? l10n.errPhoneInvalid
+                      : null;
+                },
               ),
+              for (final m in _matches)
+                ListTile(
+                  key: Key('customerMatch-${m.id}'),
+                  dense: true,
+                  contentPadding: const EdgeInsets.only(left: 12),
+                  leading: const Icon(Icons.person_outline),
+                  title: Text(m.name),
+                  subtitle: m.phone == null ? null : Text('+91 ${m.phone}'),
+                  onTap: () => _choose(m),
+                ),
+              if (_customerSearch.text.trim().isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, bottom: 8),
+                  child: Text(
+                    _matches.isEmpty
+                        ? l10n.checkoutNewCustomer
+                        : l10n.checkoutOrNewCustomer,
+                    style: text.bodySmall,
+                  ),
+                ),
+                TextFormField(
+                  key: const Key('newCustomerOtherField'),
+                  controller: _newCustomerOther,
+                  keyboardType: _typedNumber
+                      ? TextInputType.name
+                      : TextInputType.phone,
+                  textCapitalization: _typedNumber
+                      ? TextCapitalization.words
+                      : TextCapitalization.none,
+                  decoration: InputDecoration(
+                    labelText: _typedNumber
+                        ? l10n.checkoutNewCustomerName
+                        : l10n.fieldCustomerPhone,
+                    prefixText: _typedNumber ? null : '+91 ',
+                    helperText: _typedNumber
+                        ? null
+                        : l10n.checkoutPhoneForWhatsApp,
+                  ),
+                  validator: (_) {
+                    if (_typedNumber) return null;
+                    final phone = _newCustomer.phone;
+                    return phone == null ||
+                            RegExp(r'^[6-9]\d{9}$').hasMatch(phone)
+                        ? null
+                        : l10n.errPhoneInvalid;
+                  },
+                ),
+              ],
             ],
             const SizedBox(height: 16),
             FilledButton(

@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.core.content.FileProvider
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -11,10 +12,13 @@ import io.flutter.plugin.common.MethodChannel
 import java.io.File
 
 /**
- * Opens WhatsApp with a bill PDF attached, straight to the customer's chat
- * when we have their number (the widely used "jid" extra), otherwise to
- * WhatsApp's own chat picker. WhatsApp Business is preferred when both are
- * installed, since that's the shop's number.
+ * Opens WhatsApp with a bill (picture or PDF) attached, straight to the
+ * customer's chat when we have their number (the widely used "jid" extra),
+ * otherwise to WhatsApp's own chat picker. WhatsApp only honours "jid" for
+ * numbers it already knows (a saved contact or an existing chat), so for a
+ * new number the app first opens the chat with a click-to-chat link
+ * ([openChat]), which works for any number. WhatsApp Business is preferred
+ * when both are installed, since that's the shop's number.
  */
 class WhatsAppChannel(
     private val context: Context,
@@ -40,6 +44,24 @@ class WhatsAppChannel(
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "available" -> result.success(whatsApp != null)
+            "openChat" -> {
+                val pkg = whatsApp ?: return result.error("NO_WHATSAPP", "WhatsApp is not installed", null)
+                val phone = call.argument<String>("phone")!!
+                val text = call.argument<String>("text") ?: ""
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://api.whatsapp.com/send?phone=91$phone&text=${Uri.encode(text)}"),
+                ).apply {
+                    setPackage(pkg)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                try {
+                    context.startActivity(intent)
+                    result.success(null)
+                } catch (e: ActivityNotFoundException) {
+                    result.error("NO_WHATSAPP", e.message, null)
+                }
+            }
             "sendFile" -> {
                 val pkg = whatsApp ?: return result.error("NO_WHATSAPP", "WhatsApp is not installed", null)
                 val file = File(call.argument<String>("path")!!)
@@ -51,7 +73,7 @@ class WhatsAppChannel(
                     file,
                 )
                 val intent = Intent(Intent.ACTION_SEND).apply {
-                    type = "application/pdf"
+                    type = if (file.name.endsWith(".png")) "image/png" else "application/pdf"
                     setPackage(pkg)
                     putExtra(Intent.EXTRA_STREAM, uri)
                     if (text != null) putExtra(Intent.EXTRA_TEXT, text)

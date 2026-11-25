@@ -84,6 +84,7 @@ Future<AppServices> createServices() async {
       settings: settings,
       shopProfiles: shopProfiles,
       tempDir: getTemporaryDirectory,
+      storageDir: getApplicationSupportDirectory,
     ),
   );
 }

@@ -190,6 +190,26 @@ class _BillBody extends StatelessWidget {
                 l10n.billSaved,
                 style: TextStyle(color: scheme.onPrimaryContainer),
               ),
+              // With the customer's mobile, sending the bill is one tap.
+              subtitle: bill.customerPhone == null
+                  ? null
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: FilledButton.icon(
+                        key: const Key('savedWhatsAppButton'),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 44),
+                        ),
+                        onPressed: () =>
+                            context.read<BillActions>().whatsapp(context, bill),
+                        icon: const Icon(Icons.chat_outlined),
+                        label: Text(
+                          l10n.billSendWhatsApp(
+                            bill.customerName ?? '+91 ${bill.customerPhone}',
+                          ),
+                        ),
+                      ),
+                    ),
             ),
           ),
         if (bill.isCancelled)
