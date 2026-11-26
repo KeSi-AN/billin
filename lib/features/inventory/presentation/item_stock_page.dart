@@ -5,6 +5,7 @@ import 'package:shop_app/core/format/dates.dart';
 import 'package:shop_app/features/inventory/domain/inventory.dart';
 import 'package:shop_app/features/inventory/presentation/stock_sheets.dart';
 import 'package:shop_app/features/items/domain/item.dart';
+import 'package:shop_app/features/items/presentation/size_picker.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
 /// One item's stock: current level, batches, and every change.
@@ -81,7 +82,14 @@ class _Body extends StatelessWidget {
                           minimumSize: const Size(0, 48),
                         ),
                         onPressed: () async {
-                          if (await showAddStockSheet(context, item) &&
+                          final (sized, size) = await _whichSize(context, item);
+                          if (sized && size == null) return;
+                          if (!context.mounted) return;
+                          if (await showAddStockSheet(
+                                context,
+                                item,
+                                size: size,
+                              ) &&
                               context.mounted) {
                             stockSaved(context);
                           }
@@ -99,7 +107,17 @@ class _Body extends StatelessWidget {
                             minimumSize: const Size(0, 48),
                           ),
                           onPressed: () async {
-                            if (await showAdjustStockSheet(context, item) &&
+                            final (sized, size) = await _whichSize(
+                              context,
+                              item,
+                            );
+                            if (sized && size == null) return;
+                            if (!context.mounted) return;
+                            if (await showAdjustStockSheet(
+                                  context,
+                                  item,
+                                  size: size,
+                                ) &&
                                 context.mounted) {
                               stockSaved(context);
                             }
@@ -114,6 +132,67 @@ class _Body extends StatelessWidget {
               ],
             ),
           ),
+        ),
+        StreamBuilder<List<ItemSize>>(
+          stream: context.read<ItemRepository>().watchSizes(item.id!),
+          builder: (context, snapshot) {
+            final sizes = snapshot.data ?? const <ItemSize>[];
+            if (sizes.isEmpty) return const SizedBox.shrink();
+            return Column(
+              key: const Key('sizeStockList'),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 16),
+                Text(l10n.sizesTitle, style: text.titleMedium),
+                for (final s in sizes)
+                  ListTile(
+                    key: Key('sizeStock-${s.size}'),
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(s.size),
+                    subtitle: s.barcode == null ? null : Text(s.barcode!),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${s.stock.format()} ${item.unit}',
+                          style: text.titleMedium?.copyWith(
+                            color: s.stock.isPositive ? null : scheme.error,
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: l10n.stockAdd,
+                          icon: const Icon(Icons.add_circle_outline),
+                          onPressed: () async {
+                            if (await showAddStockSheet(
+                                  context,
+                                  item,
+                                  size: s,
+                                ) &&
+                                context.mounted) {
+                              stockSaved(context);
+                            }
+                          },
+                        ),
+                        IconButton(
+                          tooltip: l10n.stockAdjust,
+                          icon: const Icon(Icons.tune),
+                          onPressed: () async {
+                            if (await showAdjustStockSheet(
+                                  context,
+                                  item,
+                                  size: s,
+                                ) &&
+                                context.mounted) {
+                              stockSaved(context);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            );
+          },
         ),
         if (item.tracksBatches) ...[
           const SizedBox(height: 16),
@@ -209,4 +288,12 @@ class _MovementTile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// For a sized item, which size: `(true, size)`, or `(true, null)` when
+/// the picker was closed. `(false, null)` for a free-size item.
+Future<(bool, ItemSize?)> _whichSize(BuildContext context, Item item) async {
+  final sizes = await context.read<ItemRepository>().sizesOf(item.id!);
+  if (sizes.isEmpty || !context.mounted) return (false, null);
+  return (true, await showSizePicker(context, item, sizes));
 }

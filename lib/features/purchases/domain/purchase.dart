@@ -16,9 +16,15 @@ class PurchaseDraftLine {
     this.costIncludesTax = false,
     this.batchNo,
     this.expiry,
+    this.sizeId,
+    this.size,
   });
 
   final int? itemId;
+
+  /// The size bought, for a sized item ([name] already shows it).
+  final int? sizeId;
+  final String? size;
   final String name;
   final String unit;
   final String? hsn;
@@ -103,9 +109,13 @@ class PurchaseLine {
     this.hsn,
     this.batchNo,
     this.expiry,
+    this.sizeId,
+    this.size,
   });
 
   final int? itemId;
+  final int? sizeId;
+  final String? size;
   final String name;
   final String unit;
   final String? hsn;

@@ -10,6 +10,8 @@ import 'package:shop_app/features/inventory/data/drift_inventory_repository.dart
 import 'package:shop_app/features/items/data/drift_item_repository.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/printing/domain/ean.dart';
+import 'package:shop_app/features/purchases/data/drift_purchase_repository.dart';
+import 'package:shop_app/features/purchases/domain/purchase.dart';
 
 void main() {
   setUpAll(() => driftRuntimeOptions.dontWarnAboutMultipleDatabases = true);
@@ -181,4 +183,32 @@ void main() {
     expect(Ean.inStoreSize(7, series: 'B'), startsWith('252'));
     expect(Ean.isValid(Ean.inStoreSize(7, series: 'B')), isTrue);
   });
+
+  test(
+    'buying a size brings stock into that size; cancelling undoes it',
+    () async {
+      final (item, sizes) = await kurti();
+      final purchases = DriftPurchaseRepository(db);
+      final p = await purchases.create(
+        PurchaseDraft(
+          lines: [
+            PurchaseDraftLine(
+              itemId: item.id,
+              sizeId: sizes['XL']!.id,
+              size: 'XL',
+              name: 'Kurti set (XL)',
+              quantity: const Quantity.whole(4),
+              unitCost: const Money.rupees(900),
+            ),
+          ],
+        ),
+      );
+      expect(p.lines.single.sizeId, sizes['XL']!.id);
+      expect((await stockBySize(item.id!))['XL'], const Quantity.whole(4));
+      expect((await items.byId(item.id!))!.stock, const Quantity.whole(9));
+      await purchases.cancel(p.id);
+      expect((await stockBySize(item.id!))['XL'], Quantity.zero);
+      expect((await items.byId(item.id!))!.stock, const Quantity.whole(5));
+    },
+  );
 }

@@ -40,7 +40,14 @@ class LabelsPage extends StatefulWidget {
 }
 
 class _LabelsPageState extends State<LabelsPage> {
-  final _copies = <int, int>{};
+  /// Labels wanted, by `i<itemId>` (free size) or `s<sizeId>` (one size),
+  /// and what goes on each label (a size's label shows the size in the
+  /// name, with the size's barcode and price).
+  final _copies = <String, int>{};
+  final _labelItems = <String, Item>{};
+
+  /// Sizes per item, loaded as rows appear.
+  final _sizes = <int, Future<List<ItemSize>>>{};
   final _items = <int, Item>{};
   String _query = '';
   bool _showPrice = true;
@@ -232,15 +239,44 @@ class _LabelsPageState extends State<LabelsPage> {
 
   /// Changes copies by [delta], reading the current count at tap time so
   /// quick repeated taps all count.
-  void _change(Item item, int delta) => setState(() {
-    _items[item.id!] = item;
-    final copies = (_copies[item.id] ?? 0) + delta;
+  void _change(String key, Item label, int delta) => setState(() {
+    _labelItems[key] = label;
+    final copies = (_copies[key] ?? 0) + delta;
     if (copies <= 0) {
-      _copies.remove(item.id);
+      _copies.remove(key);
     } else {
-      _copies[item.id!] = copies;
+      _copies[key] = copies;
     }
   });
+
+  /// The label for one size: the size in the name, its barcode and price.
+  static Item _sizeLabel(Item item, ItemSize s) => item.copyWith(
+    name: '${item.name} (${s.size})',
+    barcode: s.barcode,
+    salePrice: s.priceOf(item),
+  );
+
+  Widget _counter(String key, Item label, {required Key plusKey}) {
+    final copies = _copies[key] ?? 0;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.remove_circle_outline),
+          onPressed: copies == 0 ? null : () => _change(key, label, -1),
+        ),
+        SizedBox(
+          width: 28,
+          child: Text('$copies', textAlign: TextAlign.center),
+        ),
+        IconButton(
+          key: plusKey,
+          icon: const Icon(Icons.add_circle_outline),
+          onPressed: () => _change(key, label, 1),
+        ),
+      ],
+    );
+  }
 
   Future<void> _createBarcode(Item item) async {
     final l10n = AppLocalizations.of(context);
@@ -263,7 +299,8 @@ class _LabelsPageState extends State<LabelsPage> {
     final shop = await context.read<ShopProfileRepository>().load();
     if (!mounted) return;
     final requests = [
-      for (final e in _copies.entries) (item: _items[e.key]!, copies: e.value),
+      for (final e in _copies.entries)
+        (item: _labelItems[e.key]!, copies: e.value),
     ];
     final setup = settings.labelSetup.copyWith(
       showPrice: _showPrice,
@@ -383,42 +420,65 @@ class _LabelsPageState extends State<LabelsPage> {
                   separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, i) {
                     final item = _items[items[i].id] ?? items[i];
-                    final copies = _copies[item.id] ?? 0;
-                    return ListTile(
-                      title: Text(item.name),
-                      subtitle: item.barcode == null
-                          ? Align(
-                              alignment: Alignment.centerLeft,
-                              child: TextButton.icon(
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                ),
-                                onPressed: () => _createBarcode(item),
-                                icon: const Icon(Icons.add, size: 18),
-                                label: Text(l10n.labelsCreateBarcode),
+                    return FutureBuilder<List<ItemSize>>(
+                      future: _sizes[item.id!] ??= context
+                          .read<ItemRepository>()
+                          .sizesOf(item.id!),
+                      builder: (context, snap) {
+                        final sizes = snap.data ?? const <ItemSize>[];
+                        if (sizes.isEmpty) {
+                          return ListTile(
+                            title: Text(item.name),
+                            subtitle: item.barcode == null
+                                ? Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: TextButton.icon(
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets.zero,
+                                      ),
+                                      onPressed: () => _createBarcode(item),
+                                      icon: const Icon(Icons.add, size: 18),
+                                      label: Text(l10n.labelsCreateBarcode),
+                                    ),
+                                  )
+                                : Text(item.barcode!),
+                            trailing: _counter(
+                              'i${item.id}',
+                              item,
+                              plusKey: Key('labelPlus-${item.id}'),
+                            ),
+                          );
+                        }
+                        // One label per size, with the size's barcode.
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ListTile(
+                              title: Text(item.name),
+                              subtitle: Text(
+                                [for (final s in sizes) s.size].join(' · '),
                               ),
-                            )
-                          : Text(item.barcode!),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.remove_circle_outline),
-                            onPressed: copies == 0
-                                ? null
-                                : () => _change(item, -1),
-                          ),
-                          SizedBox(
-                            width: 28,
-                            child: Text('$copies', textAlign: TextAlign.center),
-                          ),
-                          IconButton(
-                            key: Key('labelPlus-${item.id}'),
-                            icon: const Icon(Icons.add_circle_outline),
-                            onPressed: () => _change(item, 1),
-                          ),
-                        ],
-                      ),
+                            ),
+                            for (final s in sizes)
+                              ListTile(
+                                dense: true,
+                                contentPadding: const EdgeInsets.only(
+                                  left: 32,
+                                  right: 16,
+                                ),
+                                title: Text('${l10n.sizeField} ${s.size}'),
+                                subtitle: Text(s.barcode ?? ''),
+                                trailing: _counter(
+                                  's${s.id}',
+                                  _sizeLabel(item, s),
+                                  plusKey: Key(
+                                    'labelPlus-${item.id}-${s.size}',
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
                     );
                   },
                 );

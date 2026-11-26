@@ -7,15 +7,20 @@ import 'package:shop_app/features/inventory/domain/inventory.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
-/// Receive stock. Returns `true` when saved.
-Future<bool> showAddStockSheet(BuildContext context, Item item) async =>
+/// Receive stock (into one [size] of a sized item). Returns `true` when
+/// saved.
+Future<bool> showAddStockSheet(
+  BuildContext context,
+  Item item, {
+  ItemSize? size,
+}) async =>
     await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (_) => RepositoryProvider.value(
         value: context.read<InventoryRepository>(),
-        child: _StockSheet(item: item, adjust: false),
+        child: _StockSheet(item: item, adjust: false, size: size),
       ),
     ) ??
     false;
@@ -25,6 +30,7 @@ Future<bool> showAdjustStockSheet(
   BuildContext context,
   Item item, {
   StockBatch? batch,
+  ItemSize? size,
 }) async =>
     await showModalBottomSheet<bool>(
       context: context,
@@ -32,17 +38,23 @@ Future<bool> showAdjustStockSheet(
       showDragHandle: true,
       builder: (_) => RepositoryProvider.value(
         value: context.read<InventoryRepository>(),
-        child: _StockSheet(item: item, adjust: true, batch: batch),
+        child: _StockSheet(item: item, adjust: true, batch: batch, size: size),
       ),
     ) ??
     false;
 
 class _StockSheet extends StatefulWidget {
-  const _StockSheet({required this.item, required this.adjust, this.batch});
+  const _StockSheet({
+    required this.item,
+    required this.adjust,
+    this.batch,
+    this.size,
+  });
 
   final Item item;
   final bool adjust;
   final StockBatch? batch;
+  final ItemSize? size;
 
   @override
   State<_StockSheet> createState() => _StockSheetState();
@@ -52,7 +64,8 @@ class _StockSheetState extends State<_StockSheet> {
   final _formKey = GlobalKey<FormState>();
   late final _qty = TextEditingController(
     text: widget.adjust
-        ? (widget.batch?.quantity ?? widget.item.stock).format()
+        ? (widget.size?.stock ?? widget.batch?.quantity ?? widget.item.stock)
+              .format()
         : '',
   );
   final _batchNo = TextEditingController();
@@ -91,6 +104,7 @@ class _StockSheetState extends State<_StockSheet> {
         widget.item.id!,
         qty,
         batchId: widget.batch?.id,
+        sizeId: widget.size?.id,
         note: _note.text,
       );
     } else {
@@ -100,6 +114,7 @@ class _StockSheetState extends State<_StockSheet> {
         batchNo: _batchNo.text,
         expiry: _expiry,
         note: _note.text,
+        sizeId: widget.size?.id,
       );
     }
     if (mounted) Navigator.pop(context, true);
@@ -109,11 +124,14 @@ class _StockSheetState extends State<_StockSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final unit = widget.item.unit;
-    final title = widget.adjust
+    final base = widget.adjust
         ? (widget.batch == null
               ? l10n.stockAdjustTitle
               : '${l10n.stockAdjustTitle} · ${widget.batch!.batchNo}')
         : l10n.stockAddTitle;
+    final title = widget.size == null
+        ? base
+        : '$base · ${l10n.sizeField} ${widget.size!.size}';
     return Padding(
       padding: EdgeInsets.fromLTRB(
         16,

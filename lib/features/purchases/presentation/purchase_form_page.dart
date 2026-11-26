@@ -13,6 +13,7 @@ import 'package:shop_app/features/customers/domain/party.dart';
 import 'package:shop_app/features/customers/presentation/customer_picker.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/items/presentation/item_picker.dart';
+import 'package:shop_app/features/items/presentation/size_picker.dart';
 import 'package:shop_app/features/purchases/domain/purchase.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
@@ -86,7 +87,15 @@ class _PurchaseFormPageState extends State<PurchaseFormPage> {
   Future<void> _addItem() async {
     final item = await showItemPicker(context);
     if (item == null || !mounted) return;
-    final line = await showPurchaseLineSheet(context, item);
+    // A sized item: stock comes in to one size.
+    final sizes = await context.read<ItemRepository>().sizesOf(item.id!);
+    if (!mounted) return;
+    ItemSize? size;
+    if (sizes.isNotEmpty) {
+      size = await showSizePicker(context, item, sizes, showStock: false);
+      if (size == null || !mounted) return;
+    }
+    final line = await showPurchaseLineSheet(context, item, size: size);
     if (line != null) setState(() => _lines.add(line));
   }
 
@@ -251,18 +260,20 @@ class _PurchaseFormPageState extends State<PurchaseFormPage> {
 /// Quantity, cost, GST and (for batch items) batch/expiry of one line.
 Future<PurchaseDraftLine?> showPurchaseLineSheet(
   BuildContext context,
-  Item item,
-) => showModalBottomSheet<PurchaseDraftLine>(
+  Item item, {
+  ItemSize? size,
+}) => showModalBottomSheet<PurchaseDraftLine>(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,
-  builder: (_) => _LineSheet(item: item),
+  builder: (_) => _LineSheet(item: item, size: size),
 );
 
 class _LineSheet extends StatefulWidget {
-  const _LineSheet({required this.item});
+  const _LineSheet({required this.item, this.size});
 
   final Item item;
+  final ItemSize? size;
 
   @override
   State<_LineSheet> createState() => _LineSheetState();
@@ -305,7 +316,11 @@ class _LineSheetState extends State<_LineSheet> {
       context,
       PurchaseDraftLine(
         itemId: item.id,
-        name: item.name,
+        sizeId: widget.size?.id,
+        size: widget.size?.size,
+        name: widget.size == null
+            ? item.name
+            : '${item.name} (${widget.size!.size})',
         unit: item.unit,
         hsn: item.hsn,
         quantity: Quantity.tryParse(_qty.text)!,

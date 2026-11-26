@@ -94,6 +94,8 @@ class DriftPurchaseRepository implements PurchaseRepository {
                 purchaseId: purchaseId,
                 position: i,
                 itemId: Value(line.itemId),
+                sizeId: Value(line.sizeId),
+                size: Value(line.size),
                 name: line.name.trim(),
                 unit: line.unit,
                 hsn: Value(line.hsn),
@@ -159,6 +161,7 @@ class DriftPurchaseRepository implements PurchaseRepository {
       quantityMilli: line.quantity.milli,
       type: MovementType.purchase,
       batchId: batchId,
+      sizeId: line.sizeId,
       note: 'Purchase #$purchaseId',
     );
   }
@@ -229,6 +232,7 @@ class DriftPurchaseRepository implements PurchaseRepository {
         quantityMilli: -line.quantity.milli,
         type: MovementType.cancel,
         batchId: batchId,
+        sizeId: line.sizeId,
         note: 'Purchase #$id cancelled',
       );
     }
@@ -268,6 +272,8 @@ class DriftPurchaseRepository implements PurchaseRepository {
           for (final l in lines)
             PurchaseLine(
               itemId: l.itemId,
+              sizeId: l.sizeId,
+              size: l.size,
               name: l.name,
               unit: l.unit,
               hsn: l.hsn,
