@@ -37,13 +37,14 @@ part 'app_database.g.dart';
     CreditNoteCounters,
     SyncOutbox,
     SyncState,
+    ItemSizes,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -195,6 +196,29 @@ class AppDatabase extends _$AppDatabase {
       // Build 0.6.1: a purchase can be a photo of the supplier's bill.
       from8To9: (m, schema) async {
         await m.addColumn(schema.purchases, schema.purchases.photoPath);
+      },
+      // Build 0.7: sizes with their own stock, and the details the shop's
+      // website shows (colours, fabric, care, description, listed or not).
+      // Existing items are untouched: no sizes means "free size".
+      from9To10: (m, schema) async {
+        final items = schema.items;
+        for (final c in [
+          items.colours,
+          items.fabric,
+          items.care,
+          items.description,
+          items.showOnWebsite,
+        ]) {
+          await m.addColumn(items, c);
+        }
+        await m.createTable(schema.itemSizes);
+        await m.createIndex(schema.itemSizesUid);
+        await m.createIndex(schema.itemSizesItem);
+        await m.addColumn(schema.stockMovements, schema.stockMovements.sizeId);
+        await m.addColumn(schema.billLines, schema.billLines.sizeId);
+        await m.addColumn(schema.billLines, schema.billLines.size);
+        await m.addColumn(schema.purchaseLines, schema.purchaseLines.sizeId);
+        await m.addColumn(schema.purchaseLines, schema.purchaseLines.size);
       },
     ),
     beforeOpen: (details) async {

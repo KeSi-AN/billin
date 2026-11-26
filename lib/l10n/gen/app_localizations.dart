@@ -1216,6 +1216,150 @@ abstract class AppLocalizations {
   /// **'Invoice {invoice} from {shop}: {amount}'**
   String shareText(String invoice, String shop, String amount);
 
+  /// No description provided for @sizePickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{item}: which size?'**
+  String sizePickerTitle(String item);
+
+  /// No description provided for @sizeInStock.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} left'**
+  String sizeInStock(String count);
+
+  /// No description provided for @sizeSoldOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold out'**
+  String get sizeSoldOut;
+
+  /// No description provided for @sizesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sizes'**
+  String get sizesTitle;
+
+  /// No description provided for @sizesNoneHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'No sizes: sold as free size. Add sizes to keep stock for each one.'**
+  String get sizesNoneHelp;
+
+  /// No description provided for @sizesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Each size keeps its own stock and gets its own barcode label.'**
+  String get sizesHelp;
+
+  /// No description provided for @sizeField.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get sizeField;
+
+  /// No description provided for @sizeDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Twice'**
+  String get sizeDuplicate;
+
+  /// No description provided for @sizePriceField.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get sizePriceField;
+
+  /// No description provided for @sizePriceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty: the item\'s price'**
+  String get sizePriceHelp;
+
+  /// No description provided for @sizeStockField.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock'**
+  String get sizeStockField;
+
+  /// No description provided for @sizeStockNow.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} {unit}'**
+  String sizeStockNow(String count, String unit);
+
+  /// No description provided for @sizeRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove size'**
+  String get sizeRemove;
+
+  /// No description provided for @sizeAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add size'**
+  String get sizeAdd;
+
+  /// No description provided for @coloursTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Colours'**
+  String get coloursTitle;
+
+  /// No description provided for @colourOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Another colour'**
+  String get colourOther;
+
+  /// No description provided for @colourAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add colour'**
+  String get colourAdd;
+
+  /// No description provided for @websiteShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on website'**
+  String get websiteShow;
+
+  /// No description provided for @websiteShowHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'List this item on the shop\'s website, with the details below.'**
+  String get websiteShowHelp;
+
+  /// No description provided for @fieldDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get fieldDescription;
+
+  /// No description provided for @fieldFabric.
+  ///
+  /// In en, this message translates to:
+  /// **'Fabric'**
+  String get fieldFabric;
+
+  /// No description provided for @fieldFabricHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Georgette'**
+  String get fieldFabricHint;
+
+  /// No description provided for @fieldCare.
+  ///
+  /// In en, this message translates to:
+  /// **'Care'**
+  String get fieldCare;
+
+  /// No description provided for @fieldCareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Dry wash only'**
+  String get fieldCareHint;
+
   /// No description provided for @checkoutCustomerSearch.
   ///
   /// In en, this message translates to:

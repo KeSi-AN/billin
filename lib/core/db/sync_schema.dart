@@ -40,13 +40,21 @@ const syncTables = <SyncTable>[
     localOnly: {'stock_milli', 'image_path'},
   ),
   SyncTable(
+    'item_sizes',
+    refs: {'item_id': 'items'},
+    localOnly: {'stock_milli'},
+  ),
+  SyncTable(
     'item_batches',
     refs: {'item_id': 'items'},
     localOnly: {'quantity_milli'},
   ),
   SyncTable('parties', localOnly: {'balance_paise'}),
   SyncTable('bills', refs: {'party_id': 'parties'}),
-  SyncTable('bill_lines', refs: {'bill_id': 'bills', 'item_id': 'items'}),
+  SyncTable(
+    'bill_lines',
+    refs: {'bill_id': 'bills', 'item_id': 'items', 'size_id': 'item_sizes'},
+  ),
   SyncTable(
     'purchases',
     refs: {'party_id': 'parties'},
@@ -54,7 +62,11 @@ const syncTables = <SyncTable>[
   ),
   SyncTable(
     'purchase_lines',
-    refs: {'purchase_id': 'purchases', 'item_id': 'items'},
+    refs: {
+      'purchase_id': 'purchases',
+      'item_id': 'items',
+      'size_id': 'item_sizes',
+    },
   ),
   SyncTable('expenses'),
   SyncTable('credit_notes', refs: {'bill_id': 'bills'}),
@@ -64,7 +76,12 @@ const syncTables = <SyncTable>[
   ),
   SyncTable(
     'stock_movements',
-    refs: {'item_id': 'items', 'batch_id': 'item_batches', 'bill_id': 'bills'},
+    refs: {
+      'item_id': 'items',
+      'batch_id': 'item_batches',
+      'size_id': 'item_sizes',
+      'bill_id': 'bills',
+    },
     localOnly: {'balance_after_milli'},
     ledger: true,
   ),
@@ -126,8 +143,17 @@ Future<void> installSyncTriggers(DatabaseConnectionUser db) async {
   await db.customStatement('UPDATE sync_state SET applying = 0 WHERE id = 1');
   const notApplying =
       'coalesce((SELECT applying FROM sync_state WHERE id = 1), 0) = 0';
+  final tables = {
+    for (final r
+        in await db
+            .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
+            .get())
+      r.read<String>('name'),
+  };
   for (final t in syncTables) {
     final n = t.name;
+    // A table added in a later version than this database is at yet.
+    if (!tables.contains(n)) continue;
     for (final trigger in ['sync_uid_$n', 'sync_add_$n', 'sync_change_$n']) {
       await db.customStatement('DROP TRIGGER IF EXISTS $trigger');
     }
@@ -160,7 +186,14 @@ Future<void> installSyncTriggers(DatabaseConnectionUser db) async {
 /// Gives existing rows a uid and queues everything for sending: run once
 /// when the sync tables are added, so a phone's data so far goes up too.
 Future<void> backfillSync(DatabaseConnectionUser db) async {
-  for (final t in syncTables) {
+  final tables = {
+    for (final r
+        in await db
+            .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
+            .get())
+      r.read<String>('name'),
+  };
+  for (final t in syncTables.where((t) => tables.contains(t.name))) {
     if (!t.single) {
       await db.customStatement(
         'UPDATE ${t.name} SET uid = lower(hex(randomblob(16))) '

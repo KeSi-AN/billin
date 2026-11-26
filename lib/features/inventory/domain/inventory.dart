@@ -106,6 +106,7 @@ abstract interface class InventoryRepository {
     DateTime? expiry,
     String? note,
     bool opening = false,
+    int? sizeId,
   });
 
   /// Sets stock to a counted figure (damage, theft, recount). For batch
@@ -114,6 +115,7 @@ abstract interface class InventoryRepository {
     int itemId,
     Quantity actual, {
     int? batchId,
+    int? sizeId,
     String? note,
   });
 

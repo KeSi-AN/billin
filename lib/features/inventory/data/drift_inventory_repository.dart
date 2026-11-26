@@ -61,6 +61,7 @@ class DriftInventoryRepository implements InventoryRepository {
     DateTime? expiry,
     String? note,
     bool opening = false,
+    int? sizeId,
   }) => _db.transaction(() async {
     final item = await (_db.select(
       _db.items,
@@ -76,6 +77,7 @@ class DriftInventoryRepository implements InventoryRepository {
       quantityMilli: quantity.milli,
       type: opening ? MovementType.opening : MovementType.stockIn,
       batchId: batchId,
+      sizeId: sizeId,
       note: _blankToNull(note),
     );
   });
@@ -85,13 +87,18 @@ class DriftInventoryRepository implements InventoryRepository {
     int itemId,
     Quantity actual, {
     int? batchId,
+    int? sizeId,
     String? note,
   }) => _db.transaction(() async {
     final item = await (_db.select(
       _db.items,
     )..where((t) => t.id.equals(itemId))).getSingle();
     final int current;
-    if (batchId != null) {
+    if (sizeId != null) {
+      current = (await (_db.select(
+        _db.itemSizes,
+      )..where((s) => s.id.equals(sizeId))).getSingle()).stockMilli;
+    } else if (batchId != null) {
       current = (await (_db.select(
         _db.itemBatches,
       )..where((b) => b.id.equals(batchId))).getSingle()).quantityMilli;
@@ -103,6 +110,7 @@ class DriftInventoryRepository implements InventoryRepository {
       quantityMilli: actual.milli - current,
       type: MovementType.adjust,
       batchId: batchId,
+      sizeId: sizeId,
       note: _blankToNull(note),
     );
   });

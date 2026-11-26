@@ -95,6 +95,15 @@ final class CodeAmbiguous extends CodeResult {
   const CodeAmbiguous();
 }
 
+/// A sized item was scanned or typed: the user picks the size, then the
+/// page calls [BillingCubit.addItem] with it.
+final class CodeNeedsSize extends CodeResult {
+  const CodeNeedsSize(this.item, this.sizes);
+
+  final Item item;
+  final List<ItemSize> sizes;
+}
+
 final class CodeNotFound extends CodeResult {
   const CodeNotFound(this.code);
 
@@ -134,7 +143,13 @@ class BillingCubit extends Cubit<BillingState> {
   Future<CodeResult> submitCode(String raw) async {
     final code = raw.trim();
     if (code.isEmpty) return const CodeAmbiguous();
-    var item = await _items.byBarcode(code);
+    // A size's own barcode adds that size straight away.
+    final match = await _items.byAnyBarcode(code);
+    if (match?.size case final size?) {
+      addItem(match!.item, size: size);
+      return CodeAdded(match.item);
+    }
+    var item = match?.item;
     if (item == null) {
       final matches = await _items.search(code, limit: 8);
       if (matches.length == 1) item = matches.single;
@@ -144,19 +159,30 @@ class BillingCubit extends Cubit<BillingState> {
       }
     }
     if (item == null) return CodeNotFound(code);
+    final sizes = await sizesOf(item);
+    if (sizes.isNotEmpty) {
+      emit(state.copyWith(suggestions: []));
+      return CodeNeedsSize(item, sizes);
+    }
     addItem(item);
     return CodeAdded(item);
   }
 
-  /// Adds one unit. Scanning the same item again bumps its quantity.
-  void addItem(Item item) {
+  /// The item's sizes (empty: free size, add it straight away).
+  Future<List<ItemSize>> sizesOf(Item item) => _items.sizesOf(item.id!);
+
+  /// Adds one unit (of [size], for a sized item). Adding the same item and
+  /// size again bumps its quantity.
+  void addItem(Item item, {ItemSize? size}) {
     final items = {...state.items, item.id!: item};
     final lines = [...state.lines];
+    final price = size?.priceOf(item) ?? item.salePrice;
     final existing = lines.indexWhere(
       (l) =>
           l.itemId != null &&
           l.itemId == item.id &&
-          l.unitPrice == item.salePrice &&
+          l.sizeId == size?.id &&
+          l.unitPrice == price &&
           !l.hasDiscount,
     );
     if (existing >= 0) {
@@ -176,10 +202,14 @@ class BillingCubit extends Cubit<BillingState> {
     lines.add(
       DraftLine(
         itemId: item.id,
-        name: item.name,
+        sizeId: size?.id,
+        size: size?.size,
+        // The size is part of the name everywhere the line shows (screen,
+        // printed bill, WhatsApp picture, reports).
+        name: size == null ? item.name : '${item.name} (${size.size})',
         unit: item.unit,
         hsn: item.hsn,
-        unitPrice: item.salePrice,
+        unitPrice: price,
         taxRate: item.taxRate,
         priceIncludesTax: item.priceIncludesTax,
       ),

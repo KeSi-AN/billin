@@ -150,6 +150,7 @@ class DriftBillRepository implements BillRepository {
           itemId: line.itemId!,
           quantityMilli: line.baseQuantity.milli,
           billId: billId,
+          sizeId: line.sizeId,
         );
       }
       // Credit: the bill goes on the customer's account; anything paid at
@@ -186,6 +187,8 @@ class DriftBillRepository implements BillRepository {
     billId: billId,
     position: position,
     itemId: Value(line.itemId),
+    sizeId: Value(line.sizeId),
+    size: Value(line.size),
     name: line.name.trim(),
     unit: line.unit,
     hsn: Value(line.hsn),

@@ -22,9 +22,15 @@ class DraftLine {
     this.discount = Money.zero,
     this.discountBp,
     this.unitFactor = Quantity.one,
+    this.sizeId,
+    this.size,
   });
 
   final int? itemId;
+
+  /// The size sold, for a sized item ([name] already shows it).
+  final int? sizeId;
+  final String? size;
   final String name;
   final String unit;
   final String? hsn;
@@ -68,6 +74,8 @@ class DraftLine {
     Quantity? unitFactor,
   }) => DraftLine(
     itemId: itemId,
+    sizeId: sizeId,
+    size: size,
     name: name ?? this.name,
     unit: unit ?? this.unit,
     hsn: hsn,

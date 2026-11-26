@@ -113,6 +113,62 @@ class FakeItems implements ItemRepository {
   @override
   Future<String> importImage(String sourcePath) async => sourcePath;
 
+  /// Sizes by item id (only active ones are kept here).
+  final sizes = <int, List<ItemSize>>{};
+  var _nextSizeId = 1;
+
+  @override
+  Future<List<ItemSize>> sizesOf(
+    int itemId, {
+    bool includeRemoved = false,
+  }) async => List.of(sizes[itemId] ?? const []);
+
+  @override
+  Stream<List<ItemSize>> watchSizes(int itemId) async* {
+    yield await sizesOf(itemId);
+    yield* _changes.stream.asyncMap((_) => sizesOf(itemId));
+  }
+
+  @override
+  Future<List<ItemSize>> saveSizes(int itemId, List<ItemSize> list) async {
+    final old = {for (final s in sizes[itemId] ?? <ItemSize>[]) s.id: s};
+    sizes[itemId] = [
+      for (final (i, s) in list.indexed)
+        if (s.size.trim().isNotEmpty)
+          s.copyWith(
+            id: s.id ?? _nextSizeId++,
+            position: i,
+            stock: old[s.id]?.stock ?? Quantity.zero,
+          ),
+    ];
+    _changes.add(null);
+    return await sizesOf(itemId);
+  }
+
+  /// Sets one size's stock and the item's total to match.
+  void setSizeStock(int itemId, int sizeId, Quantity stock) {
+    sizes[itemId] = [
+      for (final s in sizes[itemId]!)
+        if (s.id == sizeId) s.copyWith(stock: stock) else s,
+    ];
+    final total = sizes[itemId]!.fold(Quantity.zero, (t, s) => t + s.stock);
+    setStock(itemId, total);
+  }
+
+  @override
+  Future<ItemMatch?> byAnyBarcode(String barcode) async {
+    final item = await byBarcode(barcode);
+    if (item != null) return (item: item, size: null);
+    for (final e in sizes.entries) {
+      for (final s in e.value) {
+        if (s.barcode == barcode.trim()) {
+          return (item: (await byId(e.key))!, size: s);
+        }
+      }
+    }
+    return null;
+  }
+
   @override
   Future<Item?> byId(int id) async =>
       _items.where((i) => i.id == id).firstOrNull;
@@ -495,21 +551,61 @@ class FakeInventory implements InventoryRepository {
     DateTime? expiry,
     String? note,
     bool opening = false,
-  }) => _post(
-    itemId,
-    quantity,
-    opening ? MovementType.opening : MovementType.stockIn,
-    note,
-  );
+    int? sizeId,
+  }) {
+    final type = opening ? MovementType.opening : MovementType.stockIn;
+    return sizeId == null
+        ? _post(itemId, quantity, type, note)
+        : _postSize(itemId, sizeId, quantity, type, note);
+  }
+
+  /// A movement for one size: the size's stock and the item's total move.
+  Future<void> _postSize(
+    int itemId,
+    int sizeId,
+    Quantity delta,
+    MovementType type,
+    String? note,
+  ) async {
+    final size = (await _items.sizesOf(itemId))
+        .firstWhere((s) => s.id == sizeId);
+    _items.setSizeStock(itemId, sizeId, size.stock + delta);
+    movements.insert(
+      0,
+      StockMovement(
+        id: movements.length + 1,
+        itemId: itemId,
+        quantity: delta,
+        type: type,
+        balanceAfter: (await _items.byId(itemId))!.stock,
+        at: DateTime(2026, 11, 12, 10),
+        note: note,
+      ),
+    );
+    _changes.add(null);
+  }
 
   @override
   Future<void> adjustStock(
     int itemId,
     Quantity actual, {
     int? batchId,
+    int? sizeId,
     String? note,
   }) async {
     final item = (await _items.byId(itemId))!;
+    if (sizeId != null) {
+      final size = (await _items.sizesOf(itemId))
+          .firstWhere((s) => s.id == sizeId);
+      await _postSize(
+        itemId,
+        sizeId,
+        actual - size.stock,
+        MovementType.adjust,
+        note,
+      );
+      return;
+    }
     await _post(itemId, actual - item.stock, MovementType.adjust, note);
   }
 

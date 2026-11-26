@@ -253,7 +253,13 @@ class SyncEngine {
     if (touched.isNotEmpty) {
       // Screens watching these tables (and stock/balance totals) refresh.
       _db.notifyUpdates({
-        for (final t in {...touched, 'items', 'parties', 'item_batches'})
+        for (final t in {
+          ...touched,
+          'items',
+          'parties',
+          'item_batches',
+          'item_sizes',
+        })
           TableUpdate(t),
       });
     }
@@ -328,6 +334,13 @@ class SyncEngine {
           'UPDATE item_batches SET quantity_milli = quantity_milli + ? '
           'WHERE id = ?',
           [q, batch],
+        );
+      }
+      final size = v['size_id'] as int?;
+      if (size != null) {
+        await _db.customStatement(
+          'UPDATE item_sizes SET stock_milli = stock_milli + ? WHERE id = ?',
+          [q, size],
         );
       }
       await _db.customStatement(

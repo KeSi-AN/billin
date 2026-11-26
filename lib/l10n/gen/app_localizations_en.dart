@@ -643,6 +643,87 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String sizePickerTitle(String item) {
+    return '$item: which size?';
+  }
+
+  @override
+  String sizeInStock(String count) {
+    return '$count left';
+  }
+
+  @override
+  String get sizeSoldOut => 'Sold out';
+
+  @override
+  String get sizesTitle => 'Sizes';
+
+  @override
+  String get sizesNoneHelp =>
+      'No sizes: sold as free size. Add sizes to keep stock for each one.';
+
+  @override
+  String get sizesHelp =>
+      'Each size keeps its own stock and gets its own barcode label.';
+
+  @override
+  String get sizeField => 'Size';
+
+  @override
+  String get sizeDuplicate => 'Twice';
+
+  @override
+  String get sizePriceField => 'Price';
+
+  @override
+  String get sizePriceHelp => 'Empty: the item\'s price';
+
+  @override
+  String get sizeStockField => 'Stock';
+
+  @override
+  String sizeStockNow(String count, String unit) {
+    return '$count $unit';
+  }
+
+  @override
+  String get sizeRemove => 'Remove size';
+
+  @override
+  String get sizeAdd => 'Add size';
+
+  @override
+  String get coloursTitle => 'Colours';
+
+  @override
+  String get colourOther => 'Another colour';
+
+  @override
+  String get colourAdd => 'Add colour';
+
+  @override
+  String get websiteShow => 'Show on website';
+
+  @override
+  String get websiteShowHelp =>
+      'List this item on the shop\'s website, with the details below.';
+
+  @override
+  String get fieldDescription => 'Description';
+
+  @override
+  String get fieldFabric => 'Fabric';
+
+  @override
+  String get fieldFabricHint => 'e.g. Georgette';
+
+  @override
+  String get fieldCare => 'Care';
+
+  @override
+  String get fieldCareHint => 'e.g. Dry wash only';
+
+  @override
   String get checkoutCustomerSearch => 'Customer name or mobile';
 
   @override

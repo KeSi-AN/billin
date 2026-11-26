@@ -145,6 +145,7 @@ class DriftReturnsRepository implements ReturnsRepository {
               itemId: item.id,
               quantityMilli: divRound(qty * line.unitFactorMilli, 1000),
               type: MovementType.salesReturn,
+              sizeId: line.sizeId,
               billId: billId,
             );
           }

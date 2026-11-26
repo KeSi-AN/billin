@@ -37,4 +37,17 @@ abstract final class Ean {
         '${itemId.toString().padLeft(9, '0')}';
     return '$body${checkDigit(body)}';
   }
+
+  /// A barcode for one size of an item: like [inStore], but the series
+  /// slot is shifted by 50 (A = 51…), so size numbers never meet item
+  /// numbers.
+  static String inStoreSize(int sizeId, {String? series}) {
+    final s = series == null || series.isEmpty
+        ? 0
+        : series.toUpperCase().codeUnitAt(0) - 64;
+    final body =
+        '2${(50 + s).clamp(50, 99).toString().padLeft(2, '0')}'
+        '${sizeId.toString().padLeft(9, '0')}';
+    return '$body${checkDigit(body)}';
+  }
 }

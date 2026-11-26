@@ -12,9 +12,12 @@ import 'package:shop_app/core/money/money.dart';
 import 'package:shop_app/core/money/quantity.dart';
 import 'package:shop_app/core/widgets/form_fields.dart';
 import 'package:shop_app/features/billing/domain/tax_rate.dart';
+import 'package:shop_app/features/cloud/domain/cloud.dart';
 import 'package:shop_app/features/inventory/domain/inventory.dart';
 import 'package:shop_app/features/inventory/presentation/category_picker.dart';
 import 'package:shop_app/features/items/domain/item.dart';
+import 'package:shop_app/features/items/presentation/item_details_editors.dart';
+import 'package:shop_app/features/printing/domain/ean.dart';
 import 'package:shop_app/features/shop_profile/presentation/pages/shop_setup_page.dart'
     show PickImage;
 import 'package:shop_app/l10n/gen/app_localizations.dart';
@@ -74,6 +77,14 @@ class _ItemFormPageState extends State<ItemFormPage> {
   bool _loading = true;
   bool _saving = false;
 
+  /// Sizes (empty: free size) and what the website shows.
+  final _sizes = <SizeRow>[];
+  List<ItemColour> _colours = const [];
+  final _fabric = TextEditingController();
+  final _care = TextEditingController();
+  final _description = TextEditingController();
+  bool _showOnWebsite = false;
+
   bool get _isNew => widget.itemId == null;
 
   @override
@@ -107,6 +118,15 @@ class _ItemFormPageState extends State<ItemFormPage> {
           _altFactor.text = item.altUnitFactor!.format();
           _altPrice.text = item.altUnitPrice?.toInput() ?? '';
         }
+        _colours = item.colours;
+        _fabric.text = item.fabric ?? '';
+        _care.text = item.care ?? '';
+        _description.text = item.description ?? '';
+        _showOnWebsite = item.showOnWebsite;
+        if (!mounted) return;
+        _sizes.addAll(
+          (await context.read<ItemRepository>().sizesOf(id)).map(SizeRow.of),
+        );
       }
     }
     if (mounted) setState(() => _loading = false);
@@ -126,8 +146,14 @@ class _ItemFormPageState extends State<ItemFormPage> {
       _lowStock,
       _altFactor,
       _altPrice,
+      _fabric,
+      _care,
+      _description,
     ]) {
       c.dispose();
+    }
+    for (final r in _sizes) {
+      r.dispose();
     }
     super.dispose();
   }
@@ -222,11 +248,22 @@ class _ItemFormPageState extends State<ItemFormPage> {
           altUnit: hasAlt ? _altUnit : null,
           altUnitFactor: hasAlt ? altFactor : null,
           altUnitPrice: hasAlt ? Money.tryParse(_altPrice.text) : null,
+          colours: _colours,
+          fabric: _fabric.text.trim(),
+          care: _care.text.trim(),
+          description: _description.text.trim(),
+          showOnWebsite: _showOnWebsite,
         );
+    final series = (await context.read<CloudService>().link())?.series;
     try {
       final saved = await items.save(item);
+      await _saveSizes(items, inventory, saved, series);
       final opening = Quantity.tryParse(_opening.text);
-      if (_isNew && saved.trackStock && opening != null && opening.isPositive) {
+      if (_isNew &&
+          _sizes.isEmpty &&
+          saved.trackStock &&
+          opening != null &&
+          opening.isPositive) {
         await inventory.addStock(
           saved.id!,
           opening,
@@ -252,6 +289,40 @@ class _ItemFormPageState extends State<ItemFormPage> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
+    }
+  }
+
+  /// Saves the sizes, the opening stock of new ones, and gives every
+  /// size a barcode of its own (for its label and scanning).
+  Future<void> _saveSizes(
+    ItemRepository items,
+    InventoryRepository inventory,
+    Item saved,
+    String? series,
+  ) async {
+    final hadSizes =
+        _existing != null && (await items.sizesOf(saved.id!)).isNotEmpty;
+    if (_sizes.isEmpty && !hadSizes) return;
+    var sizes = await items.saveSizes(saved.id!, [
+      for (final r in _sizes) r.toSize(),
+    ]);
+    if (sizes.any((s) => s.barcode == null)) {
+      sizes = await items.saveSizes(saved.id!, [
+        for (final s in sizes)
+          if (s.barcode == null)
+            s.copyWith(barcode: () => Ean.inStoreSize(s.id!, series: series))
+          else
+            s,
+      ]);
+    }
+    if (!saved.trackStock) return;
+    for (final r in _sizes.where((r) => r.id == null)) {
+      final q = Quantity.tryParse(r.opening.text);
+      if (q == null || !q.isPositive) continue;
+      final size = sizes.firstWhere(
+        (s) => s.size.toUpperCase() == r.size.text.trim().toUpperCase(),
+      );
+      await inventory.addStock(saved.id!, q, opening: true, sizeId: size.id);
     }
   }
 
@@ -457,7 +528,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (_isNew) ...[
+                        if (_isNew && _sizes.isEmpty) ...[
                           Expanded(
                             child: TextFormField(
                               key: const Key('openingStockField'),
@@ -603,6 +674,86 @@ class _ItemFormPageState extends State<ItemFormPage> {
                       isRequired: true,
                     ),
                   ],
+                  const SizedBox(height: 24),
+                  Card(
+                    key: const Key('sizesCard'),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: SizesEditor(
+                        rows: _sizes,
+                        onChanged: () => setState(() {}),
+                        trackStock: _trackStock,
+                        unit: _unit,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Card(
+                    key: const Key('websiteCard'),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          SwitchListTile(
+                            key: const Key('showOnWebsiteSwitch'),
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(l10n.websiteShow),
+                            subtitle: Text(l10n.websiteShowHelp),
+                            value: _showOnWebsite,
+                            onChanged: (v) =>
+                                setState(() => _showOnWebsite = v),
+                          ),
+                          TextFormField(
+                            key: const Key('itemDescriptionField'),
+                            controller: _description,
+                            minLines: 2,
+                            maxLines: 5,
+                            textCapitalization: TextCapitalization.sentences,
+                            decoration: InputDecoration(
+                              labelText: l10n.fieldDescription,
+                              helperText: l10n.optional,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  key: const Key('itemFabricField'),
+                                  controller: _fabric,
+                                  textCapitalization: TextCapitalization.words,
+                                  decoration: InputDecoration(
+                                    labelText: l10n.fieldFabric,
+                                    hintText: l10n.fieldFabricHint,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: TextFormField(
+                                  key: const Key('itemCareField'),
+                                  controller: _care,
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                  decoration: InputDecoration(
+                                    labelText: l10n.fieldCare,
+                                    hintText: l10n.fieldCareHint,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          ColoursEditor(
+                            value: _colours,
+                            onChanged: (c) => setState(() => _colours = c),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   FilledButton(
                     key: const Key('saveItemButton'),

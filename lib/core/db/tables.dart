@@ -85,6 +85,19 @@ class Items extends Table {
   /// Latest cost per base unit, before GST (input tax is claimed back).
   /// Updated by purchases; used for profit.
   IntColumn get costPricePaise => integer().nullable()();
+
+  /// Colours it comes in: a JSON list of {"name": "Plum", "hex": "#6b3f6e"}
+  /// (hex optional). `null`: not given.
+  TextColumn get colours => text().nullable()();
+  TextColumn get fabric => text().nullable()();
+
+  /// Washing and care, e.g. "Dry wash only".
+  TextColumn get care => text().nullable()();
+  TextColumn get description => text().nullable()();
+
+  /// Listed on the shop's website.
+  BoolColumn get showOnWebsite =>
+      boolean().withDefault(const Constant(false))();
 }
 
 /// Item categories. A category with a parent is a subcategory (one level).
@@ -121,6 +134,36 @@ class ItemBatches extends Table {
   ];
 }
 
+/// A size an item comes in (S, M, L, XL, 32, 34…), with its own stock,
+/// and optionally its own price and barcode. An item without sizes is
+/// "free size": its stock is the item's alone.
+@DataClassName('ItemSizeRow')
+@TableIndex(name: 'item_sizes_uid', columns: {#uid}, unique: true)
+@TableIndex(name: 'item_sizes_item', columns: {#itemId, #position})
+class ItemSizes extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  /// Id shared by every phone of the shop (set by a database trigger when
+  /// the row is added; see SyncSchema).
+  TextColumn get uid => text().nullable()();
+  IntColumn get itemId => integer().references(Items, #id)();
+  TextColumn get size => text()();
+
+  /// Order shown (S before M before L).
+  IntColumn get position => integer().withDefault(const Constant(0))();
+
+  /// Price for this size; `null`: the item's price.
+  IntColumn get salePricePaise => integer().nullable()();
+  TextColumn get barcode => text().nullable().unique()();
+
+  /// Running total of this size's stock movements (cache, like items).
+  IntColumn get stockMilli => integer().withDefault(const Constant(0))();
+
+  /// Removed sizes stay (old bills point to them) but are hidden.
+  BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+  DateTimeColumn get createdAt => dateTime()();
+}
+
 /// Append-only stock ledger. Every change to stock is one row here; stock
 /// is never edited directly.
 @DataClassName('MovementRow')
@@ -134,6 +177,9 @@ class StockMovements extends Table {
   TextColumn get uid => text().nullable()();
   IntColumn get itemId => integer().references(Items, #id)();
   IntColumn get batchId => integer().nullable().references(ItemBatches, #id)();
+
+  /// The size this movement was for (sized items only).
+  IntColumn get sizeId => integer().nullable().references(ItemSizes, #id)();
 
   /// Signed, in base units: + stock in, − stock out.
   IntColumn get quantityMilli => integer()();
@@ -310,6 +356,10 @@ class BillLines extends Table {
 
   /// How much of [quantityMilli] has been returned on credit notes.
   IntColumn get returnedMilli => integer().withDefault(const Constant(0))();
+
+  /// The size sold (sized items only), and its name as it was then.
+  IntColumn get sizeId => integer().nullable().references(ItemSizes, #id)();
+  TextColumn get size => text().nullable()();
 }
 
 /// Last invoice sequence used in each financial year.
@@ -407,6 +457,10 @@ class PurchaseLines extends Table {
   IntColumn get totalPaise => integer()();
   TextColumn get batchNo => text().nullable()();
   DateTimeColumn get expiry => dateTime().nullable()();
+
+  /// The size bought (sized items only), and its name as it was then.
+  IntColumn get sizeId => integer().nullable().references(ItemSizes, #id)();
+  TextColumn get size => text().nullable()();
 }
 
 /// Shop running costs: rent, salary, electricity... Phase 4.

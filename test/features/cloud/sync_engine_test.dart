@@ -40,6 +40,10 @@ class FakeRemote implements SyncRemote {
     }
   }
 
+  /// The rows of one table, as the cloud holds them.
+  Iterable<CloudRow> rows(String tbl) =>
+      _rows.values.where((r) => r.tbl == tbl);
+
   @override
   Future<List<CloudRow>> pull(
     String shopId, {
@@ -225,4 +229,103 @@ void main() {
     expect(cloud.pushes, pushes);
     expect((await moto.item('Shifon Saree')).stock, const Quantity.whole(8));
   });
+
+  test(
+    'sizes, their stock and the website details reach the other phone',
+    () async {
+      final kurti = await moto.items.save(
+        const Item(
+          name: 'Kurti set',
+          salePrice: Money.rupees(1835),
+          trackStock: true,
+          colours: [ItemColour('Plum', '#6b3f6e')],
+          fabric: 'Rayon',
+          care: 'Hand wash',
+          description: 'Straight kurti',
+          showOnWebsite: true,
+        ),
+      );
+      final sizes = {
+        for (final s in await moto.items.saveSizes(kurti.id!, const [
+          ItemSize(size: 'M'),
+          ItemSize(
+            size: 'L',
+            price: Money.rupees(1935),
+            barcode: '2510000000013',
+          ),
+        ]))
+          s.size: s,
+      };
+      await moto.stock.addStock(
+        kurti.id!,
+        const Quantity.whole(3),
+        opening: true,
+        sizeId: sizes['M']!.id,
+      );
+      await moto.stock.addStock(
+        kurti.id!,
+        const Quantity.whole(2),
+        opening: true,
+        sizeId: sizes['L']!.id,
+      );
+      await moto.sync.syncNow();
+      await redmi.sync.syncNow();
+
+      final here = await redmi.item('Kurti set');
+      expect(
+        (here.fabric, here.care, here.showOnWebsite),
+        ('Rayon', 'Hand wash', true),
+      );
+      expect(here.colours, const [ItemColour('Plum', '#6b3f6e')]);
+      Future<Map<String, int>> stockOn(Phone p, int id) async => {
+        for (final s in await p.items.sizesOf(id))
+          s.size: s.stock.milli ~/ 1000,
+      };
+      expect(await stockOn(redmi, here.id!), {'M': 3, 'L': 2});
+
+      // The Redmi sells an L; the moto hears of it.
+      final lOnRedmi = (await redmi.items.sizesOf(here.id!))
+          .firstWhere((s) => s.size == 'L');
+      await redmi.bills.create(
+        BillDraft(
+          lines: [
+            DraftLine(
+              itemId: here.id,
+              sizeId: lOnRedmi.id,
+              size: 'L',
+              name: 'Kurti set (L)',
+              unitPrice: lOnRedmi.priceOf(here),
+            ),
+          ],
+        ),
+      );
+      await redmi.sync.syncNow();
+      await moto.sync.syncNow();
+      expect(await stockOn(moto, kurti.id!), {'M': 3, 'L': 1});
+      expect((await moto.item('Kurti set')).stock, const Quantity.whole(4));
+
+      // What the website reads from the cloud (see the reply to it).
+      final row = cloud
+          .rows('items')
+          .firstWhere((r) => r.data['name'] == 'Kurti set');
+      expect(row.data['colours'], '[{"name":"Plum","hex":"#6b3f6e"}]');
+      expect(row.data['show_on_website'], 1);
+      expect(row.data['fabric'], 'Rayon');
+      final size = cloud
+          .rows('item_sizes')
+          .firstWhere((r) => r.data['size'] == 'L');
+      expect(size.data['item_id'], row.rowId);
+      expect(size.data['sale_price_paise'], 193500);
+      expect(size.data['barcode'], '2510000000013');
+      expect(size.data['is_active'], 1);
+      expect(size.data.containsKey('stock_milli'), isFalse);
+      final moves = cloud
+          .rows('stock_movements')
+          .where((r) => r.data['size_id'] == size.rowId);
+      expect(
+        moves.fold<int>(0, (t, r) => t + (r.data['quantity_milli']! as int)),
+        1000,
+      );
+    },
+  );
 }

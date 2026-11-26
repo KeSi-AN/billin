@@ -15,6 +15,7 @@ import 'package:shop_app/features/billing/presentation/line_sheets.dart';
 import 'package:shop_app/features/inventory/domain/stock_alerts.dart';
 import 'package:shop_app/features/items/domain/item.dart';
 import 'package:shop_app/features/items/presentation/items_page.dart';
+import 'package:shop_app/features/items/presentation/size_picker.dart';
 import 'package:shop_app/features/settings/domain/app_settings.dart';
 import 'package:shop_app/l10n/gen/app_localizations.dart';
 
@@ -65,6 +66,9 @@ class _BillingViewState extends State<_BillingView> {
     switch (result) {
       case CodeAdded():
         _search.clear();
+      case CodeNeedsSize(:final item, :final sizes):
+        _search.clear();
+        await _addSized(item, sizes);
       case CodeAmbiguous():
         break;
       case CodeNotFound(:final code):
@@ -72,6 +76,23 @@ class _BillingViewState extends State<_BillingView> {
         _offerCreate(code);
     }
     _refocus();
+  }
+
+  /// Asks which size, then adds that size.
+  Future<void> _addSized(Item item, List<ItemSize> sizes) async {
+    final size = await showSizePicker(context, item, sizes);
+    if (size != null) _cubit.addItem(item, size: size);
+  }
+
+  /// Adds a picked item, asking the size first for a sized one.
+  Future<void> _add(Item item) async {
+    final sizes = await _cubit.sizesOf(item);
+    if (!mounted) return;
+    if (sizes.isEmpty) {
+      _cubit.addItem(item);
+    } else {
+      await _addSized(item, sizes);
+    }
   }
 
   void _offerCreate(String code) {
@@ -95,7 +116,7 @@ class _BillingViewState extends State<_BillingView> {
     final item = await context.push<Item>(
       AppRoutes.newItemWithBarcode(barcode),
     );
-    if (item != null) _cubit.addItem(item);
+    if (item != null) await _add(item);
     _refocus();
   }
 
@@ -241,9 +262,9 @@ class _BillingViewState extends State<_BillingView> {
                           for (final item in state.suggestions)
                             ItemTile(
                               item: item,
-                              onTap: () {
-                                _cubit.addItem(item);
+                              onTap: () async {
                                 _search.clear();
+                                await _add(item);
                                 _refocus();
                               },
                             ),

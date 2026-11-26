@@ -16,6 +16,7 @@ class StockLedger {
     required int quantityMilli,
     required MovementType type,
     int? batchId,
+    int? sizeId,
     int? billId,
     String? note,
   }) async {
@@ -30,6 +31,7 @@ class StockLedger {
           StockMovementsCompanion.insert(
             itemId: itemId,
             batchId: Value(batchId),
+            sizeId: Value(sizeId),
             quantityMilli: quantityMilli,
             type: type.name,
             note: Value(note),
@@ -46,6 +48,15 @@ class StockLedger {
         'UPDATE item_batches SET quantity_milli = quantity_milli + ? WHERE id = ?',
         variables: [Variable.withInt(quantityMilli), Variable.withInt(batchId)],
         updates: {_db.itemBatches},
+      );
+    }
+    // A sized item: the size's own stock moves too (the item's total is
+    // the sum of its sizes).
+    if (sizeId != null) {
+      await _db.customUpdate(
+        'UPDATE item_sizes SET stock_milli = stock_milli + ? WHERE id = ?',
+        variables: [Variable.withInt(quantityMilli), Variable.withInt(sizeId)],
+        updates: {_db.itemSizes},
       );
     }
   }
@@ -86,11 +97,22 @@ class StockLedger {
     required int itemId,
     required int quantityMilli,
     required int billId,
+    int? sizeId,
   }) async {
     final item = await (_db.select(
       _db.items,
     )..where((t) => t.id.equals(itemId))).getSingle();
     if (!item.trackStock || quantityMilli <= 0) return;
+    if (sizeId != null) {
+      await post(
+        itemId: itemId,
+        quantityMilli: -quantityMilli,
+        type: MovementType.sale,
+        sizeId: sizeId,
+        billId: billId,
+      );
+      return;
+    }
 
     var remaining = quantityMilli;
     if (item.tracksBatches) {
@@ -150,6 +172,7 @@ class StockLedger {
         quantityMilli: -m.quantityMilli,
         type: MovementType.cancel,
         batchId: m.batchId,
+        sizeId: m.sizeId,
         billId: billId,
       );
     }
