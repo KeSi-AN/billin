@@ -95,6 +95,9 @@ class Items extends Table {
   TextColumn get care => text().nullable()();
   TextColumn get description => text().nullable()();
 
+  /// Print or pattern, free text ("Floral block print, half sleeves").
+  TextColumn get pattern => text().nullable()();
+
   /// Listed on the shop's website.
   BoolColumn get showOnWebsite =>
       boolean().withDefault(const Constant(false))();
@@ -134,9 +137,10 @@ class ItemBatches extends Table {
   ];
 }
 
-/// A size an item comes in (S, M, L, XL, 32, 34…), with its own stock,
-/// and optionally its own price and barcode. An item without sizes is
-/// "free size": its stock is the item's alone.
+/// A version of an item: a colour, a size, or both ("Pink · M"), with its
+/// own stock, and optionally its own price and barcode. An item without
+/// versions is "free size": its stock is the item's alone. (The table
+/// keeps its first name, sizes, so the website's sync stays stable.)
 @DataClassName('ItemSizeRow')
 @TableIndex(name: 'item_sizes_uid', columns: {#uid}, unique: true)
 @TableIndex(name: 'item_sizes_item', columns: {#itemId, #position})
@@ -147,7 +151,13 @@ class ItemSizes extends Table {
   /// the row is added; see SyncSchema).
   TextColumn get uid => text().nullable()();
   IntColumn get itemId => integer().references(Items, #id)();
+
+  /// The size ('' for a colour-only version).
   TextColumn get size => text()();
+
+  /// The colour (`null` for a size-only version), and its swatch code.
+  TextColumn get colour => text().nullable()();
+  TextColumn get colourHex => text().nullable()();
 
   /// Order shown (S before M before L).
   IntColumn get position => integer().withDefault(const Constant(0))();

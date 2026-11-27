@@ -251,7 +251,7 @@ class _LabelsPageState extends State<LabelsPage> {
 
   /// The label for one size: the size in the name, its barcode and price.
   static Item _sizeLabel(Item item, ItemSize s) => item.copyWith(
-    name: '${item.name} (${s.size})',
+    name: '${item.name} (${s.label})',
     barcode: s.barcode,
     salePrice: s.priceOf(item),
   );
@@ -456,7 +456,7 @@ class _LabelsPageState extends State<LabelsPage> {
                             ListTile(
                               title: Text(item.name),
                               subtitle: Text(
-                                [for (final s in sizes) s.size].join(' · '),
+                                [for (final s in sizes) s.label].join(', '),
                               ),
                             ),
                             for (final s in sizes)
@@ -466,13 +466,13 @@ class _LabelsPageState extends State<LabelsPage> {
                                   left: 32,
                                   right: 16,
                                 ),
-                                title: Text('${l10n.sizeField} ${s.size}'),
+                                title: Text(s.label),
                                 subtitle: Text(s.barcode ?? ''),
                                 trailing: _counter(
                                   's${s.id}',
                                   _sizeLabel(item, s),
                                   plusKey: Key(
-                                    'labelPlus-${item.id}-${s.size}',
+                                    'labelPlus-${item.id}-${s.label}',
                                   ),
                                 ),
                               ),

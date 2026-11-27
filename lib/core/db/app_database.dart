@@ -44,7 +44,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -219,6 +219,13 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(schema.billLines, schema.billLines.size);
         await m.addColumn(schema.purchaseLines, schema.purchaseLines.sizeId);
         await m.addColumn(schema.purchaseLines, schema.purchaseLines.size);
+      },
+      // Build 0.7.1: versions by colour as well as size, and a print /
+      // pattern note on products.
+      from10To11: (m, schema) async {
+        await m.addColumn(schema.items, schema.items.pattern);
+        await m.addColumn(schema.itemSizes, schema.itemSizes.colour);
+        await m.addColumn(schema.itemSizes, schema.itemSizes.colourHex);
       },
     ),
     beforeOpen: (details) async {

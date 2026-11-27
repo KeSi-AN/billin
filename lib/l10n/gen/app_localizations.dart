@@ -1234,6 +1234,84 @@ abstract class AppLocalizations {
   /// **'Sold out'**
   String get sizeSoldOut;
 
+  /// No description provided for @versionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Colours and sizes'**
+  String get versionsTitle;
+
+  /// No description provided for @versionsNoneHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'None picked: one item, one stock (free size). Pick colours and/or sizes to keep stock for each.'**
+  String get versionsNoneHelp;
+
+  /// No description provided for @versionsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Each colour and size keeps its own stock and gets its own barcode label.'**
+  String get versionsHelp;
+
+  /// No description provided for @versionsGridStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock for each (new ones) · tap a price to change it, or a size or colour to price them all'**
+  String get versionsGridStock;
+
+  /// No description provided for @versionsGridPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a price to change it, or a size or colour to price them all'**
+  String get versionsGridPrice;
+
+  /// No description provided for @versionPriceFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Price for {what}'**
+  String versionPriceFor(String what);
+
+  /// No description provided for @versionPriceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty: the item\'s price'**
+  String get versionPriceHelp;
+
+  /// No description provided for @versionAll.
+  ///
+  /// In en, this message translates to:
+  /// **'all'**
+  String get versionAll;
+
+  /// No description provided for @versionsUnplaced.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} {unit} from before aren\'t in a colour or size yet: count them in on the stock screen.'**
+  String versionsUnplaced(String count, String unit);
+
+  /// No description provided for @sizeAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 42 or 3XL (several: 42, 44)'**
+  String get sizeAddHint;
+
+  /// No description provided for @fieldPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Print / pattern'**
+  String get fieldPattern;
+
+  /// No description provided for @fieldPatternHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Floral block print, half sleeves'**
+  String get fieldPatternHint;
+
+  /// No description provided for @pickColourFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the colour.'**
+  String get pickColourFirst;
+
   /// No description provided for @sizesTitle.
   ///
   /// In en, this message translates to:

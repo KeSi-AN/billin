@@ -129,9 +129,7 @@ class _StockSheetState extends State<_StockSheet> {
               ? l10n.stockAdjustTitle
               : '${l10n.stockAdjustTitle} · ${widget.batch!.batchNo}')
         : l10n.stockAddTitle;
-    final title = widget.size == null
-        ? base
-        : '$base · ${l10n.sizeField} ${widget.size!.size}';
+    final title = widget.size == null ? base : '$base · ${widget.size!.label}';
     return Padding(
       padding: EdgeInsets.fromLTRB(
         16,

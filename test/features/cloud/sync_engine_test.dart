@@ -319,6 +319,38 @@ void main() {
       expect(size.data['barcode'], '2510000000013');
       expect(size.data['is_active'], 1);
       expect(size.data.containsKey('stock_milli'), isFalse);
+
+      // Colour versions and the print / pattern note travel too.
+      final shirt = await moto.items.save(
+        const Item(
+          name: 'Shirt',
+          salePrice: Money.rupees(700),
+          pattern: 'Checks',
+        ),
+      );
+      await moto.items.saveSizes(shirt.id!, const [
+        ItemSize(colour: 'Navy', colourHex: '#1a237e', size: 'M'),
+        ItemSize(colour: 'Plum', colourHex: '#6b3f6e'),
+      ]);
+      await moto.sync.syncNow();
+      await redmi.sync.syncNow();
+      final shirtHere = await redmi.item('Shirt');
+      expect(shirtHere.pattern, 'Checks');
+      expect(
+        [for (final v in await redmi.items.sizesOf(shirtHere.id!)) v.label],
+        ['Navy · M', 'Plum'],
+      );
+      final plum = cloud
+          .rows('item_sizes')
+          .firstWhere((r) => r.data['colour'] == 'Plum');
+      expect((plum.data['size'], plum.data['colour_hex']), ('', '#6b3f6e'));
+      expect(
+        cloud
+            .rows('items')
+            .firstWhere((r) => r.data['name'] == 'Shirt')
+            .data['pattern'],
+        'Checks',
+      );
       final moves = cloud
           .rows('stock_movements')
           .where((r) => r.data['size_id'] == size.rowId);

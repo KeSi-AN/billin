@@ -1283,6 +1283,17 @@ class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _patternMeta = const VerificationMeta(
+    'pattern',
+  );
+  @override
+  late final GeneratedColumn<String> pattern = GeneratedColumn<String>(
+    'pattern',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _showOnWebsiteMeta = const VerificationMeta(
     'showOnWebsite',
   );
@@ -1327,6 +1338,7 @@ class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
     fabric,
     care,
     description,
+    pattern,
     showOnWebsite,
   ];
   @override
@@ -1532,6 +1544,12 @@ class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
         ),
       );
     }
+    if (data.containsKey('pattern')) {
+      context.handle(
+        _patternMeta,
+        pattern.isAcceptableOrUnknown(data['pattern']!, _patternMeta),
+      );
+    }
     if (data.containsKey('show_on_website')) {
       context.handle(
         _showOnWebsiteMeta,
@@ -1658,6 +1676,10 @@ class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
         DriftSqlType.string,
         data['${effectivePrefix}description'],
       ),
+      pattern: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pattern'],
+      ),
       showOnWebsite: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}show_on_website'],
@@ -1726,6 +1748,9 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
   final String? care;
   final String? description;
 
+  /// Print or pattern, free text ("Floral block print, half sleeves").
+  final String? pattern;
+
   /// Listed on the shop's website.
   final bool showOnWebsite;
   const ItemRow({
@@ -1756,6 +1781,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
     this.fabric,
     this.care,
     this.description,
+    this.pattern,
     required this.showOnWebsite,
   });
   @override
@@ -1818,6 +1844,9 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
     }
+    if (!nullToAbsent || pattern != null) {
+      map['pattern'] = Variable<String>(pattern);
+    }
     map['show_on_website'] = Variable<bool>(showOnWebsite);
     return map;
   }
@@ -1875,6 +1904,9 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
+      pattern: pattern == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pattern),
       showOnWebsite: Value(showOnWebsite),
     );
   }
@@ -1912,6 +1944,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
       fabric: serializer.fromJson<String?>(json['fabric']),
       care: serializer.fromJson<String?>(json['care']),
       description: serializer.fromJson<String?>(json['description']),
+      pattern: serializer.fromJson<String?>(json['pattern']),
       showOnWebsite: serializer.fromJson<bool>(json['showOnWebsite']),
     );
   }
@@ -1946,6 +1979,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
       'fabric': serializer.toJson<String?>(fabric),
       'care': serializer.toJson<String?>(care),
       'description': serializer.toJson<String?>(description),
+      'pattern': serializer.toJson<String?>(pattern),
       'showOnWebsite': serializer.toJson<bool>(showOnWebsite),
     };
   }
@@ -1978,6 +2012,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
     Value<String?> fabric = const Value.absent(),
     Value<String?> care = const Value.absent(),
     Value<String?> description = const Value.absent(),
+    Value<String?> pattern = const Value.absent(),
     bool? showOnWebsite,
   }) => ItemRow(
     id: id ?? this.id,
@@ -2015,6 +2050,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
     fabric: fabric.present ? fabric.value : this.fabric,
     care: care.present ? care.value : this.care,
     description: description.present ? description.value : this.description,
+    pattern: pattern.present ? pattern.value : this.pattern,
     showOnWebsite: showOnWebsite ?? this.showOnWebsite,
   );
   ItemRow copyWithCompanion(ItemsCompanion data) {
@@ -2068,6 +2104,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
       description: data.description.present
           ? data.description.value
           : this.description,
+      pattern: data.pattern.present ? data.pattern.value : this.pattern,
       showOnWebsite: data.showOnWebsite.present
           ? data.showOnWebsite.value
           : this.showOnWebsite,
@@ -2104,6 +2141,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
           ..write('fabric: $fabric, ')
           ..write('care: $care, ')
           ..write('description: $description, ')
+          ..write('pattern: $pattern, ')
           ..write('showOnWebsite: $showOnWebsite')
           ..write(')'))
         .toString();
@@ -2138,6 +2176,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
     fabric,
     care,
     description,
+    pattern,
     showOnWebsite,
   ]);
   @override
@@ -2171,6 +2210,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
           other.fabric == this.fabric &&
           other.care == this.care &&
           other.description == this.description &&
+          other.pattern == this.pattern &&
           other.showOnWebsite == this.showOnWebsite);
 }
 
@@ -2202,6 +2242,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
   final Value<String?> fabric;
   final Value<String?> care;
   final Value<String?> description;
+  final Value<String?> pattern;
   final Value<bool> showOnWebsite;
   const ItemsCompanion({
     this.id = const Value.absent(),
@@ -2231,6 +2272,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
     this.fabric = const Value.absent(),
     this.care = const Value.absent(),
     this.description = const Value.absent(),
+    this.pattern = const Value.absent(),
     this.showOnWebsite = const Value.absent(),
   });
   ItemsCompanion.insert({
@@ -2261,6 +2303,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
     this.fabric = const Value.absent(),
     this.care = const Value.absent(),
     this.description = const Value.absent(),
+    this.pattern = const Value.absent(),
     this.showOnWebsite = const Value.absent(),
   }) : name = Value(name),
        salePricePaise = Value(salePricePaise),
@@ -2294,6 +2337,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
     Expression<String>? fabric,
     Expression<String>? care,
     Expression<String>? description,
+    Expression<String>? pattern,
     Expression<bool>? showOnWebsite,
   }) {
     return RawValuesInsertable({
@@ -2325,6 +2369,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
       if (fabric != null) 'fabric': fabric,
       if (care != null) 'care': care,
       if (description != null) 'description': description,
+      if (pattern != null) 'pattern': pattern,
       if (showOnWebsite != null) 'show_on_website': showOnWebsite,
     });
   }
@@ -2357,6 +2402,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
     Value<String?>? fabric,
     Value<String?>? care,
     Value<String?>? description,
+    Value<String?>? pattern,
     Value<bool>? showOnWebsite,
   }) {
     return ItemsCompanion(
@@ -2387,6 +2433,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
       fabric: fabric ?? this.fabric,
       care: care ?? this.care,
       description: description ?? this.description,
+      pattern: pattern ?? this.pattern,
       showOnWebsite: showOnWebsite ?? this.showOnWebsite,
     );
   }
@@ -2475,6 +2522,9 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
+    if (pattern.present) {
+      map['pattern'] = Variable<String>(pattern.value);
+    }
     if (showOnWebsite.present) {
       map['show_on_website'] = Variable<bool>(showOnWebsite.value);
     }
@@ -2511,6 +2561,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
           ..write('fabric: $fabric, ')
           ..write('care: $care, ')
           ..write('description: $description, ')
+          ..write('pattern: $pattern, ')
           ..write('showOnWebsite: $showOnWebsite')
           ..write(')'))
         .toString();
@@ -4676,6 +4727,26 @@ class $ItemSizesTable extends ItemSizes
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _colourMeta = const VerificationMeta('colour');
+  @override
+  late final GeneratedColumn<String> colour = GeneratedColumn<String>(
+    'colour',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _colourHexMeta = const VerificationMeta(
+    'colourHex',
+  );
+  @override
+  late final GeneratedColumn<String> colourHex = GeneratedColumn<String>(
+    'colour_hex',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _positionMeta = const VerificationMeta(
     'position',
   );
@@ -4755,6 +4826,8 @@ class $ItemSizesTable extends ItemSizes
     uid,
     itemId,
     size,
+    colour,
+    colourHex,
     position,
     salePricePaise,
     barcode,
@@ -4798,6 +4871,18 @@ class $ItemSizesTable extends ItemSizes
       );
     } else if (isInserting) {
       context.missing(_sizeMeta);
+    }
+    if (data.containsKey('colour')) {
+      context.handle(
+        _colourMeta,
+        colour.isAcceptableOrUnknown(data['colour']!, _colourMeta),
+      );
+    }
+    if (data.containsKey('colour_hex')) {
+      context.handle(
+        _colourHexMeta,
+        colourHex.isAcceptableOrUnknown(data['colour_hex']!, _colourHexMeta),
+      );
     }
     if (data.containsKey('position')) {
       context.handle(
@@ -4865,6 +4950,14 @@ class $ItemSizesTable extends ItemSizes
         DriftSqlType.string,
         data['${effectivePrefix}size'],
       )!,
+      colour: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}colour'],
+      ),
+      colourHex: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}colour_hex'],
+      ),
       position: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}position'],
@@ -4905,7 +4998,13 @@ class ItemSizeRow extends DataClass implements Insertable<ItemSizeRow> {
   /// the row is added; see SyncSchema).
   final String? uid;
   final int itemId;
+
+  /// The size ('' for a colour-only version).
   final String size;
+
+  /// The colour (`null` for a size-only version), and its swatch code.
+  final String? colour;
+  final String? colourHex;
 
   /// Order shown (S before M before L).
   final int position;
@@ -4925,6 +5024,8 @@ class ItemSizeRow extends DataClass implements Insertable<ItemSizeRow> {
     this.uid,
     required this.itemId,
     required this.size,
+    this.colour,
+    this.colourHex,
     required this.position,
     this.salePricePaise,
     this.barcode,
@@ -4941,6 +5042,12 @@ class ItemSizeRow extends DataClass implements Insertable<ItemSizeRow> {
     }
     map['item_id'] = Variable<int>(itemId);
     map['size'] = Variable<String>(size);
+    if (!nullToAbsent || colour != null) {
+      map['colour'] = Variable<String>(colour);
+    }
+    if (!nullToAbsent || colourHex != null) {
+      map['colour_hex'] = Variable<String>(colourHex);
+    }
     map['position'] = Variable<int>(position);
     if (!nullToAbsent || salePricePaise != null) {
       map['sale_price_paise'] = Variable<int>(salePricePaise);
@@ -4960,6 +5067,12 @@ class ItemSizeRow extends DataClass implements Insertable<ItemSizeRow> {
       uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       itemId: Value(itemId),
       size: Value(size),
+      colour: colour == null && nullToAbsent
+          ? const Value.absent()
+          : Value(colour),
+      colourHex: colourHex == null && nullToAbsent
+          ? const Value.absent()
+          : Value(colourHex),
       position: Value(position),
       salePricePaise: salePricePaise == null && nullToAbsent
           ? const Value.absent()
@@ -4983,6 +5096,8 @@ class ItemSizeRow extends DataClass implements Insertable<ItemSizeRow> {
       uid: serializer.fromJson<String?>(json['uid']),
       itemId: serializer.fromJson<int>(json['itemId']),
       size: serializer.fromJson<String>(json['size']),
+      colour: serializer.fromJson<String?>(json['colour']),
+      colourHex: serializer.fromJson<String?>(json['colourHex']),
       position: serializer.fromJson<int>(json['position']),
       salePricePaise: serializer.fromJson<int?>(json['salePricePaise']),
       barcode: serializer.fromJson<String?>(json['barcode']),
@@ -4999,6 +5114,8 @@ class ItemSizeRow extends DataClass implements Insertable<ItemSizeRow> {
       'uid': serializer.toJson<String?>(uid),
       'itemId': serializer.toJson<int>(itemId),
       'size': serializer.toJson<String>(size),
+      'colour': serializer.toJson<String?>(colour),
+      'colourHex': serializer.toJson<String?>(colourHex),
       'position': serializer.toJson<int>(position),
       'salePricePaise': serializer.toJson<int?>(salePricePaise),
       'barcode': serializer.toJson<String?>(barcode),
@@ -5013,6 +5130,8 @@ class ItemSizeRow extends DataClass implements Insertable<ItemSizeRow> {
     Value<String?> uid = const Value.absent(),
     int? itemId,
     String? size,
+    Value<String?> colour = const Value.absent(),
+    Value<String?> colourHex = const Value.absent(),
     int? position,
     Value<int?> salePricePaise = const Value.absent(),
     Value<String?> barcode = const Value.absent(),
@@ -5024,6 +5143,8 @@ class ItemSizeRow extends DataClass implements Insertable<ItemSizeRow> {
     uid: uid.present ? uid.value : this.uid,
     itemId: itemId ?? this.itemId,
     size: size ?? this.size,
+    colour: colour.present ? colour.value : this.colour,
+    colourHex: colourHex.present ? colourHex.value : this.colourHex,
     position: position ?? this.position,
     salePricePaise: salePricePaise.present
         ? salePricePaise.value
@@ -5039,6 +5160,8 @@ class ItemSizeRow extends DataClass implements Insertable<ItemSizeRow> {
       uid: data.uid.present ? data.uid.value : this.uid,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       size: data.size.present ? data.size.value : this.size,
+      colour: data.colour.present ? data.colour.value : this.colour,
+      colourHex: data.colourHex.present ? data.colourHex.value : this.colourHex,
       position: data.position.present ? data.position.value : this.position,
       salePricePaise: data.salePricePaise.present
           ? data.salePricePaise.value
@@ -5059,6 +5182,8 @@ class ItemSizeRow extends DataClass implements Insertable<ItemSizeRow> {
           ..write('uid: $uid, ')
           ..write('itemId: $itemId, ')
           ..write('size: $size, ')
+          ..write('colour: $colour, ')
+          ..write('colourHex: $colourHex, ')
           ..write('position: $position, ')
           ..write('salePricePaise: $salePricePaise, ')
           ..write('barcode: $barcode, ')
@@ -5075,6 +5200,8 @@ class ItemSizeRow extends DataClass implements Insertable<ItemSizeRow> {
     uid,
     itemId,
     size,
+    colour,
+    colourHex,
     position,
     salePricePaise,
     barcode,
@@ -5090,6 +5217,8 @@ class ItemSizeRow extends DataClass implements Insertable<ItemSizeRow> {
           other.uid == this.uid &&
           other.itemId == this.itemId &&
           other.size == this.size &&
+          other.colour == this.colour &&
+          other.colourHex == this.colourHex &&
           other.position == this.position &&
           other.salePricePaise == this.salePricePaise &&
           other.barcode == this.barcode &&
@@ -5103,6 +5232,8 @@ class ItemSizesCompanion extends UpdateCompanion<ItemSizeRow> {
   final Value<String?> uid;
   final Value<int> itemId;
   final Value<String> size;
+  final Value<String?> colour;
+  final Value<String?> colourHex;
   final Value<int> position;
   final Value<int?> salePricePaise;
   final Value<String?> barcode;
@@ -5114,6 +5245,8 @@ class ItemSizesCompanion extends UpdateCompanion<ItemSizeRow> {
     this.uid = const Value.absent(),
     this.itemId = const Value.absent(),
     this.size = const Value.absent(),
+    this.colour = const Value.absent(),
+    this.colourHex = const Value.absent(),
     this.position = const Value.absent(),
     this.salePricePaise = const Value.absent(),
     this.barcode = const Value.absent(),
@@ -5126,6 +5259,8 @@ class ItemSizesCompanion extends UpdateCompanion<ItemSizeRow> {
     this.uid = const Value.absent(),
     required int itemId,
     required String size,
+    this.colour = const Value.absent(),
+    this.colourHex = const Value.absent(),
     this.position = const Value.absent(),
     this.salePricePaise = const Value.absent(),
     this.barcode = const Value.absent(),
@@ -5140,6 +5275,8 @@ class ItemSizesCompanion extends UpdateCompanion<ItemSizeRow> {
     Expression<String>? uid,
     Expression<int>? itemId,
     Expression<String>? size,
+    Expression<String>? colour,
+    Expression<String>? colourHex,
     Expression<int>? position,
     Expression<int>? salePricePaise,
     Expression<String>? barcode,
@@ -5152,6 +5289,8 @@ class ItemSizesCompanion extends UpdateCompanion<ItemSizeRow> {
       if (uid != null) 'uid': uid,
       if (itemId != null) 'item_id': itemId,
       if (size != null) 'size': size,
+      if (colour != null) 'colour': colour,
+      if (colourHex != null) 'colour_hex': colourHex,
       if (position != null) 'position': position,
       if (salePricePaise != null) 'sale_price_paise': salePricePaise,
       if (barcode != null) 'barcode': barcode,
@@ -5166,6 +5305,8 @@ class ItemSizesCompanion extends UpdateCompanion<ItemSizeRow> {
     Value<String?>? uid,
     Value<int>? itemId,
     Value<String>? size,
+    Value<String?>? colour,
+    Value<String?>? colourHex,
     Value<int>? position,
     Value<int?>? salePricePaise,
     Value<String?>? barcode,
@@ -5178,6 +5319,8 @@ class ItemSizesCompanion extends UpdateCompanion<ItemSizeRow> {
       uid: uid ?? this.uid,
       itemId: itemId ?? this.itemId,
       size: size ?? this.size,
+      colour: colour ?? this.colour,
+      colourHex: colourHex ?? this.colourHex,
       position: position ?? this.position,
       salePricePaise: salePricePaise ?? this.salePricePaise,
       barcode: barcode ?? this.barcode,
@@ -5201,6 +5344,12 @@ class ItemSizesCompanion extends UpdateCompanion<ItemSizeRow> {
     }
     if (size.present) {
       map['size'] = Variable<String>(size.value);
+    }
+    if (colour.present) {
+      map['colour'] = Variable<String>(colour.value);
+    }
+    if (colourHex.present) {
+      map['colour_hex'] = Variable<String>(colourHex.value);
     }
     if (position.present) {
       map['position'] = Variable<int>(position.value);
@@ -5230,6 +5379,8 @@ class ItemSizesCompanion extends UpdateCompanion<ItemSizeRow> {
           ..write('uid: $uid, ')
           ..write('itemId: $itemId, ')
           ..write('size: $size, ')
+          ..write('colour: $colour, ')
+          ..write('colourHex: $colourHex, ')
           ..write('position: $position, ')
           ..write('salePricePaise: $salePricePaise, ')
           ..write('barcode: $barcode, ')
@@ -14573,6 +14724,7 @@ typedef $$ItemsTableCreateCompanionBuilder = ItemsCompanion Function({
   Value<String?> fabric,
   Value<String?> care,
   Value<String?> description,
+  Value<String?> pattern,
   Value<bool> showOnWebsite,
 });
 typedef $$ItemsTableUpdateCompanionBuilder = ItemsCompanion Function({
@@ -14603,6 +14755,7 @@ typedef $$ItemsTableUpdateCompanionBuilder = ItemsCompanion Function({
   Value<String?> fabric,
   Value<String?> care,
   Value<String?> description,
+  Value<String?> pattern,
   Value<bool> showOnWebsite,
 });
 
@@ -14853,6 +15006,11 @@ class $$ItemsTableFilterComposer extends Composer<_$AppDatabase, $ItemsTable> {
 
   ColumnFilters<String> get description => $composableBuilder(
     column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pattern => $composableBuilder(
+    column: $table.pattern,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15149,6 +15307,11 @@ class $$ItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get pattern => $composableBuilder(
+    column: $table.pattern,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get showOnWebsite => $composableBuilder(
     column: $table.showOnWebsite,
     builder: (column) => ColumnOrderings(column),
@@ -15284,6 +15447,9 @@ class $$ItemsTableAnnotationComposer
     column: $table.description,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get pattern =>
+      $composableBuilder(column: $table.pattern, builder: (column) => column);
 
   GeneratedColumn<bool> get showOnWebsite => $composableBuilder(
     column: $table.showOnWebsite,
@@ -15501,6 +15667,7 @@ class $$ItemsTableTableManager
                 Value<String?> fabric = const Value.absent(),
                 Value<String?> care = const Value.absent(),
                 Value<String?> description = const Value.absent(),
+                Value<String?> pattern = const Value.absent(),
                 Value<bool> showOnWebsite = const Value.absent(),
               }) => ItemsCompanion(
                 id: id,
@@ -15530,6 +15697,7 @@ class $$ItemsTableTableManager
                 fabric: fabric,
                 care: care,
                 description: description,
+                pattern: pattern,
                 showOnWebsite: showOnWebsite,
               ),
           createCompanionCallback:
@@ -15561,6 +15729,7 @@ class $$ItemsTableTableManager
                 Value<String?> fabric = const Value.absent(),
                 Value<String?> care = const Value.absent(),
                 Value<String?> description = const Value.absent(),
+                Value<String?> pattern = const Value.absent(),
                 Value<bool> showOnWebsite = const Value.absent(),
               }) => ItemsCompanion.insert(
                 id: id,
@@ -15590,6 +15759,7 @@ class $$ItemsTableTableManager
                 fabric: fabric,
                 care: care,
                 description: description,
+                pattern: pattern,
                 showOnWebsite: showOnWebsite,
               ),
           withReferenceMapper: (p0) => p0
@@ -17494,6 +17664,8 @@ typedef $$ItemSizesTableCreateCompanionBuilder = ItemSizesCompanion Function({
   Value<String?> uid,
   required int itemId,
   required String size,
+  Value<String?> colour,
+  Value<String?> colourHex,
   Value<int> position,
   Value<int?> salePricePaise,
   Value<String?> barcode,
@@ -17506,6 +17678,8 @@ typedef $$ItemSizesTableUpdateCompanionBuilder = ItemSizesCompanion Function({
   Value<String?> uid,
   Value<int> itemId,
   Value<String> size,
+  Value<String?> colour,
+  Value<String?> colourHex,
   Value<int> position,
   Value<int?> salePricePaise,
   Value<String?> barcode,
@@ -17611,6 +17785,16 @@ class $$ItemSizesTableFilterComposer
 
   ColumnFilters<String> get size => $composableBuilder(
     column: $table.size,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get colour => $composableBuilder(
+    column: $table.colour,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get colourHex => $composableBuilder(
+    column: $table.colourHex,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -17767,6 +17951,16 @@ class $$ItemSizesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get colour => $composableBuilder(
+    column: $table.colour,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get colourHex => $composableBuilder(
+    column: $table.colourHex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get position => $composableBuilder(
     column: $table.position,
     builder: (column) => ColumnOrderings(column),
@@ -17838,6 +18032,12 @@ class $$ItemSizesTableAnnotationComposer
 
   GeneratedColumn<String> get size =>
       $composableBuilder(column: $table.size, builder: (column) => column);
+
+  GeneratedColumn<String> get colour =>
+      $composableBuilder(column: $table.colour, builder: (column) => column);
+
+  GeneratedColumn<String> get colourHex =>
+      $composableBuilder(column: $table.colourHex, builder: (column) => column);
 
   GeneratedColumn<int> get position =>
       $composableBuilder(column: $table.position, builder: (column) => column);
@@ -17997,6 +18197,8 @@ class $$ItemSizesTableTableManager
                 Value<String?> uid = const Value.absent(),
                 Value<int> itemId = const Value.absent(),
                 Value<String> size = const Value.absent(),
+                Value<String?> colour = const Value.absent(),
+                Value<String?> colourHex = const Value.absent(),
                 Value<int> position = const Value.absent(),
                 Value<int?> salePricePaise = const Value.absent(),
                 Value<String?> barcode = const Value.absent(),
@@ -18008,6 +18210,8 @@ class $$ItemSizesTableTableManager
                 uid: uid,
                 itemId: itemId,
                 size: size,
+                colour: colour,
+                colourHex: colourHex,
                 position: position,
                 salePricePaise: salePricePaise,
                 barcode: barcode,
@@ -18021,6 +18225,8 @@ class $$ItemSizesTableTableManager
                 Value<String?> uid = const Value.absent(),
                 required int itemId,
                 required String size,
+                Value<String?> colour = const Value.absent(),
+                Value<String?> colourHex = const Value.absent(),
                 Value<int> position = const Value.absent(),
                 Value<int?> salePricePaise = const Value.absent(),
                 Value<String?> barcode = const Value.absent(),
@@ -18032,6 +18238,8 @@ class $$ItemSizesTableTableManager
                 uid: uid,
                 itemId: itemId,
                 size: size,
+                colour: colour,
+                colourHex: colourHex,
                 position: position,
                 salePricePaise: salePricePaise,
                 barcode: barcode,

@@ -656,6 +656,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sizeSoldOut => 'Sold out';
 
   @override
+  String get versionsTitle => 'Colours and sizes';
+
+  @override
+  String get versionsNoneHelp =>
+      'None picked: one item, one stock (free size). Pick colours and/or sizes to keep stock for each.';
+
+  @override
+  String get versionsHelp =>
+      'Each colour and size keeps its own stock and gets its own barcode label.';
+
+  @override
+  String get versionsGridStock =>
+      'Stock for each (new ones) · tap a price to change it, or a size or colour to price them all';
+
+  @override
+  String get versionsGridPrice =>
+      'Tap a price to change it, or a size or colour to price them all';
+
+  @override
+  String versionPriceFor(String what) {
+    return 'Price for $what';
+  }
+
+  @override
+  String get versionPriceHelp => 'Empty: the item\'s price';
+
+  @override
+  String get versionAll => 'all';
+
+  @override
+  String versionsUnplaced(String count, String unit) {
+    return '$count $unit from before aren\'t in a colour or size yet: count them in on the stock screen.';
+  }
+
+  @override
+  String get sizeAddHint => 'e.g. 42 or 3XL (several: 42, 44)';
+
+  @override
+  String get fieldPattern => 'Print / pattern';
+
+  @override
+  String get fieldPatternHint => 'e.g. Floral block print, half sleeves';
+
+  @override
+  String get pickColourFirst => 'Pick the colour.';
+
+  @override
   String get sizesTitle => 'Sizes';
 
   @override

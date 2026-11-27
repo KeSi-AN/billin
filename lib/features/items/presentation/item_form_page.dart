@@ -78,8 +78,11 @@ class _ItemFormPageState extends State<ItemFormPage> {
   bool _saving = false;
 
   /// Sizes (empty: free size) and what the website shows.
-  final _sizes = <SizeRow>[];
-  List<ItemColour> _colours = const [];
+  VersionsDraft _versions = VersionsDraft();
+
+  /// An existing item's stock not in any version (from before versions).
+  Quantity _unplaced = Quantity.zero;
+  final _pattern = TextEditingController();
   final _fabric = TextEditingController();
   final _care = TextEditingController();
   final _description = TextEditingController();
@@ -118,15 +121,18 @@ class _ItemFormPageState extends State<ItemFormPage> {
           _altFactor.text = item.altUnitFactor!.format();
           _altPrice.text = item.altUnitPrice?.toInput() ?? '';
         }
-        _colours = item.colours;
         _fabric.text = item.fabric ?? '';
         _care.text = item.care ?? '';
         _description.text = item.description ?? '';
         _showOnWebsite = item.showOnWebsite;
         if (!mounted) return;
-        _sizes.addAll(
-          (await context.read<ItemRepository>().sizesOf(id)).map(SizeRow.of),
-        );
+        _pattern.text = item.pattern ?? '';
+        final versions = await context.read<ItemRepository>().sizesOf(id);
+        _versions = VersionsDraft.of(item.colours, versions);
+        if (versions.isNotEmpty) {
+          _unplaced =
+              item.stock - versions.fold(Quantity.zero, (t, v) => t + v.stock);
+        }
       }
     }
     if (mounted) setState(() => _loading = false);
@@ -152,9 +158,8 @@ class _ItemFormPageState extends State<ItemFormPage> {
     ]) {
       c.dispose();
     }
-    for (final r in _sizes) {
-      r.dispose();
-    }
+    _pattern.dispose();
+    _versions.dispose();
     super.dispose();
   }
 
@@ -248,7 +253,8 @@ class _ItemFormPageState extends State<ItemFormPage> {
           altUnit: hasAlt ? _altUnit : null,
           altUnitFactor: hasAlt ? altFactor : null,
           altUnitPrice: hasAlt ? Money.tryParse(_altPrice.text) : null,
-          colours: _colours,
+          colours: _versions.colours,
+          pattern: _pattern.text.trim(),
           fabric: _fabric.text.trim(),
           care: _care.text.trim(),
           description: _description.text.trim(),
@@ -260,7 +266,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
       await _saveSizes(items, inventory, saved, series);
       final opening = Quantity.tryParse(_opening.text);
       if (_isNew &&
-          _sizes.isEmpty &&
+          _versions.isEmpty &&
           saved.trackStock &&
           opening != null &&
           opening.isPositive) {
@@ -302,10 +308,8 @@ class _ItemFormPageState extends State<ItemFormPage> {
   ) async {
     final hadSizes =
         _existing != null && (await items.sizesOf(saved.id!)).isNotEmpty;
-    if (_sizes.isEmpty && !hadSizes) return;
-    var sizes = await items.saveSizes(saved.id!, [
-      for (final r in _sizes) r.toSize(),
-    ]);
+    if (_versions.isEmpty && !hadSizes) return;
+    var sizes = await items.saveSizes(saved.id!, _versions.toVersions());
     if (sizes.any((s) => s.barcode == null)) {
       sizes = await items.saveSizes(saved.id!, [
         for (final s in sizes)
@@ -316,13 +320,9 @@ class _ItemFormPageState extends State<ItemFormPage> {
       ]);
     }
     if (!saved.trackStock) return;
-    for (final r in _sizes.where((r) => r.id == null)) {
-      final q = Quantity.tryParse(r.opening.text);
-      if (q == null || !q.isPositive) continue;
-      final size = sizes.firstWhere(
-        (s) => s.size.toUpperCase() == r.size.text.trim().toUpperCase(),
-      );
-      await inventory.addStock(saved.id!, q, opening: true, sizeId: size.id);
+    for (final (colour, size, q) in _versions.openingStock) {
+      final version = sizes.firstWhere((v) => v.sameAs(colour, size));
+      await inventory.addStock(saved.id!, q, opening: true, sizeId: version.id);
     }
   }
 
@@ -528,7 +528,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (_isNew && _sizes.isEmpty) ...[
+                        if (_isNew && _versions.isEmpty) ...[
                           Expanded(
                             child: TextFormField(
                               key: const Key('openingStockField'),
@@ -676,14 +676,16 @@ class _ItemFormPageState extends State<ItemFormPage> {
                   ],
                   const SizedBox(height: 24),
                   Card(
-                    key: const Key('sizesCard'),
+                    key: const Key('versionsCard'),
                     child: Padding(
                       padding: const EdgeInsets.all(12),
-                      child: SizesEditor(
-                        rows: _sizes,
+                      child: VersionsEditor(
+                        draft: _versions,
                         onChanged: () => setState(() {}),
                         trackStock: _trackStock,
                         unit: _unit,
+                        itemPrice: Money.tryParse(_price.text),
+                        unplacedStock: _unplaced,
                       ),
                     ),
                   ),
@@ -745,10 +747,15 @@ class _ItemFormPageState extends State<ItemFormPage> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
-                          ColoursEditor(
-                            value: _colours,
-                            onChanged: (c) => setState(() => _colours = c),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            key: const Key('itemPatternField'),
+                            controller: _pattern,
+                            textCapitalization: TextCapitalization.sentences,
+                            decoration: InputDecoration(
+                              labelText: l10n.fieldPattern,
+                              hintText: l10n.fieldPatternHint,
+                            ),
                           ),
                         ],
                       ),

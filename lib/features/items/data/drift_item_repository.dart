@@ -137,6 +137,7 @@ class DriftItemRepository implements ItemRepository {
       fabric: Value(_blankToNull(item.fabric)),
       care: Value(_blankToNull(item.care)),
       description: Value(_blankToNull(item.description)),
+      pattern: Value(_blankToNull(item.pattern)),
       showOnWebsite: Value(item.showOnWebsite),
       // stockMilli is deliberately absent: only the stock ledger writes it.
       updatedAt: Value(now),
@@ -207,6 +208,7 @@ class DriftItemRepository implements ItemRepository {
     fabric: r.fabric,
     care: r.care,
     description: r.description,
+    pattern: r.pattern,
     showOnWebsite: r.showOnWebsite,
   );
 
@@ -215,6 +217,8 @@ class DriftItemRepository implements ItemRepository {
   static ItemSize _size(ItemSizeRow r) => ItemSize(
     id: r.id,
     size: r.size,
+    colour: r.colour,
+    colourHex: r.colourHex,
     position: r.position,
     price: r.salePricePaise == null ? null : Money.paise(r.salePricePaise!),
     barcode: r.barcode,
@@ -262,7 +266,7 @@ class DriftItemRepository implements ItemRepository {
     if (size.id == exceptSizeId) return null;
     return DuplicateBarcodeException(
       barcode,
-      '${row.readTable(_items).name} (${size.size})',
+      '${row.readTable(_items).name} (${_size(size).label})',
     );
   }
 
@@ -273,7 +277,8 @@ class DriftItemRepository implements ItemRepository {
         final kept = <int>{};
         for (final (i, s) in sizes.indexed) {
           final name = s.size.trim();
-          if (name.isEmpty) continue;
+          final colour = _blankToNull(s.colour);
+          if (name.isEmpty && colour == null) continue;
           final barcode = _blankToNull(s.barcode);
           if (barcode != null) {
             final item = await (_db.select(
@@ -287,6 +292,10 @@ class DriftItemRepository implements ItemRepository {
           }
           final companion = ItemSizesCompanion(
             size: Value(name),
+            colour: Value(colour),
+            colourHex: Value(
+              colour == null ? null : ItemColour.cleanHex(s.colourHex),
+            ),
             position: Value(i),
             salePricePaise: Value(s.price?.paise),
             barcode: Value(barcode),

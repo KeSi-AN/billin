@@ -70,6 +70,9 @@ abstract class Item with _$Item {
     String? care,
     String? description,
 
+    /// Print or pattern, free text ("Floral block print, half sleeves").
+    String? pattern,
+
     /// Listed on the shop's website.
     @Default(false) bool showOnWebsite,
   }) = _Item;
@@ -136,13 +139,15 @@ class ItemColour {
   int get hashCode => Object.hash(name, hex);
 }
 
-/// One size of an item (S, M, L, XL, 32…) with its own stock, and
-/// optionally its own price and barcode. Items without sizes are "free
-/// size".
+/// One version of an item: a colour, a size, or both ("Pink · M"), with
+/// its own stock, and optionally its own price and barcode. Items without
+/// versions are "free size".
 @immutable
 class ItemSize {
   const ItemSize({
-    required this.size,
+    this.size = '',
+    this.colour,
+    this.colourHex,
     this.id,
     this.position = 0,
     this.price,
@@ -152,8 +157,22 @@ class ItemSize {
   });
 
   final int? id;
+
+  /// '' for a colour-only version.
   final String size;
+
+  /// `null` for a size-only version.
+  final String? colour;
+  final String? colourHex;
   final int position;
+
+  /// "Pink · M", "Pink" or "M".
+  String get label => [?colour, if (size.isNotEmpty) size].join(' · ');
+
+  /// The same colour and size (any case): the same version.
+  bool sameAs(String? colour, String size) =>
+      (this.colour ?? '').toLowerCase() == (colour ?? '').toLowerCase() &&
+      this.size.toLowerCase() == size.toLowerCase();
 
   /// `null`: the item's price.
   final Money? price;
@@ -169,6 +188,8 @@ class ItemSize {
   ItemSize copyWith({
     int? id,
     String? size,
+    String? Function()? colour,
+    String? Function()? colourHex,
     int? position,
     Money? Function()? price,
     String? Function()? barcode,
@@ -177,6 +198,8 @@ class ItemSize {
   }) => ItemSize(
     id: id ?? this.id,
     size: size ?? this.size,
+    colour: colour != null ? colour() : this.colour,
+    colourHex: colourHex != null ? colourHex() : this.colourHex,
     position: position ?? this.position,
     price: price != null ? price() : this.price,
     barcode: barcode != null ? barcode() : this.barcode,
@@ -189,6 +212,8 @@ class ItemSize {
       other is ItemSize &&
       other.id == id &&
       other.size == size &&
+      other.colour == colour &&
+      other.colourHex == colourHex &&
       other.position == position &&
       other.price == price &&
       other.barcode == barcode &&
@@ -196,8 +221,17 @@ class ItemSize {
       other.isActive == isActive;
 
   @override
-  int get hashCode =>
-      Object.hash(id, size, position, price, barcode, stock, isActive);
+  int get hashCode => Object.hash(
+    id,
+    size,
+    colour,
+    colourHex,
+    position,
+    price,
+    barcode,
+    stock,
+    isActive,
+  );
 }
 
 /// What a scanned code is: an item, or one size of an item.

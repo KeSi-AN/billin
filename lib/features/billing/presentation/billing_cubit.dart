@@ -203,10 +203,10 @@ class BillingCubit extends Cubit<BillingState> {
       DraftLine(
         itemId: item.id,
         sizeId: size?.id,
-        size: size?.size,
+        size: size?.label,
         // The size is part of the name everywhere the line shows (screen,
         // printed bill, WhatsApp picture, reports).
-        name: size == null ? item.name : '${item.name} (${size.size})',
+        name: size == null ? item.name : '${item.name} (${size.label})',
         unit: item.unit,
         hsn: item.hsn,
         unitPrice: price,

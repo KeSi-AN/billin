@@ -146,9 +146,9 @@ class _Body extends StatelessWidget {
                 Text(l10n.sizesTitle, style: text.titleMedium),
                 for (final s in sizes)
                   ListTile(
-                    key: Key('sizeStock-${s.size}'),
+                    key: Key('sizeStock-${s.label}'),
                     contentPadding: EdgeInsets.zero,
-                    title: Text(s.size),
+                    title: Text(s.label),
                     subtitle: s.barcode == null ? null : Text(s.barcode!),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,

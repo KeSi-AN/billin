@@ -317,10 +317,10 @@ class _LineSheetState extends State<_LineSheet> {
       PurchaseDraftLine(
         itemId: item.id,
         sizeId: widget.size?.id,
-        size: widget.size?.size,
+        size: widget.size?.label,
         name: widget.size == null
             ? item.name
-            : '${item.name} (${widget.size!.size})',
+            : '${item.name} (${widget.size!.label})',
         unit: item.unit,
         hsn: item.hsn,
         quantity: Quantity.tryParse(_qty.text)!,
